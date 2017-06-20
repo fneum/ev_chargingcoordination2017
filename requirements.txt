@@ -1,3 +1,4 @@
 deap
 numpy
 scipy
+pandas
