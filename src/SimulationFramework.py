@@ -1,3 +1,4 @@
+# standard imports
 import win32com.client
 import configparser
 import numpy.random as rd
@@ -7,11 +8,12 @@ import scipy.stats as sps
 import csv
 import fileinput
 from statistics import mean
+# class imports
+from VehicleSpecifications import ElectricVehicle
 
 # ****************************************************
 # * General Framework Initialisation
 # ****************************************************
-
 # Administrative
 rd.seed(191994)
 
@@ -40,35 +42,15 @@ DSSSolution = DSSCircuit.Solution
 # ****************************************************
 # * Read Parameters
 # ****************************************************
-config = configparser.ConfigParser()
-config.read('../parameters/evalParams.ini')
+cfg = configparser.ConfigParser()
+cfg.read('../parameters/evalParams.ini')
 
 # assign parameter names
-par_surcharge = config.getfloat('market_prices','surcharge')
-par_spread = config.getfloat('market_prices','spread')
-par_evpenetration = config.getfloat('electric_vehicles','penetration')
-par_tripend_av_dist = 'loglogistic'
-par_tripend_av_mu = config.getfloat('travel_patterns','tripend_av_mu')
-par_tripend_av_sigma = config.getfloat('travel_patterns','tripend_av_sigma')
-par_tripend_sd_dist = 'halfnormal'
-par_tripend_sd_mu = config.getfloat('travel_patterns','tripend_sd_mu')
-par_tripend_sd_sigma = config.getfloat('travel_patterns','tripstart_av_mu')
-par_tripstart_av_dist = 'tlocationscale'
-par_tripstart_av_mu = config.getfloat('travel_patterns','tripstart_av_mu')
-par_tripstart_av_sigma = config.getfloat('travel_patterns','tripstart_av_sigma')
-par_tripstart_av_nu = config.getfloat('travel_patterns','tripstart_av_nu')
-par_tripstart_sd_dist = 'logistic'
-par_tripstart_sd_mu = config.getfloat('travel_patterns','tripstart_sd_sigma')
-par_tripstart_sd_sigma = config.getfloat('travel_patterns','tripstart_sd_sigma')
-par_tripstart_corcoeff = config.getfloat('travel_patterns','tripstart_corcoeff')
-par_mileage_av_dist = 'gamma'
-par_mileage_av_a = config.getfloat('travel_patterns','mileage_av_a')
-par_mileage_av_b = config.getfloat('travel_patterns','mileage_av_b')
-par_mileage_sd_dist = 'exponential'
-par_mileage_sd_mu = config.getfloat('travel_patterns','mileage_sd_mu')
-par_mileage_corcoeff = config.getfloat('travel_patterns','mileage_corcoeff')
+par_surcharge = cfg.getfloat('market_prices','surcharge')
+par_spread = cfg.getfloat('market_prices','spread')
+par_evpenetration = cfg.getfloat('electric_vehicles','penetration')
 
-#print (config.getboolean('uncertainty', 'unc_ev',fallback='Request not in parameter set!'))
+#print (cfg.getboolean('uncertainty', 'unc_ev',fallback='Request not in parameter set!'))
 
 # ****************************************************
 # * Generate Scenario
@@ -77,17 +59,12 @@ par_mileage_corcoeff = config.getfloat('travel_patterns','mileage_corcoeff')
 # assign residential load forecast in network
 num_households = 55
 
+
 # assign PV generation forecast in network
 
 # assign EV behaviour in network
 num_evs = round(par_evpenetration * num_households)
-
-Z = np.random.multivariate_normal([0, 0], [[1, par_mileage_corcoeff], [par_mileage_corcoeff, 1]],num_evs)
-U = sps.norm.cdf(Z)
-print(np.corrcoef(Z.T)) 
-
-
-
+evs = [ElectricVehicle(cfg,sps.randint(1,num_households)) for i in range(1,num_evs)]
 
 # generate EV availability forecast
 
