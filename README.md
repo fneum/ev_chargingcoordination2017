@@ -4,5 +4,5 @@
 To be filled...
 
 ## Installation
-Run setup.py to install all required packages.
-Alternatively requirements.txt provides a list of required packages.
+Run `setup.py` to install all required packages.
+Alternatively `requirements.txt` provides a list of required packages.
