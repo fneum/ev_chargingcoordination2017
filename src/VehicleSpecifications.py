@@ -1,10 +1,17 @@
 import scipy as sp
 import scipy.stats as sps
 import numpy.random as rd
+from scipy.stats._continuous_distns import norm
+import math
+import measurement.measures as conv
+from builtins import int
 
 class ElectricVehicle:
     
     def __init__(self, cfg, pos):
+        
+        # config file
+        self.cfg = cfg
         
         # vehicle specifications
         self.consumption = cfg.getfloat('electric_vehicles', 'consumption')
@@ -23,8 +30,8 @@ class ElectricVehicle:
         corcoeff = cfg.getfloat('travel_patterns','tripstart_corcoeff')
         Z = rd.multivariate_normal([0, 0], [[1, corcoeff], [corcoeff, 1]])
         U = sps.norm.cdf(Z)
-        self.tripstart_mu = sps.gamma.ppf(U[0],\
-                                      cfg.getfloat('travel_patterns','a_tsm'),\
+        self.tripstart_mu = sps.genlogistic.ppf(U[0],\
+                                      cfg.getfloat('travel_patterns','c_tsm'),\
                                       loc=cfg.getfloat('travel_patterns','loc_tsm'),\
                                       scale=cfg.getfloat('travel_patterns','scale_tsm') )
         self.tripstart_sig = sps.halfnorm.ppf(U[1],\
@@ -41,16 +48,56 @@ class ElectricVehicle:
                                     scale=cfg.getfloat('travel_patterns','scale_mim') )
         self.mileage_sig = sps.expon.ppf(U[1],\
                                      loc=cfg.getfloat('travel_patterns','loc_mis'),\
-                                     scale=cfg.getfloat('travel_patterns','loc_mis') )
+                                     scale=cfg.getfloat('travel_patterns','scale_mis') )
+        
+        self.availability_forecast = []
+        self.availability_simulated = []
+        
+        self.batterySOC_forecast = 0
+        self.batterySOC_simulated = 0
         
     def generateAvailabilityForecast(self):
-        return 0
+        start = conv.Time(hr=self.cfg.getfloat('general','starting')).min 
+        duration = conv.Time(hr=self.cfg.getint('general','duration')).min
+        resolution = self.cfg.getint('general','resolution')
+        num_slots = int(duration/resolution)
+        availability_start = math.floor(max(0,self.tripend_mu-start)/resolution)
+        availability_end = math.floor(min(duration,(duration-start)+self.tripstart_mu)/resolution)
+        for i in range(num_slots-1):
+            if i<availability_start:
+                self.availability_forecast.append(0)
+            elif i<availability_end:
+                self.availability_forecast.append(1)
+            else:
+                self.availability_forecast.append(0)
+        return self.availability_forecast
     
-    def generateDemandForecast(self):
-        return 0
-    
+    def generateBatterySOCForecast(self):
+        self.batterySOC_forecast = max(0,self.capacity-conv.Distance(mi=self.mileage_mu).km*self.consumption)
+        return self.batterySOC_forecast
+        
     def simulateAvailability(self):
-        return 0
+        start = conv.Time(hr=self.cfg.getfloat('general','starting')).min 
+        duration = conv.Time(hr=self.cfg.getint('general','duration')).min
+        resolution = self.cfg.getint('general','resolution')
+        num_slots = int(duration/resolution)
+        actual_end = triang.rvs((self.tripend_mu/(self.tripend_mu-self.tripend_sig)),\
+                                loc=(self.tripend_mu-self.tripend_sig),\
+                                scale=(2*self.tripend_sig))
+        actual_start = triang.rvs((self.tripend_mu/(self.tripend_mu-self.tripstart_sig)),\
+                                loc=(self.tripend_mu-self.tripstart_sig),\
+                                scale=(2*self.tripstart_sig))
+        availability_start = math.floor(max(0,actual_end-start)/resolution)
+        availability_end = math.floor(min(duration,(duration-start)+actual_start)/resolution)
+        for i in range(num_slots-1):
+            if i<availability_start:
+                self.availability_simulated.append(0)
+            elif i<availability_end:
+                self.availability_simulated.append(1)
+            else:
+                self.availability_simulated.append(0)
+        return self.availability_simulated
     
-    def simulateDemand(self):
-        return 0
+    def simulateBatterySOC(self):
+        self.batterySOC_simulated = max(0,self.capacity-conv.Distance(mi=norm.rvs(self.mileage_mu,self.mileage_sig)).km*self.consumption)
+        return self.batterySOC_simulated
