@@ -248,6 +248,10 @@ if DSSSolution.Converged:
 print("-------------------------------------------------")
 print(">> @Eval: ")
 
+# OUTPUT FORMATS
+# id, inhabitants, chCostTotal, regRevTotal, netCostTotal, netDemandTotal, evDemandTotal, resDemandTotal, pvGenTotal, minVoltage
+# slot, netLoad, resLoad, pvGen, evSchedule, evAvailability, regAvailability, batterySOC, voltage, elPrice, chCost, regRev, netCost
+
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
 # DSSText.Command = "export powers"
