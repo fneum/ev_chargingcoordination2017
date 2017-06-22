@@ -148,8 +148,15 @@ print(">> @Scen: "+str(num_households)+" households initialised and demand forec
 
 # assign EV behaviour in network
 num_evs = round(par_evpenetration * num_households)
-evs = [ElectricVehicle(cfg,rd.randint(1,num_households)) for i in range(1,num_evs)]
-print(">> @Scen: "+str(num_evs)+"/" +str(num_households)+" possible vehicles initialised and located.")
+deck = list(range(num_households))
+rd.shuffle(deck)
+evs = []
+for i in range(num_evs):
+    ev_household_id = deck.pop()
+    households[ev_household_id].ev = ElectricVehicle(cfg,ev_household_id)
+    evs.append(households[ev_household_id].ev)
+
+print(">> @Scen: "+str(len(evs))+"/" +str(num_households)+" possible vehicles initialised and located.")
 
 # generate EV availability and battery state of charge forecast
 for ev in evs:
@@ -229,9 +236,11 @@ if not schedules:
     schedules = chargeAsFastAsPossible()
 
 # include schedule in residential net load
+netloads = []
 for i in range(num_households):
-    net_load = list(map(add,households[i].demandSimulated, schedules[i].tolist()))
-    updateLoad(net_load,i+1)
+    netload = list(map(add,households[i].demandSimulated, schedules[i].tolist()))
+    netloads.append(netload)
+    updateLoad(netload,i+1)
 
 # Compile and solve circuit
 DSSText.Command = "set year=2"
@@ -248,9 +257,28 @@ if DSSSolution.Converged:
 print("-------------------------------------------------")
 print(">> @Eval: ")
 
+j = 1
+for hd in households:
+    with open("../log/simResults_household"+str(j)+".csv", 'w', newline='') as f:
+        try:
+            writer = csv.writer(f,delimiter=',')
+            writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
+                               'evAvailability', 'regAvailability', 'batterySOC',\
+                               'voltage', 'elPrice', 'chCost', 'regRev', 'netCost' ) )
+            for i in range(0,num_slots):
+                if hd.ev is None:
+                    av = 0 
+                else:
+                    av = hd.ev.availability_simulated[i]
+                writer.writerow( ( (i+1), netloads[j-1][i], hd.demandSimulated[i], 0, schedules[j-1][i],\
+                                    av, 0, 0, 0, price_ts_sim[i],netloads[j-1][i]*schedules[j-1][i],0,0) )
+        finally:
+            f.close()
+    j+=1
+
 # OUTPUT FORMATS
-# id, inhabitants, chCostTotal, regRevTotal, netCostTotal, netDemandTotal, evDemandTotal, resDemandTotal, pvGenTotal, minVoltage
-# slot, netLoad, resLoad, pvGen, evSchedule, evAvailability, regAvailability, batterySOC, voltage, elPrice, chCost, regRev, netCost
+# 'id', 'inhabitants', 'chCostTotal', 'regRevTotal', 'netCostTotal', 'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltage'
+# 'slot', 'netLoad', 'resLoad', 'pvGen', 'evSchedule', 'evAvailability', 'regAvailability', 'batterySOC', 'voltage', 'elPrice', 'chCost', 'regRev', 'netCost'
 
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
@@ -258,3 +286,5 @@ print(">> @Eval: ")
 # DSSText.Command = "export seqpowers"
 # DSSText.Command = "export loads"
 # DSSText.Command = "export summary"
+
+print(1994)

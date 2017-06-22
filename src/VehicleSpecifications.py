@@ -67,7 +67,7 @@ class ElectricVehicle:
         num_slots = int(duration/resolution)
         availability_start = math.floor(max(0,self.tripend_mu-start)/resolution)
         availability_end = math.floor(min(duration,(duration-start)+self.tripstart_mu)/resolution)
-        for i in range(num_slots-1):
+        for i in range(num_slots):
             if i<availability_start:
                 self.availability_forecast.append(0)
             elif i<availability_end:
@@ -93,7 +93,7 @@ class ElectricVehicle:
                                 scale=(2*self.tripstart_sig) )
         availability_start = math.floor(max(0,actual_end-start)/resolution)
         availability_end = math.floor(min(duration,(duration-start)+actual_start)/resolution)
-        for i in range(num_slots-1):
+        for i in range(num_slots):
             if i<availability_start:
                 self.availability_simulated.append(0)
             elif i<availability_end:

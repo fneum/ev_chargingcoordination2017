@@ -28,6 +28,9 @@ class Household:
         self.day_id_1 = 0
         self.day_id_2 = 0
         
+        self.ev = None
+        
+        
     def simulateDemand(self):
         self.demandSimulated = list(self.demandForecast)
         
