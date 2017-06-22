@@ -23,4 +23,12 @@ class Household:
             self.id_range = 30
         
         self.demandForecast = []
-        self.demandSimulation = []
+        self.demandSimulated = []
+        
+        self.day_id_1 = 0
+        self.day_id_2 = 0
+        
+    def simulateDemand(self):
+        self.demandSimulated = list(self.demandForecast)
+        
+        

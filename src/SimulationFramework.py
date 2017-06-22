@@ -21,6 +21,7 @@ from HouseholdSpecifications import Household
 
 # Administrative
 rd.seed(1932455)
+np.set_printoptions(threshold=np.nan)
 
 # Utility functions
 def read_timeseries(filename):
@@ -41,7 +42,33 @@ def updateLoad(ts,id):
     dmd_dss = str(ts).replace(',', '').replace('[', '').replace(']', '')
     DSSText.Command = "Edit Loadshape.Shape_"+str(id)+" mult=("+dmd_dss+")"
     DSSText.Command = "Edit Load.LOAD"+str(id)+" daily=Shape_"+str(id)
-    
+
+def chargeAsFastAsPossible():
+    schedules = np.zeros((num_households,num_slots))
+    targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
+    for ev in evs:
+        batterySOC = ev.batterySOC_simulated
+        t = 0
+        while not batterySOC == (targetSOC*ev.capacity):
+            remainingEnergyDemand = targetSOC*ev.capacity-batterySOC
+            chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
+            chargingrate = ev.availability_simulated[t]*min(ev.chargingrate_max, chargingrate_need)
+            schedules[ev.position-1][t] = chargingrate
+            batterySOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
+            t+=1
+            if t == num_slots:
+                break
+    return schedules
+
+def runOptGreedy():
+    return 0
+
+def runOptParticleSwarm():
+    return 0
+
+def runOptGenetic():
+    return 0
+
 # ****************************************************
 # * Read Parameters
 # ****************************************************
@@ -102,15 +129,15 @@ print(">> @Init: Network instantiated and compiled.")
 print("-------------------------------------------------")
 
 # assign residential load forecast in network
-households = [Household() for i in range(1,num_households)]
+households = [Household() for i in range(num_households)]
+counter = 1
 for hd in households:
-    counter = 1
-    day_id = rd.randint(1,hd.id_range)
+    hd.day_id_1 = rd.randint(1,hd.id_range)
     demand_ts1 = read_timeseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
-                                 str(hd.inhabitants)+"_"+str(resolution)+"min"+format(day_id,"03d")+".txt")
-    day_id = rd.randint(1,hd.id_range)
+                                 str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_1,"03d")+".txt")
+    hd.day_id_2 = rd.randint(1,hd.id_range)
     demand_ts2 = read_timeseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
-                                 str(hd.inhabitants)+"_"+str(resolution)+"min"+format(day_id,"03d")+".txt")
+                                 str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
     hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
     updateLoad(hd.demandForecast,counter)
     counter+=1
@@ -121,7 +148,7 @@ print(">> @Scen: "+str(num_households)+" households initialised and demand forec
 
 # assign EV behaviour in network
 num_evs = round(par_evpenetration * num_households)
-evs = [ElectricVehicle(cfg,sps.randint(1,num_households)) for i in range(1,num_evs)]
+evs = [ElectricVehicle(cfg,rd.randint(1,num_households)) for i in range(1,num_evs)]
 print(">> @Scen: "+str(num_evs)+"/" +str(num_households)+" possible vehicles initialised and located.")
 
 # generate EV availability and battery state of charge forecast
@@ -140,26 +167,77 @@ mean_price = mean(price_ts)
 price_ts = [((item - mean_price) * par_spread + mean_price + par_surcharge) for item in price_ts]
 print(">> @Scen: Electricity market prices forecast generated.")
 
+DSSText.Command = "set year=1"
+DSSSolution.Solve()
+
 # ****************************************************
 # * Run Optimisation
 # ****************************************************
 print("-------------------------------------------------")
 
+alg = cfg.get("general","algorithm") 
+print(">> @Opt: "+alg+" selected as optimisation algorithm.")
 
+if alg is "greedy":
+    schedules = runOptGreedy()
+elif alg is "ga":
+    schedules = runOptGenetic()
+elif alg is "pso":
+    schedules = runOptParticleSwarm()
+else:
+    schedules = []
 
-print(">> @Opt: ")
+print(">> @Opt: Optimisation cycle complete.")
 
 # ****************************************************
 # * Run Simulation
 # ****************************************************
 print("-------------------------------------------------")
 
-print(">> @Sim: ")
+# generate actual EV behaviour
+if cfg.getboolean("uncertainty","unc_ev"):
+    for ev in evs:
+        ev.simulateAvailability()
+        ev.simulateBatterySOC()
+    print(">> @Sim: Vehicle uncertainty realised.")
+else:
+    for ev in evs:
+        ev.availability_simulated = ev.availability_forecast
+        ev.batterySOC_simulated = ev.batterySOC_forecast
+    print(">> @Sim: Vehicle uncertainty not realised.")
+
+# generate actual demand behaviour
+if cfg.getboolean("uncertainty", "unc_dem"):
+    for hd in households:
+        hd.simulateDemand()
+    print(">> @Sim: Demand uncertainty realised.")
+else:
+    for hd in households:
+        hd.demandSimulated = hd.demandForecast
+    print(">> @Sim: Demand uncertainty not realised.")
+
+# generate actual electricity prices    
+if cfg.getboolean("uncertainty", "unc_pri"):
+    price_ts_sim = [item + norm.rvs(0,1) for item in price_ts]
+    print(">> @Sim: Price uncertainty realised.")
+else:
+    price_ts_sim = list(price_ts)
+    print(">> @Sim: Price uncertainty not realised.")
+
+# if no optimised schedule available -> uncontrolled charging
+if not schedules:
+    schedules = chargeAsFastAsPossible()
+
+# include schedule in residential net load
+for i in range(num_households):
+    net_load = list(map(add,households[i].demandSimulated, schedules[i].tolist()))
+    updateLoad(net_load,i+1)
 
 # Compile and solve circuit
+DSSText.Command = "set year=2"
 DSSSolution.Solve()
 if DSSSolution.Converged:
-    print (">> @Sim: The Circuit Solved Successfully")
+    print (">> @Sim: Circuit solved successfully.")
 
 #final DSS command: close demand interval files at end of run
 #DSSText.Command = "closedi" 
@@ -169,3 +247,10 @@ if DSSSolution.Converged:
 # ****************************************************
 print("-------------------------------------------------")
 print(">> @Eval: ")
+
+# DSSText.Command = "export voltages"
+# DSSText.Command = "export seqvoltages"
+# DSSText.Command = "export powers"
+# DSSText.Command = "export seqpowers"
+# DSSText.Command = "export loads"
+# DSSText.Command = "export summary"

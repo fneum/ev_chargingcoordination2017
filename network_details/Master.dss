@@ -11,11 +11,12 @@ Redirect Monitors.txt
 Redirect Loads.txt
 
 Set voltagebases=[11  .416]
+!Set voltagebases=[11  .399]
 Calcvoltagebases
 buscoords buscoords.txt
 
 ! ???
-set overloadreport=true  ! TURN OVERLOAD REPORT ON
+set overloadreport=false  ! TURN OVERLOAD REPORT ON
 set voltexcept=true      ! voltage exception report
 set demand=true          ! demand interval ON
 set DIVerbose=true       ! verbose mode is ON

@@ -1,7 +1,7 @@
 import scipy as sp
 import scipy.stats as sps
 import numpy.random as rd
-from scipy.stats._continuous_distns import norm
+from scipy.stats._continuous_distns import norm, triang
 import math
 import measurement.measures as conv
 from builtins import int
@@ -16,6 +16,8 @@ class ElectricVehicle:
         # vehicle specifications
         self.consumption = cfg.getfloat('electric_vehicles', 'consumption')
         self.capacity = cfg.getfloat('electric_vehicles', 'capacity')
+        self.charging_efficiency = cfg.getfloat("electric_vehicles","charging_efficiency")
+        self.chargingrate_max = cfg.getfloat("electric_vehicles", "chargingrate_max")
         self.position = pos
         
         # arrival time behaviour
@@ -56,6 +58,8 @@ class ElectricVehicle:
         self.batterySOC_forecast = 0
         self.batterySOC_simulated = 0
         
+        self.schedule = []
+        
     def generateAvailabilityForecast(self):
         start = conv.Time(hr=self.cfg.getfloat('general','starting')).min 
         duration = conv.Time(hr=self.cfg.getint('general','duration')).min
@@ -81,12 +85,12 @@ class ElectricVehicle:
         duration = conv.Time(hr=self.cfg.getint('general','duration')).min
         resolution = self.cfg.getint('general','resolution')
         num_slots = int(duration/resolution)
-        actual_end = triang.rvs((self.tripend_mu/(self.tripend_mu-self.tripend_sig)),\
+        actual_end = triang.rvs(0.5,\
                                 loc=(self.tripend_mu-self.tripend_sig),\
-                                scale=(2*self.tripend_sig))
-        actual_start = triang.rvs((self.tripend_mu/(self.tripend_mu-self.tripstart_sig)),\
-                                loc=(self.tripend_mu-self.tripstart_sig),\
-                                scale=(2*self.tripstart_sig))
+                                scale=(2*self.tripend_sig) )
+        actual_start = triang.rvs(0.5,\
+                                loc=(self.tripstart_mu-self.tripstart_sig),\
+                                scale=(2*self.tripstart_sig) )
         availability_start = math.floor(max(0,actual_end-start)/resolution)
         availability_end = math.floor(min(duration,(duration-start)+actual_start)/resolution)
         for i in range(num_slots-1):
