@@ -7,8 +7,8 @@ Edit Vsource.Source BasekV=11 pu=1.00  ISC3=3000  ISC1=5
 Redirect LineCode.txt
 Redirect Lines.txt
 Redirect Transformers.txt
-Redirect Monitors.txt
 Redirect Loads.txt
+Redirect Monitors.txt
 
 Set voltagebases=[11  .416]
 !Set voltagebases=[11  .399]

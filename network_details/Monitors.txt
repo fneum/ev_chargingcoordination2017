@@ -1,3 +1,113 @@
+New Monitor.VI_MON1 Load.LOAD1 1 Mode=0
+New Monitor.PQ_MON1 Load.LOAD1 1 Mode=1 ppolar=0
+New Monitor.VI_MON2 Load.LOAD2 1 Mode=0
+New Monitor.PQ_MON2 Load.LOAD2 1 Mode=1 ppolar=0
+New Monitor.VI_MON3 Load.LOAD3 1 Mode=0
+New Monitor.PQ_MON3 Load.LOAD3 1 Mode=1 ppolar=0
+New Monitor.VI_MON4 Load.LOAD4 1 Mode=0
+New Monitor.PQ_MON4 Load.LOAD4 1 Mode=1 ppolar=0
+New Monitor.VI_MON5 Load.LOAD5 1 Mode=0
+New Monitor.PQ_MON5 Load.LOAD5 1 Mode=1 ppolar=0
+New Monitor.VI_MON6 Load.LOAD6 1 Mode=0
+New Monitor.PQ_MON6 Load.LOAD6 1 Mode=1 ppolar=0
+New Monitor.VI_MON7 Load.LOAD7 1 Mode=0
+New Monitor.PQ_MON7 Load.LOAD7 1 Mode=1 ppolar=0
+New Monitor.VI_MON8 Load.LOAD8 1 Mode=0
+New Monitor.PQ_MON8 Load.LOAD8 1 Mode=1 ppolar=0
+New Monitor.VI_MON9 Load.LOAD9 1 Mode=0
+New Monitor.PQ_MON9 Load.LOAD9 1 Mode=1 ppolar=0
+New Monitor.VI_MON10 Load.LOAD10 1 Mode=0
+New Monitor.PQ_MON10 Load.LOAD10 1 Mode=1 ppolar=0
+New Monitor.VI_MON11 Load.LOAD11 1 Mode=0
+New Monitor.PQ_MON11 Load.LOAD11 1 Mode=1 ppolar=0
+New Monitor.VI_MON12 Load.LOAD12 1 Mode=0
+New Monitor.PQ_MON12 Load.LOAD12 1 Mode=1 ppolar=0
+New Monitor.VI_MON13 Load.LOAD13 1 Mode=0
+New Monitor.PQ_MON13 Load.LOAD13 1 Mode=1 ppolar=0
+New Monitor.VI_MON14 Load.LOAD14 1 Mode=0
+New Monitor.PQ_MON14 Load.LOAD14 1 Mode=1 ppolar=0
+New Monitor.VI_MON15 Load.LOAD15 1 Mode=0
+New Monitor.PQ_MON15 Load.LOAD15 1 Mode=1 ppolar=0
+New Monitor.VI_MON16 Load.LOAD16 1 Mode=0
+New Monitor.PQ_MON16 Load.LOAD16 1 Mode=1 ppolar=0
+New Monitor.VI_MON17 Load.LOAD17 1 Mode=0
+New Monitor.PQ_MON17 Load.LOAD17 1 Mode=1 ppolar=0
+New Monitor.VI_MON18 Load.LOAD18 1 Mode=0
+New Monitor.PQ_MON18 Load.LOAD18 1 Mode=1 ppolar=0
+New Monitor.VI_MON19 Load.LOAD19 1 Mode=0
+New Monitor.PQ_MON19 Load.LOAD19 1 Mode=1 ppolar=0
+New Monitor.VI_MON20 Load.LOAD20 1 Mode=0
+New Monitor.PQ_MON20 Load.LOAD20 1 Mode=1 ppolar=0
+New Monitor.VI_MON21 Load.LOAD21 1 Mode=0
+New Monitor.PQ_MON21 Load.LOAD21 1 Mode=1 ppolar=0
+New Monitor.VI_MON22 Load.LOAD22 1 Mode=0
+New Monitor.PQ_MON22 Load.LOAD22 1 Mode=1 ppolar=0
+New Monitor.VI_MON23 Load.LOAD23 1 Mode=0
+New Monitor.PQ_MON23 Load.LOAD23 1 Mode=1 ppolar=0
+New Monitor.VI_MON24 Load.LOAD24 1 Mode=0
+New Monitor.PQ_MON24 Load.LOAD24 1 Mode=1 ppolar=0
+New Monitor.VI_MON25 Load.LOAD25 1 Mode=0
+New Monitor.PQ_MON25 Load.LOAD25 1 Mode=1 ppolar=0
+New Monitor.VI_MON26 Load.LOAD26 1 Mode=0
+New Monitor.PQ_MON26 Load.LOAD26 1 Mode=1 ppolar=0
+New Monitor.VI_MON27 Load.LOAD27 1 Mode=0
+New Monitor.PQ_MON27 Load.LOAD27 1 Mode=1 ppolar=0
+New Monitor.VI_MON28 Load.LOAD28 1 Mode=0
+New Monitor.PQ_MON28 Load.LOAD28 1 Mode=1 ppolar=0
+New Monitor.VI_MON29 Load.LOAD29 1 Mode=0
+New Monitor.PQ_MON29 Load.LOAD29 1 Mode=1 ppolar=0
+New Monitor.VI_MON30 Load.LOAD30 1 Mode=0
+New Monitor.PQ_MON30 Load.LOAD30 1 Mode=1 ppolar=0
+New Monitor.VI_MON31 Load.LOAD31 1 Mode=0
+New Monitor.PQ_MON31 Load.LOAD31 1 Mode=1 ppolar=0
+New Monitor.VI_MON32 Load.LOAD32 1 Mode=0
+New Monitor.PQ_MON32 Load.LOAD32 1 Mode=1 ppolar=0
+New Monitor.VI_MON33 Load.LOAD33 1 Mode=0
+New Monitor.PQ_MON33 Load.LOAD33 1 Mode=1 ppolar=0
+New Monitor.VI_MON34 Load.LOAD34 1 Mode=0
+New Monitor.PQ_MON34 Load.LOAD34 1 Mode=1 ppolar=0
+New Monitor.VI_MON35 Load.LOAD35 1 Mode=0
+New Monitor.PQ_MON35 Load.LOAD35 1 Mode=1 ppolar=0
+New Monitor.VI_MON36 Load.LOAD36 1 Mode=0
+New Monitor.PQ_MON36 Load.LOAD36 1 Mode=1 ppolar=0
+New Monitor.VI_MON37 Load.LOAD37 1 Mode=0
+New Monitor.PQ_MON37 Load.LOAD37 1 Mode=1 ppolar=0
+New Monitor.VI_MON38 Load.LOAD38 1 Mode=0
+New Monitor.PQ_MON38 Load.LOAD38 1 Mode=1 ppolar=0
+New Monitor.VI_MON39 Load.LOAD39 1 Mode=0
+New Monitor.PQ_MON39 Load.LOAD39 1 Mode=1 ppolar=0
+New Monitor.VI_MON40 Load.LOAD40 1 Mode=0
+New Monitor.PQ_MON40 Load.LOAD40 1 Mode=1 ppolar=0
+New Monitor.VI_MON41 Load.LOAD41 1 Mode=0
+New Monitor.PQ_MON41 Load.LOAD41 1 Mode=1 ppolar=0
+New Monitor.VI_MON42 Load.LOAD42 1 Mode=0
+New Monitor.PQ_MON42 Load.LOAD42 1 Mode=1 ppolar=0
+New Monitor.VI_MON43 Load.LOAD43 1 Mode=0
+New Monitor.PQ_MON43 Load.LOAD43 1 Mode=1 ppolar=0
+New Monitor.VI_MON44 Load.LOAD44 1 Mode=0
+New Monitor.PQ_MON44 Load.LOAD44 1 Mode=1 ppolar=0
+New Monitor.VI_MON45 Load.LOAD45 1 Mode=0
+New Monitor.PQ_MON45 Load.LOAD45 1 Mode=1 ppolar=0
+New Monitor.VI_MON46 Load.LOAD46 1 Mode=0
+New Monitor.PQ_MON46 Load.LOAD46 1 Mode=1 ppolar=0
+New Monitor.VI_MON47 Load.LOAD47 1 Mode=0
+New Monitor.PQ_MON47 Load.LOAD47 1 Mode=1 ppolar=0
+New Monitor.VI_MON48 Load.LOAD48 1 Mode=0
+New Monitor.PQ_MON48 Load.LOAD48 1 Mode=1 ppolar=0
+New Monitor.VI_MON49 Load.LOAD49 1 Mode=0
+New Monitor.PQ_MON49 Load.LOAD49 1 Mode=1 ppolar=0
+New Monitor.VI_MON50 Load.LOAD50 1 Mode=0
+New Monitor.PQ_MON50 Load.LOAD50 1 Mode=1 ppolar=0
+New Monitor.VI_MON51 Load.LOAD51 1 Mode=0
+New Monitor.PQ_MON51 Load.LOAD51 1 Mode=1 ppolar=0
+New Monitor.VI_MON52 Load.LOAD52 1 Mode=0
+New Monitor.PQ_MON52 Load.LOAD52 1 Mode=1 ppolar=0
+New Monitor.VI_MON53 Load.LOAD53 1 Mode=0
+New Monitor.PQ_MON53 Load.LOAD53 1 Mode=1 ppolar=0
+New Monitor.VI_MON54 Load.LOAD54 1 Mode=0
+New Monitor.PQ_MON54 Load.LOAD54 1 Mode=1 ppolar=0
+New Monitor.VI_MON55 Load.LOAD55 1 Mode=0
+New Monitor.PQ_MON55 Load.LOAD55 1 Mode=1 ppolar=0
 ! New Monitor.LINE1_PQ_vs_Time Line.LINE1 2 Mode=1 ppolar=0
 ! New Monitor.LINE1_VI_vs_Time Line.LINE1 2 Mode=0
 ! New Monitor.LINE2_PQ_vs_Time Line.LINE2 2 Mode=1 ppolar=0
@@ -1647,7 +1757,7 @@ New Monitor.LINE558_VI_vs_Time Line.LINE558 2 Mode=0
 ! New Monitor.LINE824_PQ_vs_Time Line.LINE824 2 Mode=1 ppolar=0
 ! New Monitor.LINE824_VI_vs_Time Line.LINE824 2 Mode=0
 ! New Monitor.LINE825_PQ_vs_Time Line.LINE825 2 Mode=1 ppolar=0
-New Monitor.LINE825_VI_vs_Time Line.LINE825 2 Mode=0
+! New Monitor.LINE825_VI_vs_Time Line.LINE825 2 Mode=0
 ! New Monitor.LINE826_PQ_vs_Time Line.LINE826 2 Mode=1 ppolar=0
 ! New Monitor.LINE826_VI_vs_Time Line.LINE826 2 Mode=0
 ! New Monitor.LINE827_PQ_vs_Time Line.LINE827 2 Mode=1 ppolar=0

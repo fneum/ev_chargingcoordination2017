@@ -29,7 +29,7 @@ class Household:
         self.day_id_2 = 0
         
         self.ev = None
-        
+        self.voltages = None
         
     def simulateDemand(self):
         self.demandSimulated = list(self.demandForecast)

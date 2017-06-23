@@ -81,9 +81,9 @@ cfg = configparser.ConfigParser()
 cfg.read("../parameters/evalParams.ini")
 
 # assign parameter names
-par_surcharge = cfg.getfloat("market_prices","surcharge")
-par_spread = cfg.getfloat("market_prices","spread")
-par_evpenetration = cfg.getfloat("electric_vehicles","penetration")
+surcharge = cfg.getfloat("market_prices","surcharge")
+spread = cfg.getfloat("market_prices","spread")
+evpenetration = cfg.getfloat("electric_vehicles","penetration")
 start = conv.Time(hr=cfg.getfloat("general","starting")).min 
 duration = conv.Time(hr=cfg.getint("general","duration")).min
 resolution = cfg.getint("general","resolution")
@@ -115,6 +115,8 @@ print(">> @Init: OpenDSS engine opened.")
 DSSText = DSSObj.Text
 DSSCircuit = DSSObj.ActiveCircuit
 DSSSolution = DSSCircuit.Solution
+DSSBus = DSSCircuit.ActiveBus
+DSSMonitors = DSSCircuit.Monitors
 
 # Compile and set major parameters
 DSSText.Command = r"Compile '..\network_details\Master.dss'"
@@ -152,7 +154,7 @@ print(">> @Scen: "+str(num_households)+" households initialised and demand forec
 # LATER
 
 # assign EV behaviour in network
-num_evs = round(par_evpenetration * num_households)
+num_evs = round(evpenetration * num_households)
 deck = list(range(num_households))
 rd.shuffle(deck)
 evs = []
@@ -176,7 +178,7 @@ price_ts1 = read_timeseries("../price_timeseries/15min/priceprofile_ukpx_"+str(r
 price_ts2 = read_timeseries("../price_timeseries/15min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
 price_ts = merge_timeseries(price_ts1, price_ts2)
 mean_price = mean(price_ts)
-price_ts = [((item - mean_price) * par_spread + mean_price + par_surcharge) for item in price_ts]
+price_ts = [((item - mean_price) * spread + mean_price + surcharge) for item in price_ts]
 print(">> @Scen: Electricity market prices forecast generated.")
 
 DSSText.Command = "set year=1"
@@ -247,11 +249,18 @@ for i in range(num_households):
     netloads.append(netload)
     updateLoad(netload,i+1)
 
-# Compile and solve circuit
+# Solve circuit
+household_voltages = []
 DSSText.Command = "set year=2"
 DSSSolution.Solve()
 if DSSSolution.Converged:
     print (">> @Sim: Circuit solved successfully.")
+    
+DSSMonitors.SaveAll
+for i in range(1,num_households+1):
+    DSSMonitors.Name = "VI_MON"+str(i)
+    household_voltages.append(list(DSSMonitors.Channel(1)))
+    households[i-1].voltages = household_voltages[i-1]
 
 #final DSS command: close demand interval files at end of run
 #DSSText.Command = "closedi" 
@@ -281,7 +290,6 @@ for hd in households:
     eCharged = []
     batterySOC = []
     av = []
-    voltages = []
     
     for i in range(0,num_slots):
         if hd.ev is None:
@@ -291,7 +299,6 @@ for hd in households:
         chCost.append(hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
         regAv.append(0)
         regRev.append(0)
-        voltages.append(0)
         netChCost.append(chCost[i]-regRev[i])
         eCharged.append(hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr)
         resCost.append(hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
@@ -311,7 +318,7 @@ for hd in households:
             for i in range(0,num_slots):
 
                 solution_writer.writerow( ( (i+1), netloads[j-1][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
-                                    av[i], 0, eCharged[i],batterySOC[i], voltages[i], price_ts_sim[i],chCost[i],\
+                                    av[i], 0, eCharged[i],batterySOC[i], hd.voltages[i], price_ts_sim[i],chCost[i],\
                                     regRev[0],netChCost[i],resCost[i],totalCost[i]) )
         finally:
             f.close()
@@ -319,9 +326,7 @@ for hd in households:
     result_writer.writerow( ( j, hd.inhabitants, max(av), sum(chCost), sum(regRev), sum(netChCost), sum(resCost),\
                           sum(totalCost), conv.Time(min=duration).hr*sum(netloads[j-1])/len(netloads[j-1]),\
                           conv.Time(min=duration).hr*sum(hd.ev.schedule)/len(hd.ev.schedule),\
-                          conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(voltages) ) )
-    #'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal'\
-    # 'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltage'
+                          conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages) ) )
     j+=1
     
 log.close()
@@ -333,4 +338,4 @@ log.close()
 # DSSText.Command = "export loads"
 # DSSText.Command = "export summary"
 
-print("Programme terminated.")
+print(">>>  Programme terminated.")
