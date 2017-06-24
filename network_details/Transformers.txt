@@ -1,1 +1,5 @@
-New Transformer.TR1 Buses=[SourceBus 1] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800] XHL=4 sub=y
+New Transformer.TR1 Buses=[SourceBus 1] Conns=[Delta Wye] kVs=[11 0.39837] kVAs=[800 800] XHL=4 sub=y
+
+! Original setting had standard phase voltage of 230 Volts on secondary winding.
+! New Transformer.TR1 Buses=[SourceBus 1] Conns=[Delta Wye] kVs=[11 0.416] kVAs=[800 800] XHL=4 sub=y
+
