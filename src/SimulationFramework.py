@@ -278,64 +278,132 @@ np.savetxt("../log/simVoltages.csv", np.asarray(household_voltages), delimiter="
 np.savetxt("../log/simSchedules.csv", np.asarray(schedules), delimiter=",")
 np.savetxt("../log/simNetloads.csv", np.asarray(netloads), delimiter=",")
 
-log = open("../log/simResults_HouseholdAggregate.csv", 'w', newline='')
-result_writer = csv.writer(log,delimiter=',')
-result_writer.writerow( ( 'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal',\
+log_hd = open("../log/simResults_HouseholdAggregate.csv", 'w', newline='')
+hdlog_writer = csv.writer(log_hd,delimiter=',')
+hdlog_writer.writerow( ( 'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal',\
                       'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltageV','minVoltagePU' ) )
 
-j = 1
+# calculations
+chCost = np.zeros((num_households,num_slots))
+netChCost = np.zeros((num_households,num_slots))
+totalCost = np.zeros((num_households,num_slots))
+resCost = np.zeros((num_households,num_slots))
+regAv  = np.zeros((num_households,num_slots))
+regRev = np.zeros((num_households,num_slots))
+eCharged = np.zeros((num_households,num_slots))
+batterySOC = np.zeros((num_households,num_slots))
+av = np.zeros((num_households,num_slots))
+resDemand = []
+
+j = 0
 for hd in households:
-    
-    # calculations
-    chCost = []
-    netChCost = []
-    totalCost = []
-    resCost = []
-    regAv  = []
-    regRev = []
-    eCharged = []
-    batterySOC = []
-    av = []
-    
+     
+    resDemand.append(hd.demandSimulated)
+     
     for i in range(0,num_slots):
         if hd.ev is None:
-            av.append(0)
+            av[j][i] = 0
         else:
-            av.append(hd.ev.availability_simulated[i])
-        chCost.append(hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
-        regAv.append(0)
-        regRev.append(0)
-        netChCost.append(chCost[i]-regRev[i])
-        eCharged.append(hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr)
-        resCost.append(hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
-        totalCost.append(resCost[i]+netChCost[i])
+            av[j][i] = hd.ev.availability_simulated[i]
+        chCost[j][i] = hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100
+        regAv[j][i] = 0 
+        regRev[j][i] = 0
+        netChCost[j][i] = chCost[j][i]-regRev[j][i]
+        eCharged[j][i] = hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr
+        resCost[j][i] = hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100
+        totalCost[j][i] = resCost[j][i]+netChCost[j][i]
         if i == 0:
-            batterySOC.append(av[i]*(hd.ev.batterySOC_simulated+eCharged[i]))
+            batterySOC[j][i] = av[j][i]*(hd.ev.batterySOC_simulated+eCharged[j][i])
         else:
-            batterySOC.append(av[i]*(max(hd.ev.batterySOC_simulated+eCharged[i],batterySOC[i-1]+eCharged[i])))
-    
+            batterySOC[j][i] = av[j][i]*(max(hd.ev.batterySOC_simulated+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
+     
     # write to file
-    with open("../log/simResults_household"+format(j,"02d")+".csv", 'w', newline='') as f:
+    with open("../log/simResults_household"+format(j+1,"02d")+".csv", 'w', newline='') as f:
         try:
             solution_writer = csv.writer(f,delimiter=',')
             solution_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
                                'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
                                'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
-            for i in range(0,num_slots):
-                solution_writer.writerow( ( (i+1), netloads[j-1][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
-                                    av[i], 0, eCharged[i],batterySOC[i], hd.voltages[i], hd.voltages[i]/230, price_ts_sim[i],chCost[i],\
-                                    regRev[0],netChCost[i],resCost[i],totalCost[i]) )
+            for i in range(num_slots):
+                solution_writer.writerow( ( (i+1), netloads[j][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
+                                    av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/230, price_ts_sim[i],chCost[j][i],\
+                                    regRev[j][i],netChCost[j][i],resCost[j][i],totalCost[j][i]) )
         finally:
             f.close()
-    result_writer.writerow( ( j, hd.inhabitants, max(av), sum(chCost), sum(regRev), sum(netChCost), sum(resCost),\
-                          sum(totalCost), conv.Time(min=duration).hr*sum(netloads[j-1])/len(netloads[j-1]),\
+             
+    hdlog_writer.writerow( ( (j+1), hd.inhabitants, max(av[j]), sum(chCost[j]), sum(regRev[j]), sum(netChCost[j]), sum(resCost[j]),\
+                          sum(totalCost[j]), conv.Time(min=duration).hr*sum(netloads[j])/len(netloads[j]),\
                           conv.Time(min=duration).hr*sum(hd.ev.schedule)/len(hd.ev.schedule),\
                           conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages), min(hd.voltages)/230 ) )
     j+=1
-    
-log.close()
 
-#  open("../log/simResults_SlotwiseAggregate.csv", 'w', newline='')
+# j = 1
+# for hd in households:
+#     
+#     # calculations
+#     chCost = []
+#     netChCost = []
+#     totalCost = []
+#     resCost = []
+#     regAv  = []
+#     regRev = []
+#     eCharged = []
+#     batterySOC = []
+#     av = []
+#     
+#     for i in range(0,num_slots):
+#         if hd.ev is None:
+#             av.append(0)
+#         else:
+#             av.append(hd.ev.availability_simulated[i])
+#         chCost.append(hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
+#         regAv.append(0)
+#         regRev.append(0)
+#         netChCost.append(chCost[i]-regRev[i])
+#         eCharged.append(hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr)
+#         resCost.append(hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
+#         totalCost.append(resCost[i]+netChCost[i])
+#         if i == 0:
+#             batterySOC.append(av[i]*(hd.ev.batterySOC_simulated+eCharged[i]))
+#         else:
+#             batterySOC.append(av[i]*(max(hd.ev.batterySOC_simulated+eCharged[i],batterySOC[i-1]+eCharged[i])))
+#     
+#     # write to file
+#     with open("../log/simResults_household"+format(j,"02d")+".csv", 'w', newline='') as f:
+#         try:
+#             solution_writer = csv.writer(f,delimiter=',')
+#             solution_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
+#                                'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
+#                                'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
+#             for i in range(0,num_slots):
+#                 solution_writer.writerow( ( (i+1), netloads[j-1][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
+#                                     av[i], 0, eCharged[i],batterySOC[i], hd.voltages[i], hd.voltages[i]/230, price_ts_sim[i],chCost[i],\
+#                                     regRev[0],netChCost[i],resCost[i],totalCost[i]) )
+#         finally:
+#             f.close()
+#             
+#     hdlog_writer.writerow( ( j, hd.inhabitants, max(av), sum(chCost), sum(regRev), sum(netChCost), sum(resCost),\
+#                           sum(totalCost), conv.Time(min=duration).hr*sum(netloads[j-1])/len(netloads[j-1]),\
+#                           conv.Time(min=duration).hr*sum(hd.ev.schedule)/len(hd.ev.schedule),\
+#                           conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages), min(hd.voltages)/230 ) )
+#     j+=1
+
+log_hd.close()
+
+log_slot = open("../log/simResults_SlotwiseAggregate.csv", 'w', newline='')
+slotlog_writer = csv.writer(log_slot,delimiter=',')
+slotlog_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
+                   'evAvailability', 'regAvailability', 'batterySOC',\
+                   'minVoltageV','minVoltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
+
+for i in range(num_slots):
+    slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
+                               sum(np.asarray(schedules).T[i]), sum(av.T[i]),sum(regAv.T[i]),\
+                               sum(batterySOC.T[i])/(sum(av.T[i])*ev.capacity),min(np.asarray(household_voltages).T[i]),\
+                               min(np.asarray(household_voltages).T[i])/230,price_ts_sim[i],sum(chCost.T[i]),\
+                               sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
+    
+log_slot.close()
 
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
