@@ -10,6 +10,7 @@ import fileinput
 from statistics import mean
 import measurement.measures as conv
 from operator import add
+from timeit import default_timer as timer
 
 # class imports
 from VehicleSpecifications import ElectricVehicle
@@ -18,10 +19,13 @@ from HouseholdSpecifications import Household
 # ****************************************************
 # * General Framework Initialisation
 # ****************************************************
+print(">>> Programme started.")
+print("-------------------------------------------------")
 
 # Administrative
 rd.seed(1932455)
 np.set_printoptions(threshold=np.nan)
+print(">> @Init: Utilities defined.")
 
 # Utility functions
 def read_timeseries(filename):
@@ -98,9 +102,11 @@ start_slot = int(start/resolution)
 # non-changeable final parameters
 num_households = 55
 
+print(">> @Init: Parameters read.")
 # ****************************************************
 # * Initialize OpenDSS
 # ****************************************************
+
 
 # Instantiate the OpenDSS Object
 try:
@@ -260,7 +266,7 @@ if DSSSolution.Converged:
 # export voltage profiles and link to household
 DSSMonitors.SaveAll
 for i in range(1,num_households+1):
-    #DSSMonitors.Name = "VI_MON"+str(i)
+    DSSMonitors.Name = "VI_MON"+str(i)
     household_voltages.append(list(DSSMonitors.Channel(1)))
     households[i-1].voltages = household_voltages[i-1]
 
@@ -271,14 +277,16 @@ for i in range(1,num_households+1):
 # * Evaluation
 # ****************************************************
 print("-------------------------------------------------")
-print(">> @Eval: ")
+print(">> @Eval: Starting final evaluation and fill logs.")
+
+eval_start = timer()
 
 log_hd = open("../log/simResults_HouseholdAggregate.csv", 'w', newline='')
 hdlog_writer = csv.writer(log_hd,delimiter=',')
 hdlog_writer.writerow( ( 'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal',\
                       'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltageV','minVoltagePU' ) )
 
-# instantiate arrays for postcalculations
+# instantiate arrays for post-calculations
 chCost = np.zeros((num_households,num_slots))
 netChCost = np.zeros((num_households,num_slots))
 totalCost = np.zeros((num_households,num_slots))
@@ -361,11 +369,15 @@ np.savetxt("../log/simResults_ResCost.csv", np.asarray(resCost), delimiter=",")
 np.savetxt("../log/simResults_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
 np.savetxt("../log/simResults_RegAvailability.csv", np.asarray(regAv), delimiter=",")
 
+eval_end = timer()
+eval_time = eval_end - eval_start
+print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds.")
+
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
 # DSSText.Command = "export powers"
 # DSSText.Command = "export seqpowers"
 # DSSText.Command = "export loads"
 # DSSText.Command = "export summary"
-
+print("-------------------------------------------------")
 print(">>>  Programme terminated.")
