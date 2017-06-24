@@ -257,9 +257,10 @@ DSSSolution.Solve()
 if DSSSolution.Converged:
     print (">> @Sim: Circuit solved successfully.")
     
+# export voltage profiles and link to household
 DSSMonitors.SaveAll
 for i in range(1,num_households+1):
-    DSSMonitors.Name = "VI_MON"+str(i)
+    #DSSMonitors.Name = "VI_MON"+str(i)
     household_voltages.append(list(DSSMonitors.Channel(1)))
     households[i-1].voltages = household_voltages[i-1]
 
@@ -273,7 +274,6 @@ print("-------------------------------------------------")
 print(">> @Eval: ")
 
 # WRITE FILES
-
 np.savetxt("../log/simVoltages.csv", np.asarray(household_voltages), delimiter=",")
 np.savetxt("../log/simSchedules.csv", np.asarray(schedules), delimiter=",")
 np.savetxt("../log/simNetloads.csv", np.asarray(netloads), delimiter=",")
@@ -283,7 +283,7 @@ hdlog_writer = csv.writer(log_hd,delimiter=',')
 hdlog_writer.writerow( ( 'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal',\
                       'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltageV','minVoltagePU' ) )
 
-# calculations
+# instantiate arrays for postcalculations
 chCost = np.zeros((num_households,num_slots))
 netChCost = np.zeros((num_households,num_slots))
 totalCost = np.zeros((num_households,num_slots))
@@ -317,7 +317,7 @@ for hd in households:
         else:
             batterySOC[j][i] = av[j][i]*(max(hd.ev.batterySOC_simulated+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
      
-    # write to file
+    # WRITE individual household solutions to CSV
     with open("../log/simResults_household"+format(j+1,"02d")+".csv", 'w', newline='') as f:
         try:
             solution_writer = csv.writer(f,delimiter=',')
@@ -337,59 +337,9 @@ for hd in households:
                           conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages), min(hd.voltages)/230 ) )
     j+=1
 
-# j = 1
-# for hd in households:
-#     
-#     # calculations
-#     chCost = []
-#     netChCost = []
-#     totalCost = []
-#     resCost = []
-#     regAv  = []
-#     regRev = []
-#     eCharged = []
-#     batterySOC = []
-#     av = []
-#     
-#     for i in range(0,num_slots):
-#         if hd.ev is None:
-#             av.append(0)
-#         else:
-#             av.append(hd.ev.availability_simulated[i])
-#         chCost.append(hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
-#         regAv.append(0)
-#         regRev.append(0)
-#         netChCost.append(chCost[i]-regRev[i])
-#         eCharged.append(hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr)
-#         resCost.append(hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100)
-#         totalCost.append(resCost[i]+netChCost[i])
-#         if i == 0:
-#             batterySOC.append(av[i]*(hd.ev.batterySOC_simulated+eCharged[i]))
-#         else:
-#             batterySOC.append(av[i]*(max(hd.ev.batterySOC_simulated+eCharged[i],batterySOC[i-1]+eCharged[i])))
-#     
-#     # write to file
-#     with open("../log/simResults_household"+format(j,"02d")+".csv", 'w', newline='') as f:
-#         try:
-#             solution_writer = csv.writer(f,delimiter=',')
-#             solution_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
-#                                'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
-#                                'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
-#             for i in range(0,num_slots):
-#                 solution_writer.writerow( ( (i+1), netloads[j-1][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
-#                                     av[i], 0, eCharged[i],batterySOC[i], hd.voltages[i], hd.voltages[i]/230, price_ts_sim[i],chCost[i],\
-#                                     regRev[0],netChCost[i],resCost[i],totalCost[i]) )
-#         finally:
-#             f.close()
-#             
-#     hdlog_writer.writerow( ( j, hd.inhabitants, max(av), sum(chCost), sum(regRev), sum(netChCost), sum(resCost),\
-#                           sum(totalCost), conv.Time(min=duration).hr*sum(netloads[j-1])/len(netloads[j-1]),\
-#                           conv.Time(min=duration).hr*sum(hd.ev.schedule)/len(hd.ev.schedule),\
-#                           conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages), min(hd.voltages)/230 ) )
-#     j+=1
-
 log_hd.close()
 
+# SLOTWISE AGGREGATE LOG
 log_slot = open("../log/simResults_SlotwiseAggregate.csv", 'w', newline='')
 slotlog_writer = csv.writer(log_slot,delimiter=',')
 slotlog_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
