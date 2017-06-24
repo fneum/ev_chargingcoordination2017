@@ -350,7 +350,6 @@ for i in range(num_slots):
 log_slot.close()
 
 # WRITE SOME MORE FILES
-# WRITE FILES
 np.savetxt("../log/simResults_Voltages.csv", np.asarray(household_voltages), delimiter=",")
 np.savetxt("../log/simResults_Schedules.csv", np.asarray(schedules), delimiter=",")
 np.savetxt("../log/simResults_NetLoads.csv", np.asarray(netloads), delimiter=",")
@@ -361,16 +360,6 @@ np.savetxt("../log/simResults_TotalCost.csv", np.asarray(totalCost), delimiter="
 np.savetxt("../log/simResults_ResCost.csv", np.asarray(resCost), delimiter=",")
 np.savetxt("../log/simResults_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
 np.savetxt("../log/simResults_RegAvailability.csv", np.asarray(regAv), delimiter=",")
-
-# chCost = np.zeros((num_households,num_slots))
-# netChCost = np.zeros((num_households,num_slots))
-# totalCost = np.zeros((num_households,num_slots))
-# resCost = np.zeros((num_households,num_slots))
-# regAv  = np.zeros((num_households,num_slots))
-# regRev = np.zeros((num_households,num_slots))
-# eCharged = np.zeros((num_households,num_slots))
-# batterySOC = np.zeros((num_households,num_slots))
-# av = np.zeros((num_households,num_slots))
 
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
