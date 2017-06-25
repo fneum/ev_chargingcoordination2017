@@ -58,6 +58,8 @@ class ElectricVehicle:
         self.batterySOC_forecast = 0
         self.batterySOC_simulated = 0
         
+#         self.currentSOC = self.batterySOC_forecast
+        
         self.schedule = []
         
     def generateAvailabilityForecast(self):

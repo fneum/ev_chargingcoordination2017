@@ -11,6 +11,7 @@ from statistics import mean
 import measurement.measures as conv
 from operator import add
 from timeit import default_timer as timer
+import math
 
 # class imports
 from VehicleSpecifications import ElectricVehicle
@@ -47,6 +48,22 @@ def updateLoad(ts,id):
     DSSText.Command = "Edit Loadshape.Shape_"+str(id)+" mult=("+dmd_dss+")"
     DSSText.Command = "Edit Load.LOAD"+str(id)+" daily=Shape_"+str(id)
 
+# Solve circuit
+def solvePowerFlow():
+    DSSText.Command = "reset"
+    DSSText.Command = "set year=2"
+    DSSSolution.Solve()
+    DSSMonitors.SaveAll
+
+# export voltage profiles and link to household 
+def getVolts(): 
+    volts = []
+    for i in range(num_households):
+        DSSMonitors.Name = "VI_MON"+str(i+1)
+        volts.append(list(DSSMonitors.Channel(1)))
+        households[i].voltages = volts[i]
+    return volts
+
 def chargeAsFastAsPossible():
     schedules = np.zeros((num_households,num_slots))
     targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
@@ -63,13 +80,109 @@ def chargeAsFastAsPossible():
             if t == num_slots:
                 break
         ev.schedule = schedules[ev.position-1].tolist()
-#         print(ev.schedule)
-#         print(schedules[ev.position-1].tolist())
-#         print("------")
     return schedules
 
-def runOptGreedy():
-    return 0
+def runOptPriceGreedy():
+    schedules = np.zeros((num_households,num_slots))
+    price_ts_opt = np.array(price_ts)
+    order_cheapslots = np.argsort(price_ts_opt)
+    
+    for ev in evs:
+        t = 0
+        while not ev.currentSOC == (targetSOC*ev.capacity):
+            remainingEnergyDemand = targetSOC*ev.capacity-ev.currentSOC
+            chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
+            chargingrate = ev.availability_forecast[order_cheapslots[t]]*min(ev.chargingrate_max, chargingrate_need)
+            schedules[ev.position-1][order_cheapslots[t]] = chargingrate
+            ev.currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
+            t+=1
+            if t == num_slots:
+                break
+        ev.schedule = schedules[ev.position-1].tolist()
+    
+    return schedules
+
+def runNetworkGreedy():
+    schedules = np.zeros((num_households,num_slots))
+    
+    # sort price time series
+    price_ts_opt = np.array(price_ts)
+    order_prices = np.argsort(price_ts_opt)
+    
+    # prioritise electric vehicles
+    urgency = np.zeros(num_evs)
+    deg_freedom = np.zeros(num_evs)
+    arrivalSOCs = np.zeros(num_evs)
+    for k in range(num_evs):
+        arrivalSOCs[k] = evs[k].batterySOC_forecast
+        deg_freedom[k] = sum(evs[k].availability_forecast)
+        urgency[k] = evs[k].batterySOC_forecast*sum(evs[k].availability_forecast)      
+    order_urgency = np.argsort(urgency)
+    
+    for k in range(num_evs):
+        
+        # select most urgent electric vehicle
+        ev_id = order_urgency[k]
+        ev = evs[ev_id]
+        hd_id = ev.position 
+        print("Schedule "+str(k)+"th vehicle "+str(ev_id)+" at household "+str(hd_id)) 
+        
+        # repeat schedule proposals until feasible solution acquired (with forecast data)
+        feasible = False
+        while not feasible:
+            
+            # calculate greedy schedule proposal
+            t = 0
+            currentSOC = ev.batterySOC_forecast
+            while not currentSOC == (targetSOC*ev.capacity):
+                pr_id = order_prices[t]
+                remainingEnergyDemand = targetSOC*ev.capacity-currentSOC
+                chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
+                chargingrate = ev.availability_forecast[pr_id]*min(ev.chargingrate_max, chargingrate_need)
+                schedules[ev.position-1][pr_id] = chargingrate
+                currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
+                t+=1
+                if t == num_slots:
+                    break
+            
+            print("-> Required "+str(t)+" slots to complete charge")  
+            
+            # test proposed schedule for voltage problems
+            newload = list(map(add,households[hd_id-1].demandForecast, schedules[hd_id-1]))
+            updateLoad(newload,hd_id)
+            solvePowerFlow()
+            slot_minvolts = np.zeros(num_slots)
+            for i in range(num_slots):
+                slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
+             
+            if min(slot_minvolts) < voltage_min*230:
+                print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
+                # set price to infinity, update order_prices
+                indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
+                for i in indices:
+                    price_ts_opt[i] = math.inf
+                order_prices = np.argsort(price_ts_opt)
+                print("-> Forbid further loads in slots "+str(indices))
+                # reset schedule for this ev
+                for i in range(num_slots):
+                    schedules[hd_id-1][i] = 0
+            else:
+                print("-> No voltage violation. Continue with proposed schedule.")
+                feasible = True
+                
+        # submit schedule
+        ev.schedule = schedules[hd_id-1].tolist()
+    
+# #     # temp
+#     netloadsComp = []
+#     for i in range(num_households):
+#         netloadComp = list(map(add,households[i].demandForecast, schedules[i]))
+#         # netload = list(map(add,households[i].demandSimulated, households[i].ev.schedule))
+#         netloadsComp.append(netloadComp)
+#     np.savetxt("../log/simResults_NetLoadsCOMP.csv", np.asarray(netloadsComp), delimiter=",")
+# #     #end temp
+    
+    return schedules
 
 def runOptParticleSwarm():
     return 0
@@ -93,6 +206,8 @@ duration = conv.Time(hr=cfg.getint("general","duration")).min
 resolution = cfg.getint("general","resolution")
 season = cfg.get("general", "season")
 reg_price = cfg.get("market_prices", "regulation_price")
+targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
+voltage_min = cfg.getfloat("network","voltage_min")
 
 # calculate further parameters from config
 num_slots = int(duration/resolution)
@@ -197,17 +312,22 @@ print("-------------------------------------------------")
 
 alg = cfg.get("general","algorithm") 
 print(">> @Opt: "+alg+" selected as optimisation algorithm.")
+start = timer()
 
-if alg is "greedy":
-    schedules = runOptGreedy()
-elif alg is "ga":
+if alg == "priceGREEDY":
+    schedules = runPriceGreedy()
+elif alg == "networkGREEDY":
+    schedules = runNetworkGreedy()
+elif alg == "GA":
     schedules = runOptGenetic()
-elif alg is "pso":
+elif alg == "PSO":
     schedules = runOptParticleSwarm()
 else:
     schedules = []
 
-print(">> @Opt: Optimisation cycle complete.")
+end = timer()
+time = end - start
+print(">> @Opt: Optimisation cycle complete after "+format(time, ".3f")+" sec.")
 
 # ****************************************************
 # * Run Simulation
@@ -245,30 +365,24 @@ else:
     print(">> @Sim: Price uncertainty not realised.")
 
 # if no optimised schedule available -> uncontrolled charging
-if not schedules:
+if len(schedules) == 0:
     schedules = chargeAsFastAsPossible()
 
 # include schedule in residential net load
 netloads = []
 for i in range(num_households):
-    netload = list(map(add,households[i].demandSimulated, households[i].ev.schedule))
+    netload = list(map(add,households[i].demandSimulated, schedules[i]))
     netloads.append(netload)
     updateLoad(netload,i+1)
 
-# Solve circuit
-household_voltages = []
-DSSText.Command = "reset"
-DSSText.Command = "set year=2"
-DSSSolution.Solve()
-if DSSSolution.Converged:
-    print (">> @Sim: Circuit solved successfully.")
-    
-# export voltage profiles and link to household
-DSSMonitors.SaveAll
-for i in range(1,num_households+1):
-    DSSMonitors.Name = "VI_MON"+str(i)
-    household_voltages.append(list(DSSMonitors.Channel(1)))
-    households[i-1].voltages = household_voltages[i-1]
+
+# household_voltages = getVolts()
+# np.savetxt("../log/simResults_VoltagesTEST.csv", np.asarray(household_voltages), delimiter=",")
+
+# final power flow calculation before evaluation
+solvePowerFlow()
+household_voltages = getVolts()
+print(">> @Sim: Solve simulated power flow with final schedules.")
 
 #final DSS command: close demand interval files at end of run
 #DSSText.Command = "closedi" 
@@ -306,19 +420,23 @@ for hd in households:
     for i in range(0,num_slots):
         if hd.ev is None:
             av[j][i] = 0
+            eCharged[j][i] = 0
+            chCost[j][i] = 0
+            batterySOC[j][i] = 0
         else:
             av[j][i] = hd.ev.availability_simulated[i]
-        chCost[j][i] = hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100
+            eCharged[j][i] = hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr
+            chCost[j][i] = hd.ev.schedule[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100
+            if i == 0:
+                batterySOC[j][i] = av[j][i]*(hd.ev.batterySOC_simulated+eCharged[j][i])
+            else:
+                batterySOC[j][i] = av[j][i]*(max(hd.ev.batterySOC_simulated+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
         regAv[j][i] = 0 
         regRev[j][i] = 0
-        netChCost[j][i] = chCost[j][i]-regRev[j][i]
-        eCharged[j][i] = hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr
+        netChCost[j][i] = chCost[j][i]-regRev[j][i] 
         resCost[j][i] = hd.demandSimulated[i]*conv.Time(min=resolution).hr*price_ts_sim[i]/100
         totalCost[j][i] = resCost[j][i]+netChCost[j][i]
-        if i == 0:
-            batterySOC[j][i] = av[j][i]*(hd.ev.batterySOC_simulated+eCharged[j][i])
-        else:
-            batterySOC[j][i] = av[j][i]*(max(hd.ev.batterySOC_simulated+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
+
      
     # WRITE individual household solutions to CSV
     with open("../log/simResults_household"+format(j+1,"02d")+".csv", 'w', newline='') as f:
@@ -328,7 +446,7 @@ for hd in households:
                                'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
                                'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
             for i in range(num_slots):
-                solution_writer.writerow( ( (i+1), netloads[j][i], hd.demandSimulated[i], 0, hd.ev.schedule[i],\
+                solution_writer.writerow( ( (i+1), netloads[j][i], hd.demandSimulated[i], 0, schedules[j][i],\
                                     av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/230, price_ts_sim[i],chCost[j][i],\
                                     regRev[j][i],netChCost[j][i],resCost[j][i],totalCost[j][i]) )
         finally:
@@ -336,7 +454,7 @@ for hd in households:
              
     hdlog_writer.writerow( ( (j+1), hd.inhabitants, max(av[j]), sum(chCost[j]), sum(regRev[j]), sum(netChCost[j]), sum(resCost[j]),\
                           sum(totalCost[j]), conv.Time(min=duration).hr*sum(netloads[j])/len(netloads[j]),\
-                          conv.Time(min=duration).hr*sum(hd.ev.schedule)/len(hd.ev.schedule),\
+                          conv.Time(min=duration).hr*sum(schedules[j])/len(schedules[j]),\
                           conv.Time(min=duration).hr*sum(hd.demandSimulated)/len(hd.demandSimulated), 0, min(hd.voltages), min(hd.voltages)/230 ) )
     j+=1
 
@@ -373,11 +491,13 @@ eval_end = timer()
 eval_time = eval_end - eval_start
 print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds.")
 
+# optionals
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
 # DSSText.Command = "export powers"
 # DSSText.Command = "export seqpowers"
 # DSSText.Command = "export loads"
 # DSSText.Command = "export summary"
+
 print("-------------------------------------------------")
 print(">>>  Programme terminated.")
