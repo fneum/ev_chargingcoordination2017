@@ -1,4 +1,8 @@
-# standard imports
+# *****************************************************************************************************
+# * Imports
+# *****************************************************************************************************
+
+# Import 
 import win32com.client
 import configparser
 import numpy.random as rd
@@ -14,22 +18,15 @@ from timeit import default_timer as timer
 import math
 from deap import base,creator,tools,algorithms
 
-# class imports
+# Class Imports
 from VehicleSpecifications import ElectricVehicle
 from HouseholdSpecifications import Household
 
-# ****************************************************
-# * General Framework Initialisation
-# ****************************************************
-print(">>> Programme started.")
-print("-------------------------------------------------")
+# *****************************************************************************************************
+# * Utility Functions
+# *****************************************************************************************************
 
-# Administrative
-rd.seed(1932455)
-np.set_printoptions(threshold=np.nan)
-print(">> @Init: Utilities defined.")
-
-# Utility functions
+# READING
 def read_timeseries(filename):
     with open(filename) as file:
         data = [float(line) for line in file]
@@ -44,19 +41,18 @@ def merge_timeseries(x,y):
             z.append(y[i-dayswitch_slot])
     return z
 
+# NETWORK	
 def updateLoad(ts,id):
     dmd_dss = str(ts).replace(',', '').replace('[', '').replace(']', '')
     DSSText.Command = "Edit Loadshape.Shape_"+str(id)+" mult=("+dmd_dss+")"
     DSSText.Command = "Edit Load.LOAD"+str(id)+" daily=Shape_"+str(id)
 
-# Solve circuit
 def solvePowerFlow():
     DSSText.Command = "reset"
     DSSText.Command = "set year=2"
     DSSSolution.Solve()
     DSSMonitors.SaveAll
 
-# export voltage profiles and link to household 
 def getVolts(): 
     volts = []
     for i in range(num_households):
@@ -65,6 +61,7 @@ def getVolts():
         households[i].voltages = volts[i]
     return volts
 
+# CONTROLLER
 def chargeAsFastAsPossible():
     schedules = np.zeros((num_households,num_slots))
     targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
@@ -83,8 +80,15 @@ def chargeAsFastAsPossible():
         ev.schedule = schedules[ev.position-1].tolist()
     return schedules
 
+# *****************************************************************************************************
+# * Optimisation Functions
+# *****************************************************************************************************
+
+# priceGREEDY
 def runOptPriceGreedy():
     schedules = np.zeros((num_households,num_slots))
+    
+	# sort price time series
     price_ts_opt = np.array(price_ts)
     order_cheapslots = np.argsort(price_ts_opt)
     
@@ -103,6 +107,7 @@ def runOptPriceGreedy():
     
     return schedules
 
+# networkGREEDY
 def runNetworkGreedy():
     schedules = np.zeros((num_households,num_slots))
     
@@ -122,7 +127,7 @@ def runNetworkGreedy():
     
     for k in range(num_evs):
         
-        # select most urgent electric vehicle
+        # select electric vehicle
         ev_id = order_urgency[k]
         ev = evs[ev_id]
         hd_id = ev.position 
@@ -158,36 +163,28 @@ def runNetworkGreedy():
              
             if min(slot_minvolts) < voltage_min*230:
                 print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
-                # set price to infinity, update order_prices
+                # set price to infinity, update order of price time series
                 indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
                 for i in indices:
                     price_ts_opt[i] = math.inf
                 order_prices = np.argsort(price_ts_opt)
                 print("-> Forbid further loads in slots "+str(indices))
-                # reset schedule for this ev
+                # reset schedule for this EV
                 for i in range(num_slots):
                     schedules[hd_id-1][i] = 0
             else:
                 print("-> No voltage violation. Continue with proposed schedule.")
                 feasible = True
-                
-        # submit schedule
+
         ev.schedule = schedules[hd_id-1].tolist()
-    
-# #     # temp
-#     netloadsComp = []
-#     for i in range(num_households):
-#         netloadComp = list(map(add,households[i].demandForecast, schedules[i]))
-#         # netload = list(map(add,households[i].demandSimulated, households[i].ev.schedule))
-#         netloadsComp.append(netloadComp)
-#     np.savetxt("../log/simResults_NetLoadsCOMP.csv", np.asarray(netloadsComp), delimiter=",")
-# #     #end temp
-    
+		
     return schedules
 
+# PSO
 def runOptParticleSwarm():
     return 0
 
+# GA
 def runOptGenetic():
     
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
@@ -220,11 +217,16 @@ def runOptGenetic():
     
     sorted_pop = sorted(population, key=lambda ind: ind.fitness)
     
-    #translate individual to schedule # from num_evs to num_households
+    # TODO: translate individual to schedule from num_evs to num_households
     schedules = np.asarray(sorted_pop[0]).reshape((num_evs,num_slots))
     for ev in evs:
         ev.schedule = schedules[ev.position-1].tolist()
+		
     return schedules
+
+# *****************************************************************************************************
+# * Evaluation Functions
+# *****************************************************************************************************
 
 def evaluateFitness(individual):
     fitness = 0
@@ -233,9 +235,20 @@ def evaluateFitness(individual):
             fitness+=individual[k*num_slots+t]*price_ts[t]*conv.Time(min=duration).hr
     return fitness, # must be tuple
 
-# ****************************************************
+# *****************************************************************************************************
+# * General Framework Initialisation
+# *****************************************************************************************************
+print(">>> Programme started.")
+print("-------------------------------------------------")
+
+# Administrative
+rd.seed(1932455)
+np.set_printoptions(threshold=np.nan)
+print(">> @Init: Utilities defined.")
+
+# *****************************************************************************************************
 # * Read Parameters
-# ****************************************************
+# *****************************************************************************************************
 
 cfg = configparser.ConfigParser()
 cfg.read("../parameters/evalParams.ini")
@@ -261,10 +274,10 @@ start_slot = int(start/resolution)
 num_households = 55
 
 print(">> @Init: Parameters read.")
-# ****************************************************
-# * Initialize OpenDSS
-# ****************************************************
 
+# *****************************************************************************************************
+# * Initialize OpenDSS
+# *****************************************************************************************************
 
 # Instantiate the OpenDSS Object
 try:
@@ -294,9 +307,9 @@ for i in range(num_households):
     
 print(">> @Init: Network instantiated and compiled.")
 
-# ****************************************************
+# *****************************************************************************************************
 # * Generate Scenario
-# ****************************************************
+# *****************************************************************************************************
 print("-------------------------------------------------")
 
 # assign residential load forecast in network
@@ -315,7 +328,7 @@ for hd in households:
 print(">> @Scen: "+str(num_households)+" households initialised and demand forecasts generated.")
 
 # assign PV generation forecast in network
-# LATER
+# TODO
 
 # assign EV behaviour in network
 num_evs = round(evpenetration * num_households)
@@ -348,9 +361,9 @@ print(">> @Scen: Electricity market prices forecast generated.")
 DSSText.Command = "set year=1"
 DSSSolution.Solve()
 
-# ****************************************************
+# *****************************************************************************************************
 # * Run Optimisation
-# ****************************************************
+# *****************************************************************************************************
 print("-------------------------------------------------")
 
 alg = cfg.get("general","algorithm") 
@@ -372,9 +385,9 @@ end = timer()
 time = end - start
 print(">> @Opt: Optimisation cycle complete after "+format(time, ".3f")+" sec.")
 
-# ****************************************************
+# *****************************************************************************************************
 # * Run Simulation
-# ****************************************************
+# *****************************************************************************************************
 print("-------------------------------------------------")
 
 # generate actual EV behaviour
@@ -418,26 +431,20 @@ for i in range(num_households):
     netloads.append(netload)
     updateLoad(netload,i+1)
 
-
-# household_voltages = getVolts()
-# np.savetxt("../log/simResults_VoltagesTEST.csv", np.asarray(household_voltages), delimiter=",")
-
 # final power flow calculation before evaluation
 solvePowerFlow()
 household_voltages = getVolts()
 print(">> @Sim: Solve simulated power flow with final schedules.")
 
-#final DSS command: close demand interval files at end of run
-#DSSText.Command = "closedi" 
-
-# ****************************************************
-# * Evaluation
-# ****************************************************
+# *****************************************************************************************************
+# * Evaluation after Simulation
+# *****************************************************************************************************
 print("-------------------------------------------------")
 print(">> @Eval: Starting final evaluation and fill logs.")
 
 eval_start = timer()
 
+# WRITE HOUSEHOLD AGGREGATE LOG
 log_hd = open("../log/simResults_HouseholdAggregate.csv", 'w', newline='')
 hdlog_writer = csv.writer(log_hd,delimiter=',')
 hdlog_writer.writerow( ( 'id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal','resCostTotal','totalCostTotal',\
@@ -534,7 +541,7 @@ eval_end = timer()
 eval_time = eval_end - eval_start
 print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds.")
 
-# optionals
+# WRITE OPENDSS EXPORT OFFERS
 # DSSText.Command = "export voltages"
 # DSSText.Command = "export seqvoltages"
 # DSSText.Command = "export powers"
@@ -542,5 +549,8 @@ print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds
 # DSSText.Command = "export loads"
 # DSSText.Command = "export summary"
 
+# *****************************************************************************************************
+# * Terminate
+# *****************************************************************************************************
 print("-------------------------------------------------")
 print(">>>  Programme terminated.")
