@@ -12,6 +12,7 @@ import measurement.measures as conv
 from operator import add
 from timeit import default_timer as timer
 import math
+from deap import base,creator,tools,algorithms
 
 # class imports
 from VehicleSpecifications import ElectricVehicle
@@ -188,7 +189,49 @@ def runOptParticleSwarm():
     return 0
 
 def runOptGenetic():
-    return 0
+    
+    creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+    creator.create("Individual", list, fitness=creator.FitnessMin)
+    
+    IND_SIZE = num_slots * num_evs
+    POP_SIZE = 30
+    
+    toolbox = base.Toolbox()
+    toolbox.register("attr_float", rd.random)
+    toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=IND_SIZE)
+    toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=POP_SIZE)
+    toolbox.register("evaluate", evaluateFitness)
+    toolbox.register("mate", tools.cxTwoPoint)
+    toolbox.register("mutate", tools.mutGaussian, mu=0, sigma=0.5, indpb=0.5)
+    toolbox.register("select", tools.selTournament, tournsize=3)
+   
+    stats = tools.Statistics(key=lambda ind: ind.fitness.values)
+    stats.register("avg", np.mean)
+    stats.register("std", np.std)
+    stats.register("min", np.min)
+    stats.register("max", np.max)
+   
+    population = toolbox.population()
+#     fits = toolbox.map(toolbox.evaluate, population)
+#     for fit, ind in zip(fits, population):
+#             ind.fitness.values = fit
+    
+    population, logbook = algorithms.eaSimple(population, toolbox, cxpb=0.5, mutpb=0.3, ngen=5, stats=stats, verbose=True)
+    
+    sorted_pop = sorted(population, key=lambda ind: ind.fitness)
+    
+    #translate individual to schedule # from num_evs to num_households
+    schedules = np.asarray(sorted_pop[0]).reshape((num_evs,num_slots))
+    for ev in evs:
+        ev.schedule = schedules[ev.position-1].tolist()
+    return schedules
+
+def evaluateFitness(individual):
+    fitness = 0
+    for k in range(num_evs):
+        for t in range(num_slots):
+            fitness+=individual[k*num_slots+t]*price_ts[t]*conv.Time(min=duration).hr
+    return fitness, # must be tuple
 
 # ****************************************************
 # * Read Parameters
