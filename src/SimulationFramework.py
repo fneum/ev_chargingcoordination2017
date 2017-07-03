@@ -2,7 +2,7 @@
 # * Imports
 # *****************************************************************************************************
 
-# Import 
+# Standard Import 
 import win32com.client
 import configparser
 import numpy.random as rd
@@ -186,6 +186,8 @@ def runNetworkGreedy():
 # PSO
 def runOptParticleSwarm():
     
+    # TODO parametrisation
+    
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Particle", list, fitness=creator.FitnessMin, speed=None, smin=None, smax=None, best=None)
     creator.create("Swarm", list, gbest=None, gbestfit=creator.FitnessMin)
@@ -238,6 +240,8 @@ def runOptParticleSwarm():
 
 # GA
 def runOptGenetic():
+    
+    # TODO parametrisation
     
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", list, fitness=creator.FitnessMin)
@@ -336,7 +340,7 @@ def feasible(individual):
     
     # regulation service bound
     # TODO
-    
+
     # technical bounds
     ev_schedules = [individual[i:i+num_slots] for i in range(0, len(individual), num_slots)]
     for k in range(num_evs):
@@ -349,7 +353,7 @@ def feasible(individual):
         slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
     if min(slot_minvolts) < voltage_min*230:
         feasible = False
-        
+    
     return feasible
 
 def distance(individual):
@@ -579,9 +583,9 @@ for i in range(num_households):
     DSSText.Command = "~ useactual=true"
     
 print(">> @Init: Network instantiated and compiled.")
-print("-------------------------------------------------")
+print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 print("START FIRST SCENARIO")
-print("-------------------------------------------------")
+print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 
 for mc_iter in range(iterations):
     # *****************************************************************************************************
@@ -708,9 +712,9 @@ for mc_iter in range(iterations):
     
     evaluateResults("sim")
     
-print("-------------------------------------------------")
+print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 print("FINAL SCENARIO ENDED")
-print("-------------------------------------------------")
+print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 
 # *****************************************************************************************************
 # * Terminate
