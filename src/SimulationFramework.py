@@ -601,7 +601,7 @@ for mc_iter in range(1,iterations+1):
     # * Generate Scenario
     # *****************************************************************************************************
     print("-------------------------------------------------")
-    print("SCENARIO " + str(mc_iter))
+    print("SCENARIO " + str(mc_iter) + "/" + str(iterations) + " -- " + format(mc_iter/iterations*100, ".2f") + " %")
     print("-------------------------------------------------")
     
     # assign residential load forecast in network
