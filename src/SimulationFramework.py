@@ -134,7 +134,7 @@ def runNetworkGreedy():
         ev_id = order_urgency[k]
         ev = evs[ev_id]
         hd_id = ev.position 
-        print("Schedule "+str(k)+"th vehicle "+str(ev_id)+" at household "+str(hd_id)) 
+        print("Schedule "+str(k+1)+"th vehicle "+str(ev_id)+" at household "+str(hd_id)) 
         
         # repeat schedule proposals until feasible solution acquired (with forecast data)
         feasible = False
@@ -529,7 +529,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(1932455)
+rd.seed(19327585)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -553,6 +553,7 @@ reg_price = cfg.get("market_prices", "regulation_price")
 targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
 chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
 voltage_min = cfg.getfloat("network","voltage_min")
+loadmultiplier = cfg.getfloat("network","load_multiplier") # TODO check
 
 # calculate further parameters from config
 num_slots = int(duration/resolution)
@@ -587,6 +588,7 @@ DSSMonitors = DSSCircuit.Monitors
 # Compile and set major parameters
 DSSText.Command = r"Compile '..\network_details\Master.dss'"
 DSSText.Command = "set mode=daily number="+str(num_slots)+" stepsize="+str(resolution)+"m"
+# DSSText.Command = "set loadmult="+str(loadmultiplier) # cf. alternative option
 
 for i in range(num_households):
     DSSText.Command = "New Loadshape.Shape_"+str(i+1)
@@ -615,6 +617,7 @@ for mc_iter in range(1,iterations+1):
         demand_ts2 = read_timeseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
+        hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
         updateLoad(hd.demandForecast,counter)
         counter+=1
     print(">> @Scen: "+str(num_households)+" households initialised and demand forecasts generated.")
@@ -700,7 +703,7 @@ for mc_iter in range(1,iterations+1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            hd.simulateDemand()
+            hd.simulateDemand() # TODO proper demand uncertainty
         print(">> @Sim: Demand uncertainty realised.")
     else:
         for hd in households:
@@ -709,7 +712,7 @@ for mc_iter in range(1,iterations+1):
     
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
-        price_ts_sim = [item + norm.rvs(0,1) for item in price_ts]
+        price_ts_sim = [item + norm.rvs(0,1) for item in price_ts] # TODO proper price uncertainty
         print(">> @Sim: Price uncertainty realised.")
     else:
         price_ts_sim = list(price_ts)
@@ -720,6 +723,9 @@ for mc_iter in range(1,iterations+1):
         schedules = chargeAsFastAsPossible()
     
     evaluateResults("sim")
+    
+    # reparation controller 
+    # TODO
 
 # *****************************************************************************************************
 # * Terminate
