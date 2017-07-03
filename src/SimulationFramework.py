@@ -231,10 +231,12 @@ def runOptParticleSwarm():
         logbook.record(gen=g, evals=len(pop), **stats.compile(pop))
         print(logbook.stream)
     
-    # TODO: translate individual to schedule from num_evs to num_households
-    schedules = np.asarray(best).reshape((num_evs,num_slots))
-    for ev in evs:
-        ev.schedule = schedules[ev.position-1].tolist()
+    ev_schedules = np.asarray(best).reshape((num_evs,num_slots))
+    schedules = np.zeros((num_households,num_slots)).tolist()
+    
+    for i in range(num_evs):
+        schedules[evs[i].position-1] = ev_schedules[i].tolist()
+        evs[i].schedule = schedules[evs[i].position-1]
         
     return schedules
 
@@ -275,11 +277,13 @@ def runOptGenetic():
     
     sorted_pop = sorted(population, key=lambda ind: ind.fitness)
     
-    # TODO: translate individual to schedule from num_evs to num_households
-    schedules = np.asarray(sorted_pop[0]).reshape((num_evs,num_slots))
-    for ev in evs:
-        ev.schedule = schedules[ev.position-1].tolist()
-	
+    ev_schedules = np.asarray(best).reshape((num_evs,num_slots))
+    schedules = np.zeros((num_households,num_slots)).tolist()
+    
+    for i in range(num_evs):
+        schedules[evs[i].position-1] = ev_schedules[i].tolist()
+        evs[i].schedule = schedules[evs[i].position-1]
+        
     return schedules
 
 # *****************************************************************************************************
@@ -408,13 +412,21 @@ def evaluateResults(code):
         
         if code == "sim":
             eva_demand = hd.demandSimulated
-            eva_availability = hd.ev.availability_simulated
-            eva_batterySOC = hd.ev.batterySOC_simulated
+            if hd.ev is None:
+                eva_availability = list(np.zeros(num_slots))
+                eva_batterySOC = list(np.zeros(num_slots))
+            else:
+                eva_availability = hd.ev.availability_simulated
+                eva_batterySOC = hd.ev.batterySOC_simulated
             eva_price = price_ts_sim
         elif code == "opt":
             eva_demand = hd.demandForecast
-            eva_availability = hd.ev.availability_forecast
-            eva_batterySOC = hd.ev.batterySOC_forecast
+            if hd.ev is None:
+                eva_availability = list(np.zeros(num_slots))
+                eva_batterySOC = list(np.zeros(num_slots))
+            else:
+                eva_availability = hd.ev.availability_forecast
+                eva_batterySOC = hd.ev.batterySOC_forecast
             eva_price = price_ts
         else:
             print("Choose 'opt' or 'sim' for evaluation mode")
@@ -583,11 +595,8 @@ for i in range(num_households):
     DSSText.Command = "~ useactual=true"
     
 print(">> @Init: Network instantiated and compiled.")
-print("+++++++++++++++++++++++++++++++++++++++++++++++++")
-print("START FIRST SCENARIO")
-print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 
-for mc_iter in range(iterations):
+for mc_iter in range(1,iterations+1):
     # *****************************************************************************************************
     # * Generate Scenario
     # *****************************************************************************************************
@@ -634,8 +643,8 @@ for mc_iter in range(iterations):
     
     # generate electricity price forecast
     day_id = rd.randint(0,999)
-    price_ts1 = read_timeseries("../price_timeseries/15min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id,"04d")+".txt")
-    price_ts2 = read_timeseries("../price_timeseries/15min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
+    price_ts1 = read_timeseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id,"04d")+".txt")
+    price_ts2 = read_timeseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
     price_ts = merge_timeseries(price_ts1, price_ts2)
     mean_price = mean(price_ts)
     price_ts = [((item - mean_price) * spread + mean_price + surcharge) for item in price_ts]
@@ -711,10 +720,6 @@ for mc_iter in range(iterations):
         schedules = chargeAsFastAsPossible()
     
     evaluateResults("sim")
-    
-print("+++++++++++++++++++++++++++++++++++++++++++++++++")
-print("FINAL SCENARIO ENDED")
-print("+++++++++++++++++++++++++++++++++++++++++++++++++")
 
 # *****************************************************************************************************
 # * Terminate

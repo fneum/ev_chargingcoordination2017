@@ -1,4 +1,5 @@
 import numpy.random as rd
+from VehicleSpecifications import ElectricVehicle
 
 class Household:
 
