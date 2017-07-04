@@ -57,7 +57,7 @@ class ElectricVehicle:
         Z = rd.multivariate_normal([0, 0], [[1, corcoeff], [corcoeff, 1]])
         U = sps.norm.cdf(Z)
         while True:
-            self.mileage_mu = sps.gamma.ppf(U[0],\
+            self.mileage_mu = cfg.getfloat('travel_patterns','mileage_scaling') * sps.gamma.ppf(U[0],\
                                     cfg.getfloat('travel_patterns','a_mim'),\
                                     loc=cfg.getfloat('travel_patterns','loc_mim'),\
                                     scale=cfg.getfloat('travel_patterns','scale_mim') )
@@ -123,5 +123,7 @@ class ElectricVehicle:
         return self.availability_simulated
     
     def simulateBatterySOC(self):
-        self.batterySOC_simulated = max(0,self.capacity-conv.Distance(mi=norm.rvs(self.mileage_mu,self.mileage_sig)).km*self.consumption)
+        self.batterySOC_simulated = min(30,max(0,self.capacity-conv.Distance(mi=norm.rvs(self.mileage_mu,self.mileage_sig)).km*self.consumption))
+        if self.batterySOC_simulated > 30:
+            print(self.batterySOC_simulated)
         return self.batterySOC_simulated

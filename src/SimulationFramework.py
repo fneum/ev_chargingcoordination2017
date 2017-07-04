@@ -380,13 +380,14 @@ def evaluateResults(code):
                 currentSOC = households[j].ev.batterySOC_simulated
                 forced_stop = False
                 for i in range(num_slots):
-                    schedules[j][i] = schedules[j][i]*households[j].ev.availability_simulated[i]
-                    currentSOC += schedules[j][i]
-                    if currentSOC > households[j].ev.capacity:
-                        schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i])
-                        forced_stop = True
+                    schedules[j-1][i] = schedules[j-1][i]*households[j].ev.availability_simulated[i]
+                    currentSOC += (schedules[j-1][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)
                     if forced_stop:
-                        schedules[j][i] = 0.0
+                        schedules[j-1][i] = 0.0
+                    elif currentSOC > households[j].ev.capacity:
+                        schedules[j-1][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j-1][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
+                        forced_stop = True
+                households[j].ev.schedule = schedules[j-1]
 	
     # include schedule in residential net load
     netloads = []
@@ -462,9 +463,11 @@ def evaluateResults(code):
                 eCharged[j][i] = hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr
                 chCost[j][i] = hd.ev.schedule[i]*conv.Time(min=resolution).hr*eva_price[i]/100
                 if i == 0:
-                    batterySOC[j][i] = av[j][i]*(eva_batterySOC+eCharged[j][i])
+                    #batterySOC[j][i] = av[j][i]*(eva_batterySOC+eCharged[j][i])
+                    batterySOC[j][i] = (eva_batterySOC+eCharged[j][i])
                 else:
-                    batterySOC[j][i] = av[j][i]*(max(eva_batterySOC+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
+                    #batterySOC[j][i] = av[j][i]*(max(eva_batterySOC+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
+                    batterySOC[j][i] = (max(eva_batterySOC+eCharged[j][i],batterySOC[j][i-1]+eCharged[j][i]))
             regAv[j][i] = 0 
             regRev[j][i] = 0
             netChCost[j][i] = chCost[j][i]-regRev[j][i] 
@@ -502,13 +505,13 @@ def evaluateResults(code):
     log_slot = open(filename, 'w', newline='')
     slotlog_writer = csv.writer(log_slot,delimiter=',')
     slotlog_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
-                       'evAvailability', 'regAvailability', 'batterySOC',\
+                       'evAvailability', 'regAvailability', 'batterySOC','batterySOCmin',\
                        'minVoltageV','minVoltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
     
     for i in range(num_slots):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
                                    sum(np.asarray(schedules).T[i]*av.T[i]), sum(av.T[i]),sum(regAv.T[i]),\
-                                   sum(batterySOC.T[i])/(num_evs*ev.capacity),min(np.asarray(household_voltages).T[i]),\
+                                   sum(batterySOC.T[i])/(num_evs*ev.capacity),min(batterySOC.T[i]),min(np.asarray(household_voltages).T[i]),\
                                    min(np.asarray(household_voltages).T[i])/230,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
     log_slot.close()
@@ -546,7 +549,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(19327576)
+rd.seed(1932757)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
