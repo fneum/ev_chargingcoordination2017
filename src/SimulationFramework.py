@@ -269,6 +269,8 @@ def runOptGenetic():
    
     hof = tools.HallOfFame(1)
     population = toolbox.population()
+
+# if no of-the-shelf algorithm used...
 #     fits = toolbox.map(toolbox.evaluate, population)
 #     for fit, ind in zip(fits, population):
 #             ind.fitness.values = fit
@@ -388,7 +390,7 @@ def evaluateResults(code):
     eval_start = timer()
     
     # WRITE HOUSEHOLD AGGREGATE LOG
-    filename = "../log/iter"+str(mc_iter)+"/"+code+"Results_HouseholdAggregate.csv"
+    filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_HouseholdAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_hd = open(filename, 'w', newline='')
     hdlog_writer = csv.writer(log_hd,delimiter=',')
@@ -456,7 +458,7 @@ def evaluateResults(code):
     
          
         # WRITE individual household solutions to CSV
-        filename = "../log/iter"+str(mc_iter)+"/"+code+"Results_household"+format(j+1,"02d")+".csv"
+        filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_household"+format(j+1,"02d")+".csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w', newline='') as f:
             try:
@@ -480,7 +482,7 @@ def evaluateResults(code):
     log_hd.close()
     
     # SLOTWISE AGGREGATE LOG
-    filename = "../log/iter"+str(mc_iter)+"/"+code+"Results_SlotwiseAggregate.csv"
+    filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_SlotwiseAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_slot = open(filename, 'w', newline='')
     slotlog_writer = csv.writer(log_slot,delimiter=',')
@@ -499,16 +501,16 @@ def evaluateResults(code):
     # WRITE SOME MORE FILES
     pathname = "../log/iter"+str(mc_iter)
     os.makedirs(os.path.dirname(pathname), exist_ok=True)
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_Schedules.csv", np.asarray(schedules), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_EVAvailability.csv", np.asarray(av), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_ResCost.csv", np.asarray(resCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Schedules.csv", np.asarray(schedules), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_EVAvailability.csv", np.asarray(av), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResCost.csv", np.asarray(resCost), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
     
     eval_end = timer()
     eval_time = eval_end - eval_start
@@ -553,11 +555,11 @@ reg_price = cfg.get("market_prices", "regulation_price")
 targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
 chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
 voltage_min = cfg.getfloat("network","voltage_min")
-loadmultiplier = cfg.getfloat("network","load_multiplier") # TODO check
+loadmultiplier = cfg.getfloat("network","load_multiplier")
 
 # calculate further parameters from config
 num_slots = int(duration/resolution)
-dayswitch_slot = int((duration-start)/resolution) #first slot belonging to new day
+dayswitch_slot = int((duration-start)/resolution) # first slot belonging to new day
 start_slot = int(start/resolution)
 
 # non-changeable final parameters
