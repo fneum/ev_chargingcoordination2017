@@ -373,6 +373,21 @@ def evaluateResults(code):
     print("-------------------------------------------------")
     print(">> @Eval: Starting "+code+" evaluation and fill logs.")
     
+	# schedule reality adjustment
+    if code == "sim":
+        for j in range(num_households):
+            if households[j].ev != None:
+                currentSOC = households[j].ev.batterySOC_simulated
+                forced_stop = False
+                for i in range(num_slots):
+                    schedules[j][i] = schedules[j][i]*households[j].ev.availability_simulated[i]
+                    currentSOC += schedules[j][i]
+                    if currentSOC > households[j].ev.capacity:
+                        schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i])
+                        forced_stop = True
+                    if forced_stop:
+                        schedules[j][i] = 0.0
+	
     # include schedule in residential net load
     netloads = []
     for i in range(num_households):
@@ -492,7 +507,7 @@ def evaluateResults(code):
     
     for i in range(num_slots):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
-                                   sum(np.asarray(schedules).T[i]), sum(av.T[i]),sum(regAv.T[i]),\
+                                   sum(np.asarray(schedules).T[i]*av.T[i]), sum(av.T[i]),sum(regAv.T[i]),\
                                    sum(batterySOC.T[i])/(num_evs*ev.capacity),min(np.asarray(household_voltages).T[i]),\
                                    min(np.asarray(household_voltages).T[i])/230,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )

@@ -103,14 +103,14 @@ class ElectricVehicle:
         resolution = self.cfg.getint('general','resolution')
         num_slots = int(duration/resolution)
         # TODO choose between triangular and normal distribution
-        actual_end = triang.rvs(0.5,\
-                                loc=(self.tripend_mu-self.tripend_sig),\
-                                scale=(2*self.tripend_sig) )
-                                #scale=(4*self.tripend_sig) )
-        actual_start = triang.rvs(0.5,\
-                                loc=(self.tripstart_mu-self.tripstart_sig),\
-                                scale=(2*self.tripstart_sig) )
-                                #scale=(4*self.tripstart_sig) )
+#         actual_end = triang.rvs(0.5,\
+#                                 loc=(self.tripend_mu-self.tripend_sig),\
+#                                 scale=(2*self.tripend_sig) )
+#         actual_start = triang.rvs(0.5,\
+#                                 loc=(self.tripstart_mu-self.tripstart_sig),\
+#                                 scale=(2*self.tripstart_sig) )
+        actual_end = norm.rvs( loc=self.tripend_mu, scale=self.tripend_sig )
+        actual_start = norm.rvs( loc=self.tripstart_mu, scale=self.tripstart_sig )
         availability_start = math.floor(max(0,actual_end-start)/resolution)
         availability_end = math.floor(min(duration,(duration-start)+actual_start)/resolution)
         for i in range(num_slots):
