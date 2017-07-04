@@ -33,6 +33,7 @@ class Household:
         self.voltages = None
         
     def simulateDemand(self):
+        # TODO simulate proper demand uncertainty
         self.demandSimulated = list(self.demandForecast)
         
         
