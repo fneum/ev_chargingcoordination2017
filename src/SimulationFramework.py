@@ -5,20 +5,20 @@
 # Standard Import 
 import win32com.client
 import configparser
+import csv
+import fileinput
+import math
+import multiprocessing
+import os
 import numpy.random as rd
 import numpy as np
 import scipy as sp
 import scipy.stats as sps
-import csv
-import fileinput
-from statistics import mean
 import measurement.measures as conv
+from statistics import mean
 from operator import add, sub, mul
 from timeit import default_timer as timer
-import math
 from deap import base,creator,tools,algorithms
-import multiprocessing
-import os
 
 # Class Imports
 from VehicleSpecifications import ElectricVehicle
@@ -493,7 +493,7 @@ def evaluateResults(code):
     for i in range(num_slots):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
                                    sum(np.asarray(schedules).T[i]), sum(av.T[i]),sum(regAv.T[i]),\
-                                   sum(batterySOC.T[i])/(sum(av.T[i])*ev.capacity),min(np.asarray(household_voltages).T[i]),\
+                                   sum(batterySOC.T[i])/(num_evs*ev.capacity),min(np.asarray(household_voltages).T[i]),\
                                    min(np.asarray(household_voltages).T[i])/230,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
     log_slot.close()
@@ -531,7 +531,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(19327585)
+rd.seed(19327576)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -690,17 +690,25 @@ for mc_iter in range(1,iterations+1):
     # *****************************************************************************************************
     print("-------------------------------------------------")
     
-    # generate actual EV behaviour
-    if cfg.getboolean("uncertainty","unc_ev"):
+    # generate actual EV arrival/departure times
+    if cfg.getboolean("uncertainty","unc_ev_trip"):
         for ev in evs:
             ev.simulateAvailability()
-            ev.simulateBatterySOC()
-        print(">> @Sim: Vehicle uncertainty realised.")
+        print(">> @Sim: Vehicle arrival/departure uncertainty realised.")
     else:
         for ev in evs:
             ev.availability_simulated = ev.availability_forecast
+        print(">> @Sim: Vehicle arrival/departure uncertainty not realised.")
+    
+    # generate actual EV mileage behaviour
+    if cfg.getboolean("uncertainty","unc_ev_soc"):
+        for ev in evs:
+            ev.simulateBatterySOC()
+        print(">> @Sim: Vehicle SOC uncertainty realised.")
+    else:
+        for ev in evs:
             ev.batterySOC_simulated = ev.batterySOC_forecast
-        print(">> @Sim: Vehicle uncertainty not realised.")
+        print(">> @Sim: Vehicle SOC uncertainty not realised.")
     
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
@@ -730,7 +738,3 @@ for mc_iter in range(1,iterations+1):
     # TODO
 
 # *****************************************************************************************************
-# * Terminate
-# *****************************************************************************************************
-print("-------------------------------------------------")
-print(">>>  Programme terminated.")
