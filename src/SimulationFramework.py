@@ -130,6 +130,8 @@ def runNetworkGreedy():
     
     for k in range(num_evs):
         
+        max_rate = [chargingrate_max for i in range(num_slots)]
+
         # select electric vehicle
         ev_id = order_urgency[k]
         ev = evs[ev_id]
@@ -147,13 +149,13 @@ def runNetworkGreedy():
                 pr_id = order_prices[t]
                 remainingEnergyDemand = targetSOC*ev.capacity-currentSOC
                 chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
-                chargingrate = ev.availability_forecast[pr_id]*min(ev.chargingrate_max, chargingrate_need)
+                chargingrate = min(max_rate[pr_id],ev.availability_forecast[pr_id]*min(ev.chargingrate_max, chargingrate_need))
                 schedules[ev.position][pr_id] = chargingrate
                 currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
                 t+=1
                 if t == num_slots:
                     break
-            
+        
             print("-> Required "+str(t)+" slots to complete charge")  
             
             # test proposed schedule for voltage problems
@@ -165,26 +167,27 @@ def runNetworkGreedy():
                 slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
              
             if min(slot_minvolts) < voltage_min*230:
-                print(min(slot_minvolts))
-                print(price_ts_opt[i])
                 print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
                 # set price to infinity, update order of price time series
                 indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
+                block_indices = []
                 for i in indices:
-                    price_ts_opt[i] = math.inf
-                order_prices = np.argsort(price_ts_opt)
-                print("-> Forbid further loads in slots "+str(indices))
-                # reset schedule for this EV
-                for i in range(num_slots):
-                    schedules[hd_id][i] = 0
+                    max_rate[i] -= cfg.getfloat('networkGREEDY', 'decrement')
+                    print("-> Reduce max charging rate at ["+str(i)+"] to "+str(max_rate[i])+" kW.")
+                    if max_rate[i] <= 0:
+                        block_indices.append(i)
+                for bi in block_indices:
+                    price_ts_opt[bi] = math.inf
+                    order_prices = np.argsort(price_ts_opt)
+                    for i in range(num_slots):
+                        schedules[hd_id][i] = 0.0
+                if len(block_indices) != 0:
+                    print("-> Forbid further loads in slots "+str(block_indices))
             else:
                 print("-> No voltage violation. Continue with proposed schedule.")
                 feasible = True
 
         ev.schedule = schedules[hd_id].tolist()
-        
-        volt = getVolts()
-        np.savetxt("../log/Results_Voltages.csv", np.asarray(volt), delimiter=",")
         
     return schedules
 
@@ -406,13 +409,6 @@ def evaluateResults(code):
         netloads.append(netload)
         updateLoad(netload,i+1)
     
-    gaps = []
-    for i in range(num_households):
-        gap = list(map(sub,households[i].demandForecast,map(sub,netloads[i], households[i].ev.schedule)))
-        gaps.append(gap)
-    np.savetxt("../log/Results_Gaps.csv", np.asarray(gaps), delimiter=",")
-    
-    
     solvePowerFlow()
     household_voltages = getVolts()
     eval_start = timer()
@@ -561,7 +557,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(1932457)
+rd.seed(1962757)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
