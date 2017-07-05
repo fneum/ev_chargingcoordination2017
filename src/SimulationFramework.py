@@ -29,9 +29,14 @@ from HouseholdSpecifications import Household
 # *****************************************************************************************************
 
 # READING
-def read_timeseries(filename):
+def read_floatseries(filename):
     with open(filename) as file:
         data = [float(line) for line in file]
+    return data
+
+def read_intseries(filename):
+    with open(filename) as file:
+        data = [int(line) for line in file]
     return data
 
 def merge_timeseries(x,y):
@@ -118,25 +123,37 @@ def runNetworkGreedy():
     price_ts_opt = np.array(price_ts)
     order_prices = np.argsort(price_ts_opt)
     
-    # prioritise electric vehicles
-    urgency = np.zeros(num_evs)
-    deg_freedom = np.zeros(num_evs)
-    arrivalSOCs = np.zeros(num_evs)
-    for k in range(num_evs):
-        arrivalSOCs[k] = evs[k].batterySOC_forecast
-        deg_freedom[k] = sum(evs[k].availability_forecast)
-        urgency[k] = evs[k].batterySOC_forecast*sum(evs[k].availability_forecast)      
-    order_urgency = np.argsort(urgency)
+    if urgency_mode == "dist":
+        # only works if all households have EV TODO
+        alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
+        load_locations = read_intseries("../network_details/LoadLocations.txt")
+        distances = np.zeros(num_households)
+        for i in range(len(load_locations)):
+            distances[i] = alldistances[load_locations[i]]
+        order_urgency = np.argsort(distances)
+    else:
+        # prioritise electric vehicles
+        urgency = np.zeros(num_evs)
+        deg_freedom = np.zeros(num_evs)
+        arrivalSOCs = np.zeros(num_evs)
+        for k in range(num_evs):
+            arrivalSOCs[k] = evs[k].batterySOC_forecast
+            deg_freedom[k] = sum(evs[k].availability_forecast)
+            urgency[k] = evs[k].batterySOC_forecast*sum(evs[k].availability_forecast)      
+        order_urgency = np.argsort(urgency)
     
     for k in range(num_evs):
         
         max_rate = [chargingrate_max for i in range(num_slots)]
 
         # select electric vehicle
-        ev_id = order_urgency[k]
-        ev = evs[ev_id]
+        if urgency_mode == "dist":
+            ev = households[order_urgency[k]].ev
+        else:
+            ev_id = order_urgency[k]
+            ev = evs[ev_id]
         hd_id = ev.position
-        print("Schedule "+str(k+1)+"th vehicle "+str(ev_id)+" at household "+str(hd_id)) 
+        print("Schedule "+str(k+1)+"th vehicle at household "+str(hd_id)) 
         
         # repeat schedule proposals until feasible solution acquired (with forecast data)
         feasible = False
@@ -173,7 +190,7 @@ def runNetworkGreedy():
                 block_indices = []
                 for i in indices:
                     max_rate[i] -= cfg.getfloat('networkGREEDY', 'decrement')
-                    print("-> Reduce max charging rate at ["+str(i)+"] to "+str(max_rate[i])+" kW.")
+                    print("-> Reduce max charging rate at ["+str(i)+"] to "+format(max_rate[i], ".3f")+" kW.")
                     if max_rate[i] <= 0:
                         block_indices.append(i)
                 for bi in block_indices:
@@ -582,6 +599,7 @@ targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
 chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
 voltage_min = cfg.getfloat("network","voltage_min")
 loadmultiplier = cfg.getfloat("network","load_multiplier")
+urgency_mode = cfg.get("networkGREEDY","urgency_mode")
 
 # calculate further parameters from config
 num_slots = int(duration/resolution)
@@ -639,10 +657,10 @@ for mc_iter in range(1,iterations+1):
     counter = 1
     for hd in households:
         hd.day_id_1 = rd.randint(1,hd.id_range)
-        demand_ts1 = read_timeseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
+        demand_ts1 = read_floatseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_1,"03d")+".txt")
         hd.day_id_2 = rd.randint(1,hd.id_range)
-        demand_ts2 = read_timeseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
+        demand_ts2 = read_floatseries("../demand_timeseries/loadprofile_"+season+"_inh"+\
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
@@ -674,8 +692,8 @@ for mc_iter in range(1,iterations+1):
     
     # generate electricity price forecast
     day_id = rd.randint(0,999)
-    price_ts1 = read_timeseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id,"04d")+".txt")
-    price_ts2 = read_timeseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
+    price_ts1 = read_floatseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id,"04d")+".txt")
+    price_ts2 = read_floatseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
     price_ts = merge_timeseries(price_ts1, price_ts2)
     mean_price = mean(price_ts)
     price_ts = [((item - mean_price) * spread + mean_price + surcharge) for item in price_ts]
