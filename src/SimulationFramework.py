@@ -106,12 +106,12 @@ def runPriceGreedy():
             remainingEnergyDemand = targetSOC*ev.capacity-currentSOC
             chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
             chargingrate = ev.availability_forecast[order_cheapslots[t]]*min(ev.chargingrate_max, chargingrate_need)
-            schedules[ev.position-1][order_cheapslots[t]] = chargingrate
+            schedules[ev.position][order_cheapslots[t]] = chargingrate
             currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
             t+=1
             if t == num_slots:
                 break
-        ev.schedule = schedules[ev.position-1].tolist()
+        ev.schedule = schedules[ev.position].tolist()
     
     return schedules
 
@@ -132,8 +132,8 @@ def runNetworkGreedy():
             distances[i] = alldistances[load_locations[i]]
         order_urgency = np.argsort(distances)
     elif urgency_mode == "manual":
+        # only works if all households have EV TODO
         order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
-        print(order_urgency)
     else:
         # prioritise electric vehicles
         urgency = np.zeros(num_evs)
@@ -144,6 +144,8 @@ def runNetworkGreedy():
             deg_freedom[k] = sum(evs[k].availability_forecast)
             urgency[k] = evs[k].batterySOC_forecast*sum(evs[k].availability_forecast)      
         order_urgency = np.argsort(urgency)
+    
+    print(order_urgency)
     
     for k in range(num_evs):
         
@@ -569,6 +571,9 @@ def evaluateResults(code):
     # DSSText.Command = "export seqpowers"
     # DSSText.Command = "export loads"
     # DSSText.Command = "export summary"
+    
+    # TODO extend for MC analysis
+    return sum(map(sum,netChCost))
 
 # *****************************************************************************************************
 # * General Framework Initialisation
@@ -577,7 +582,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(1962757)
+rd.seed(19627571)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -647,6 +652,7 @@ for i in range(num_households):
     
 print(">> @Init: Network instantiated and compiled.")
 
+COST = []
 for mc_iter in range(1,iterations+1):
     # *****************************************************************************************************
     # * Generate Scenario
@@ -730,7 +736,7 @@ for mc_iter in range(1,iterations+1):
     print(">> @Opt: Optimisation cycle complete after "+format(time, ".3f")+" sec.")
     
     if len(schedules) != 0:
-        evaluateResults("opt")
+        c = evaluateResults("opt")
     
     # *****************************************************************************************************
     # * Run Simulation
@@ -779,10 +785,13 @@ for mc_iter in range(1,iterations+1):
     if len(schedules) == 0:
         schedules = chargeAsFastAsPossible()
     
-    evaluateResults("sim")
+    a = evaluateResults("sim")
     
     # reparation controller 
-    # TODO
+    # TODO extend
+    COST.append(c)
+    
+np.savetxt("../log/Results_COSTDIST.csv", np.asarray(COST), delimiter=",")
 
 # *****************************************************************************************************
 
