@@ -43,7 +43,7 @@ def merge_timeseries(x,y):
             z.append(y[i-dayswitch_slot])
     return z
 
-# NETWORK	
+# NETWORK    
 def updateLoad(ts,id):
     dmd_dss = str(ts).replace(',', '').replace('[', '').replace(']', '')
     DSSText.Command = "Edit Loadshape.Shape_"+str(id)+" mult=("+dmd_dss+")"
@@ -90,7 +90,7 @@ def chargeAsFastAsPossible():
 def runPriceGreedy():
     schedules = np.zeros((num_households,num_slots))
     
-	# sort price time series
+    # sort price time series
     price_ts_opt = np.array(price_ts)
     order_cheapslots = np.argsort(price_ts_opt)
     
@@ -133,7 +133,7 @@ def runNetworkGreedy():
         # select electric vehicle
         ev_id = order_urgency[k]
         ev = evs[ev_id]
-        hd_id = ev.position 
+        hd_id = ev.position
         print("Schedule "+str(k+1)+"th vehicle "+str(ev_id)+" at household "+str(hd_id)) 
         
         # repeat schedule proposals until feasible solution acquired (with forecast data)
@@ -148,7 +148,7 @@ def runNetworkGreedy():
                 remainingEnergyDemand = targetSOC*ev.capacity-currentSOC
                 chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
                 chargingrate = ev.availability_forecast[pr_id]*min(ev.chargingrate_max, chargingrate_need)
-                schedules[ev.position-1][pr_id] = chargingrate
+                schedules[ev.position][pr_id] = chargingrate
                 currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
                 t+=1
                 if t == num_slots:
@@ -157,14 +157,16 @@ def runNetworkGreedy():
             print("-> Required "+str(t)+" slots to complete charge")  
             
             # test proposed schedule for voltage problems
-            newload = list(map(add,households[hd_id-1].demandForecast, schedules[hd_id-1]))
-            updateLoad(newload,hd_id)
+            newload = list(map(add,households[hd_id].demandForecast, schedules[hd_id]))
+            updateLoad(newload,hd_id+1)
             solvePowerFlow()
             slot_minvolts = np.zeros(num_slots)
             for i in range(num_slots):
                 slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
              
             if min(slot_minvolts) < voltage_min*230:
+                print(min(slot_minvolts))
+                print(price_ts_opt[i])
                 print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
                 # set price to infinity, update order of price time series
                 indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
@@ -174,13 +176,16 @@ def runNetworkGreedy():
                 print("-> Forbid further loads in slots "+str(indices))
                 # reset schedule for this EV
                 for i in range(num_slots):
-                    schedules[hd_id-1][i] = 0
+                    schedules[hd_id][i] = 0
             else:
                 print("-> No voltage violation. Continue with proposed schedule.")
                 feasible = True
 
-        ev.schedule = schedules[hd_id-1].tolist()
-		
+        ev.schedule = schedules[hd_id].tolist()
+        
+        volt = getVolts()
+        np.savetxt("../log/Results_Voltages.csv", np.asarray(volt), delimiter=",")
+        
     return schedules
 
 # PSO
@@ -235,8 +240,8 @@ def runOptParticleSwarm():
     schedules = np.zeros((num_households,num_slots)).tolist()
     
     for i in range(num_evs):
-        schedules[evs[i].position-1] = ev_schedules[i].tolist()
-        evs[i].schedule = schedules[evs[i].position-1]
+        schedules[evs[i].position] = ev_schedules[i].tolist()
+        evs[i].schedule = schedules[evs[i].position]
         
     return schedules
 
@@ -283,8 +288,8 @@ def runOptGenetic():
     schedules = np.zeros((num_households,num_slots)).tolist()
     
     for i in range(num_evs):
-        schedules[evs[i].position-1] = ev_schedules[i].tolist()
-        evs[i].schedule = schedules[evs[i].position-1]
+        schedules[evs[i].position] = ev_schedules[i].tolist()
+        evs[i].schedule = schedules[evs[i].position]
         
     return schedules
 
@@ -351,8 +356,8 @@ def feasible(individual):
     ev_schedules = [individual[i:i+num_slots] for i in range(0, len(individual), num_slots)]
     for k in range(num_evs):
         hd_id = evs[k].position       
-        newload = list(map(add,households[hd_id-1].demandForecast, ev_schedules[k]))
-        updateLoad(newload,hd_id)
+        newload = list(map(add,households[hd_id].demandForecast, ev_schedules[k]))
+        updateLoad(newload,hd_id+1)
     solvePowerFlow()
     slot_minvolts = np.zeros(num_slots)
     for i in range(num_slots):
@@ -373,22 +378,22 @@ def evaluateResults(code):
     print("-------------------------------------------------")
     print(">> @Eval: Starting "+code+" evaluation and fill logs.")
     
-	# schedule reality adjustment
+    # schedule reality adjustment
     if code == "sim":
         for j in range(num_households):
             if households[j].ev != None:
                 currentSOC = households[j].ev.batterySOC_simulated
                 forced_stop = False
                 for i in range(num_slots):
-                    schedules[j-1][i] = schedules[j-1][i]*households[j].ev.availability_simulated[i]
-                    currentSOC += (schedules[j-1][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)
+                    schedules[j][i] = schedules[j][i]*households[j].ev.availability_simulated[i]
+                    currentSOC += (schedules[j][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)
                     if forced_stop:
-                        schedules[j-1][i] = 0.0
+                        schedules[j][i] = 0.0
                     elif currentSOC > households[j].ev.capacity:
-                        schedules[j-1][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j-1][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
+                        schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
                         forced_stop = True
-                households[j].ev.schedule = schedules[j-1]
-	
+                households[j].ev.schedule = schedules[j]
+    
     # include schedule in residential net load
     netloads = []
     for i in range(num_households):
@@ -400,6 +405,13 @@ def evaluateResults(code):
             exit(1)
         netloads.append(netload)
         updateLoad(netload,i+1)
+    
+    gaps = []
+    for i in range(num_households):
+        gap = list(map(sub,households[i].demandForecast,map(sub,netloads[i], households[i].ev.schedule)))
+        gaps.append(gap)
+    np.savetxt("../log/Results_Gaps.csv", np.asarray(gaps), delimiter=",")
+    
     
     solvePowerFlow()
     household_voltages = getVolts()
@@ -485,7 +497,7 @@ def evaluateResults(code):
                                    'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
                                    'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
                 for i in range(num_slots):
-                    solution_writer.writerow( ( (i+1), netloads[j][i], eva_demand[i], 0, schedules[j-1][i],\
+                    solution_writer.writerow( ( (i+1), netloads[j][i], eva_demand[i], 0, schedules[j][i],\
                                         av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/230, eva_price[i],chCost[j][i],\
                                         regRev[j][i],netChCost[j][i],resCost[j][i],totalCost[j][i]) )
             finally:
@@ -511,7 +523,7 @@ def evaluateResults(code):
     for i in range(num_slots):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
                                    sum(np.asarray(schedules).T[i]*av.T[i]), sum(av.T[i]),sum(regAv.T[i]),\
-                                   sum(batterySOC.T[i])/(num_evs*ev.capacity),min(batterySOC.T[i]),min(np.asarray(household_voltages).T[i]),\
+                                   sum(batterySOC.T[i])/(num_evs*ev.capacity),min(batterySOC.T[i])/ev.capacity,min(np.asarray(household_voltages).T[i]),\
                                    min(np.asarray(household_voltages).T[i])/230,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
     log_slot.close()
@@ -549,7 +561,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(1932757)
+rd.seed(1932457)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -756,3 +768,4 @@ for mc_iter in range(1,iterations+1):
     # TODO
 
 # *****************************************************************************************************
+
