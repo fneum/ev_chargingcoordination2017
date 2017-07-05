@@ -785,7 +785,7 @@ for mc_iter in range(1,iterations+1):
     if len(schedules) == 0:
         schedules = chargeAsFastAsPossible()
     
-    a = evaluateResults("sim")
+    evaluateResults("sim")
     
     # reparation controller 
     # TODO extend
