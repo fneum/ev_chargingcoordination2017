@@ -131,6 +131,9 @@ def runNetworkGreedy():
         for i in range(len(load_locations)):
             distances[i] = alldistances[load_locations[i]]
         order_urgency = np.argsort(distances)
+    elif urgency_mode == "manual":
+        order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
+        print(order_urgency)
     else:
         # prioritise electric vehicles
         urgency = np.zeros(num_evs)
@@ -147,7 +150,7 @@ def runNetworkGreedy():
         max_rate = [chargingrate_max for i in range(num_slots)]
 
         # select electric vehicle
-        if urgency_mode == "dist":
+        if urgency_mode == "dist" or urgency_mode == "manual":
             ev = households[order_urgency[k]].ev
         else:
             ev_id = order_urgency[k]
@@ -190,7 +193,7 @@ def runNetworkGreedy():
                 block_indices = []
                 for i in indices:
                     max_rate[i] -= cfg.getfloat('networkGREEDY', 'decrement')
-                    print("-> Reduce max charging rate at ["+str(i)+"] to "+format(max_rate[i], ".3f")+" kW.")
+                    print("-> Reduce max charging rate at ["+str(i)+"] to "+format(max(0,max_rate[i]), ".3f")+" kW.")
                     if max_rate[i] <= 0:
                         block_indices.append(i)
                 for bi in block_indices:
