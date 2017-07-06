@@ -14,15 +14,16 @@ import numpy as np
 import scipy as sp
 import scipy.stats as sps
 import measurement.measures as conv
+from math import *
 from statistics import mean
 from operator import add, sub, mul
 from timeit import default_timer as timer
 from deap import base,creator,tools,algorithms
-from math import *
 
 # Class Imports
 from VehicleSpecifications import ElectricVehicle
 from HouseholdSpecifications import Household
+from scipy.stats.stats import spearmanr
 
 # *****************************************************************************************************
 # * Utility Functions
@@ -51,7 +52,7 @@ def merge_timeseries(x,y):
 # UNCERTAINTY
 def get_rednoise(r,s,max_shift):
     rednoise = []
-    shift = rd.randint(-max_shift,max_shift) # TODO set properly
+    shift = rd.randint(-max_shift,max_shift)
     for i in range(num_slots):
         w = sps.norm.rvs(0,s)
         if i == 0:
@@ -212,7 +213,7 @@ def runNetworkGreedy():
                     if max_rate[i] <= 0:
                         block_indices.append(i)
                 for bi in block_indices:
-                    price_ts_opt[bi] = math.inf
+                    price_ts_opt[bi] = inf
                     order_prices = np.argsort(price_ts_opt)
                     for i in range(num_slots):
                         schedules[hd_id][i] = 0.0
@@ -783,7 +784,8 @@ for mc_iter in range(1,iterations+1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            hd.simulateDemand() # TODO proper demand uncertainty
+            error = get_rednoise(0.8, 0.1, 4) #  TODO proper demand uncertainty
+            hd.demandSimulated =  list(map(add,hd.demandForecast,error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
         for hd in households:
@@ -793,12 +795,15 @@ for mc_iter in range(1,iterations+1):
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
         price_ts_sim = np.zeros(num_slots)
-        error = get_rednoise(0.9, 1, 2)
+        error = get_rednoise(0.9, 1, 2) # set properly
         price_ts_sim = list(map(add,price_ts,error))
         print(">> @Sim: Price uncertainty realised.")
     else:
         price_ts_sim = list(price_ts)
         print(">> @Sim: Price uncertainty not realised.")
+    
+    # TEST
+    print(spearmanr(price_ts, price_ts_sim))
     
     # if no optimised schedule available -> uncontrolled charging
     if len(schedules) == 0:
