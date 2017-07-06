@@ -7,7 +7,6 @@ import win32com.client
 import configparser
 import csv
 import fileinput
-import math
 import multiprocessing
 import os
 import numpy.random as rd
@@ -19,6 +18,7 @@ from statistics import mean
 from operator import add, sub, mul
 from timeit import default_timer as timer
 from deap import base,creator,tools,algorithms
+from math import *
 
 # Class Imports
 from VehicleSpecifications import ElectricVehicle
@@ -47,6 +47,19 @@ def merge_timeseries(x,y):
         else:
             z.append(y[i-dayswitch_slot])
     return z
+
+# UNCERTAINTY
+def get_rednoise(r,s,max_shift):
+    rednoise = []
+    shift = rd.randint(-max_shift,max_shift) # TODO set properly
+    for i in range(num_slots):
+        w = sps.norm.rvs(0,s)
+        if i == 0:
+            x = w
+        else:
+            x = r*x + sqrt(1-r**2) * w
+        rednoise.append(x)
+    return rednoise
 
 # NETWORK    
 def updateLoad(ts,id):
@@ -418,6 +431,10 @@ def evaluateResults(code):
                         schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
                         forced_stop = True
                 households[j].ev.schedule = schedules[j]
+                
+    
+    # reparation controller
+    # TODO
     
     # include schedule in residential net load
     netloads = []
@@ -582,7 +599,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(19627571)
+rd.seed(19627572)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -775,7 +792,9 @@ for mc_iter in range(1,iterations+1):
     
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
-        price_ts_sim = [item + norm.rvs(0,1) for item in price_ts] # TODO proper price uncertainty
+        price_ts_sim = np.zeros(num_slots)
+        error = get_rednoise(0.9, 1, 2)
+        price_ts_sim = list(map(add,price_ts,error))
         print(">> @Sim: Price uncertainty realised.")
     else:
         price_ts_sim = list(price_ts)
@@ -787,7 +806,8 @@ for mc_iter in range(1,iterations+1):
     
     evaluateResults("sim")
     
-    # reparation controller 
+    #DSSText.Command = "plot circuit Power dots=y C1=$00FF0000"
+    
     # TODO extend
     COST.append(c)
     
