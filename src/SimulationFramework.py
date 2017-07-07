@@ -71,6 +71,7 @@ def updateLoad(ts,id):
 def solvePowerFlow():
     DSSText.Command = "reset"
     DSSText.Command = "set year=2"
+    time = timer()
     DSSSolution.Solve()
     DSSMonitors.SaveAll
 
@@ -130,14 +131,14 @@ def runPriceGreedy():
     return schedules
 
 # networkGREEDY
-def runNetworkGreedy():
+def runNetworkGreedy(urgency_mode):
     schedules = np.zeros((num_households,num_slots))
     
     # sort price time series
     price_ts_opt = np.array(price_ts)
     order_prices = np.argsort(price_ts_opt)
     
-    if urgency_mode == "dist":
+    if urgency_mode == "distance":
         # only works if all households have EV TODO
         alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
         load_locations = read_intseries("../network_details/LoadLocations.txt")
@@ -148,8 +149,18 @@ def runNetworkGreedy():
     elif urgency_mode == "manual":
         # only works if all households have EV TODO
         order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
-    else:
-        # prioritise electric vehicles
+    elif urgency_mode == "arrival":
+        arrival_slots = np.zeros(num_evs)
+        for i in range(num_evs):
+            arrival_slots[i] = evs[i].availability_simulated.index(1)
+            evs[i].batterySOC_forecast = evs[i].batterySOC_simulated
+            j=0
+            while not evs[i].availability_simulated[j] == evs[i].availability_forecast[j]:
+                evs[i].availability_forecast[j] = evs[i].availability_simulated[j]
+                j+=1
+        order_urgency = np.argsort(arrival_slots)
+    elif urgency_mode == "soc":
+        # prioritise electric vehicles according to SOC and availability period
         urgency = np.zeros(num_evs)
         deg_freedom = np.zeros(num_evs)
         arrivalSOCs = np.zeros(num_evs)
@@ -158,7 +169,8 @@ def runNetworkGreedy():
             deg_freedom[k] = sum(evs[k].availability_forecast)
             urgency[k] = evs[k].batterySOC_forecast*sum(evs[k].availability_forecast)      
         order_urgency = np.argsort(urgency)
-    
+    else:
+        urgency_mode = [i for i in range(num_evs)]
     print(order_urgency)
     
     for k in range(num_evs):
@@ -180,6 +192,7 @@ def runNetworkGreedy():
             
             # calculate greedy schedule proposal
             t = 0
+            
             currentSOC = ev.batterySOC_forecast
             while not currentSOC == (targetSOC*ev.capacity):
                 pr_id = order_prices[t]
@@ -201,11 +214,26 @@ def runNetworkGreedy():
             slot_minvolts = np.zeros(num_slots)
             for i in range(num_slots):
                 slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
-             
-            if min(slot_minvolts) < voltage_min*230:
-                print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
+            
+            if cfg.getboolean("networkGREEDY", "overload_constraints"):
+                slot_overloads = np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV",delimiter=',',skip_header=1,usecols=(0,))) / conv.Time(min=resolution).hr -1
+                slot_overloads = [int(i) for i in slot_overloads.tolist()]
+            else:
+                slot_overloads = []
+            
+            if min(slot_minvolts) < voltage_min*230 or len(slot_overloads) > 0:
+                
+                if min(slot_minvolts) < voltage_min*230 and len(slot_overloads) > 0:
+                    print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+" and overload at slot "+str(slot_overloads)+". Enter mitigation routine.")
+                elif min(slot_minvolts) < voltage_min*230:
+                    print("-> Only voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
+                elif len(slot_overloads) > 0:
+                    print("-> Only overload at slot "+str(slot_overloads))
+                
                 # set price to infinity, update order of price time series
                 indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
+                indices.extend(slot_overloads)
+                indices = list(set(indices))
                 block_indices = []
                 for i in indices:
                     max_rate[i] -= cfg.getfloat('networkGREEDY', 'decrement')
@@ -220,7 +248,7 @@ def runNetworkGreedy():
                 if len(block_indices) != 0:
                     print("-> Forbid further loads in slots "+str(block_indices))
             else:
-                print("-> No voltage violation. Continue with proposed schedule.")
+                print("-> No violations. Continue with proposed schedule.")
                 feasible = True
 
         ev.schedule = schedules[hd_id].tolist()
@@ -403,7 +431,6 @@ def feasible(individual):
         slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
     if min(slot_minvolts) < voltage_min*230:
         feasible = False
-    
     return feasible
 
 def distance(individual):
@@ -730,41 +757,16 @@ for mc_iter in range(1,iterations+1):
     DSSSolution.Solve()
     
     # *****************************************************************************************************
-    # * Run Optimisation
-    # *****************************************************************************************************
-    print("-------------------------------------------------")
-    
-    alg = cfg.get("general","algorithm") 
-    print(">> @Opt: "+alg+" selected as optimisation algorithm.")
-    start = timer()
-    
-    if alg == "priceGREEDY":
-        schedules = runPriceGreedy()
-    elif alg == "networkGREEDY":
-        schedules = runNetworkGreedy()
-    elif alg == "GA":
-        schedules = runOptGenetic()
-    elif alg == "PSO":
-        schedules = runOptParticleSwarm()
-    else:
-        schedules = []
-    
-    end = timer()
-    time = end - start
-    print(">> @Opt: Optimisation cycle complete after "+format(time, ".3f")+" sec.")
-    
-    if len(schedules) != 0:
-        c = evaluateResults("opt")
-    
-    # *****************************************************************************************************
     # * Run Simulation
     # *****************************************************************************************************
     print("-------------------------------------------------")
     
     # generate actual EV arrival/departure times
-    if cfg.getboolean("uncertainty","unc_ev_trip"):
+    unc_ev_arr = cfg.getboolean("uncertainty","unc_ev_arr")
+    unc_ev_dep = cfg.getboolean("uncertainty","unc_ev_dep")
+    if unc_ev_arr or unc_ev_dep:
         for ev in evs:
-            ev.simulateAvailability()
+            ev.simulateAvailability(unc_ev_arr, unc_ev_dep)
         print(">> @Sim: Vehicle arrival/departure uncertainty realised.")
     else:
         for ev in evs:
@@ -795,28 +797,48 @@ for mc_iter in range(1,iterations+1):
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
         price_ts_sim = np.zeros(num_slots)
-        error = get_rednoise(0.9, 1, 2) # set properly
+        error = get_rednoise(0.9, 1, 2) # TODO set properly
         price_ts_sim = list(map(add,price_ts,error))
         print(">> @Sim: Price uncertainty realised.")
     else:
         price_ts_sim = list(price_ts)
         print(">> @Sim: Price uncertainty not realised.")
     
-    # TEST
+    # TEST TODO
     print(spearmanr(price_ts, price_ts_sim))
     
-    # if no optimised schedule available -> uncontrolled charging
-    if len(schedules) == 0:
+    # *****************************************************************************************************
+    # * Run Optimisation
+    # *****************************************************************************************************
+    print("-------------------------------------------------")
+    
+    alg = cfg.get("general","algorithm") 
+    print(">> @Opt: "+alg+" selected as optimisation algorithm.")
+    start = timer()
+    
+    if alg == "priceGREEDY":
+        schedules = runPriceGreedy()
+    elif alg == "networkGREEDY":
+        schedules = runNetworkGreedy(urgency_mode)
+    elif alg == "GA":
+        schedules = runOptGenetic()
+    elif alg == "PSO":
+        schedules = runOptParticleSwarm()
+    else:
         schedules = chargeAsFastAsPossible()
     
-    evaluateResults("sim")
+    print(">> @Opt: Optimisation cycle complete after "+format(timer()-start, ".3f")+" sec.")
     
-    #DSSText.Command = "plot circuit Power dots=y C1=$00FF0000"
+    # *****************************************************************************************************
+    # * Evaluation Commands
+    # *****************************************************************************************************
     
-    # TODO extend
+    c = evaluateResults("opt")
+    d = evaluateResults("sim")
+    
+    # TODO extend MC logs
     COST.append(c)
     
 np.savetxt("../log/Results_COSTDIST.csv", np.asarray(COST), delimiter=",")
 
-# *****************************************************************************************************
-
+print("Programme terminated!")
