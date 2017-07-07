@@ -718,6 +718,11 @@ for mc_iter in range(1,iterations+1):
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
+        if cfg.getboolean("uncertainty_mitigation", "demand"):
+            # TODO investigate further options - 
+            dem_security_margin = [sps.norm.ppf(0.8, loc=0, scale=0.3) for _ in range(num_slots)] # TODO set parameters properly
+            print(dem_security_margin)
+            hd.demandForecast = list(map(add,hd.demandForecast,dem_security_margin))
         updateLoad(hd.demandForecast,counter)
         counter+=1
     print(">> @Scen: "+str(num_households)+" households initialised and demand forecasts generated.")
@@ -786,7 +791,7 @@ for mc_iter in range(1,iterations+1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            error = get_rednoise(0.8, 0.1, 4) #  TODO proper demand uncertainty
+            error = get_rednoise(0.8, 0.3, 4) #  TODO proper demand uncertainty
             hd.demandSimulated =  list(map(add,hd.demandForecast,error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
