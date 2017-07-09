@@ -71,6 +71,7 @@ class ElectricVehicle:
                 break
         self.availability_forecast = []
         self.availability_simulated = []
+        self.availability_probability = []
         
         self.batterySOC_forecast = 0
         self.batterySOC_simulated = 0
@@ -82,8 +83,13 @@ class ElectricVehicle:
         duration = conv.Time(hr=self.cfg.getint('general','duration')).min
         resolution = self.cfg.getint('general','resolution')
         num_slots = int(duration/resolution)
-        availability_start = math.floor(max(0,self.tripend_mu-start)/resolution)
-        availability_end = math.floor(min(duration,(duration-start)+self.tripstart_mu)/resolution)
+        if self.cfg.get("uncertainty_mitigation", "availability") == "prob":
+            req_av_certainty = self.cfg.getfloat("uncertainty_mitigation", "req_av_certainty")
+            availability_start = math.floor(max(0,sps.norm.ppf(req_av_certainty, self.tripend_mu, self.tripend_sig)-start)/resolution)
+            availability_end = math.floor(min(duration,(duration-start)+sps.norm.ppf(1-req_av_certainty, self.tripstart_mu, self.tripstart_sig))/resolution)
+        else:
+            availability_start = math.floor(max(0,self.tripend_mu-start)/resolution)
+            availability_end = math.floor(min(duration,(duration-start)+self.tripstart_mu)/resolution)
         for i in range(num_slots):
             if i<availability_start:
                 self.availability_forecast.append(0)
@@ -93,8 +99,24 @@ class ElectricVehicle:
                 self.availability_forecast.append(0)
         return self.availability_forecast
     
+    def generateAvailabilityProbability(self):
+        start = conv.Time(hr=self.cfg.getfloat('general','starting')).min 
+        duration = conv.Time(hr=self.cfg.getint('general','duration')).min
+        resolution = self.cfg.getint('general','resolution')
+        num_slots = int(duration/resolution)
+        for slot in range(num_slots):    
+            p_arrived = sps.norm.cdf(slot*resolution+start,self.tripend_mu, self.tripend_sig)
+            p_notdeparted = 1-sps.norm.cdf(slot*resolution-duration+start,self.tripstart_mu,self.tripstart_sig)
+            self.availability_probability.append(min(p_arrived,p_notdeparted))
+        return self.availability_probability
+    
     def generateBatterySOCForecast(self):
-        self.batterySOC_forecast = max(0,self.capacity-conv.Distance(mi=self.mileage_mu).km*self.consumption)
+        if self.cfg.get("uncertainty_mitigation", "battery_soc") == "prob":
+            req_bsoc_certainty = self.cfg.getfloat("uncertainty_mitigation", "req_bsoc_certainty")
+            mileage_forecast = sps.norm.ppf(req_bsoc_certainty, self.mileage_mu, self.mileage_sig)
+            self.batterySOC_forecast = max(0,self.capacity-conv.Distance(mi=mileage_forecast).km*self.consumption)
+        else:
+            self.batterySOC_forecast = max(0,self.capacity-conv.Distance(mi=self.mileage_mu).km*self.consumption)
         return self.batterySOC_forecast
         
     def simulateAvailability(self, arr, dep):

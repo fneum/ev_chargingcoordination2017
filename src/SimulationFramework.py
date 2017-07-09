@@ -24,6 +24,7 @@ from deap import base,creator,tools,algorithms
 from VehicleSpecifications import ElectricVehicle
 from HouseholdSpecifications import Household
 from scipy.stats.stats import spearmanr
+from unittest.test.testmock.testpatch import something
 
 # *****************************************************************************************************
 # * Utility Functions
@@ -111,17 +112,28 @@ def runPriceGreedy():
     schedules = np.zeros((num_households,num_slots))
     
     # sort price time series
-    price_ts_opt = np.array(price_ts)
-    order_cheapslots = np.argsort(price_ts_opt)
+    if not cfg.get("uncertainty_mitigation","availability") == "penalty":
+        price_ts_opt = np.array(price_ts)
+        order_prices = np.argsort(price_ts_opt)
     
     for ev in evs:
+        
+        if cfg.get("uncertainty_mitigation","availability") == "penalty":
+            p_av = ev.availability_probability
+            penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+            price_ts_opt = []
+            for i in range(num_slots):
+                price = p_av[i] * price_ts[i] + (1-p_av[i]) * penalty
+                price_ts_opt.append(price)
+            order_prices = np.argsort(price_ts_opt)
+        
         t = 0
         currentSOC = ev.batterySOC_forecast
         while not currentSOC == (targetSOC*ev.capacity):
             remainingEnergyDemand = targetSOC*ev.capacity-currentSOC
             chargingrate_need = remainingEnergyDemand/(ev.charging_efficiency*conv.Time(min=resolution).hr)
-            chargingrate = ev.availability_forecast[order_cheapslots[t]]*min(ev.chargingrate_max, chargingrate_need)
-            schedules[ev.position][order_cheapslots[t]] = chargingrate
+            chargingrate = ev.availability_forecast[order_prices[t]]*min(ev.chargingrate_max, chargingrate_need)
+            schedules[ev.position][order_prices[t]] = chargingrate
             currentSOC+=(chargingrate*ev.charging_efficiency*conv.Time(min=resolution).hr)
             t+=1
             if t == num_slots:
@@ -135,8 +147,9 @@ def runNetworkGreedy(urgency_mode):
     schedules = np.zeros((num_households,num_slots))
     
     # sort price time series
-    price_ts_opt = np.array(price_ts)
-    order_prices = np.argsort(price_ts_opt)
+    if not cfg.get("uncertainty_mitigation","availability") == "penalty":
+        price_ts_opt = np.array(price_ts)
+        order_prices = np.argsort(price_ts_opt)
     
     if urgency_mode == "distance":
         # only works if all households have EV TODO
@@ -174,6 +187,16 @@ def runNetworkGreedy(urgency_mode):
     print(order_urgency)
     
     for k in range(num_evs):
+        
+        if cfg.get("uncertainty_mitigation","availability") == "penalty":
+            p_av = evs[k].availability_probability
+            penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+            price_ts_opt = []
+            for i in range(num_slots):
+                price = p_av[i] * price_ts[i] + (1-p_av[i]) * penalty
+                price_ts_opt.append(price)
+            print(spearmanr(price_ts, price_ts_opt))
+            order_prices = np.argsort(price_ts_opt)
         
         max_rate = [chargingrate_max for i in range(num_slots)]
 
@@ -498,6 +521,7 @@ def evaluateResults(code):
     eCharged = np.zeros((num_households,num_slots))
     batterySOC = np.zeros((num_households,num_slots))
     av = np.zeros((num_households,num_slots))
+    prob_av = np.zeros((num_households,num_slots))
     resDemand = []
     
     j = 0
@@ -530,11 +554,13 @@ def evaluateResults(code):
         for i in range(num_slots):
             if hd.ev is None:
                 av[j][i] = 0
+                prob_av[j][i] = 0
                 eCharged[j][i] = 0
                 chCost[j][i] = 0
                 batterySOC[j][i] = 0
             else:
                 av[j][i] = eva_availability[i]
+                prob_av[j][i] = hd.ev.availability_probability[i]
                 eCharged[j][i] = hd.ev.schedule[i]*hd.ev.charging_efficiency*conv.Time(min=resolution).hr
                 chCost[j][i] = hd.ev.schedule[i]*conv.Time(min=resolution).hr*eva_price[i]/100
                 if i == 0:
@@ -604,7 +630,8 @@ def evaluateResults(code):
     np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResCost.csv", np.asarray(resCost), delimiter=",")
     np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
     np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
-    
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
+
     eval_end = timer()
     eval_time = eval_end - eval_start
     print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds.")
@@ -627,7 +654,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(19627572)
+rd.seed(19627372)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -718,10 +745,10 @@ for mc_iter in range(1,iterations+1):
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
-        if cfg.getboolean("uncertainty_mitigation", "demand"):
+        if cfg.get("uncertainty_mitigation", "demand") == "norm":
             # TODO investigate further options - 
-            dem_security_margin = [sps.norm.ppf(0.8, loc=0, scale=0.3) for _ in range(num_slots)] # TODO set parameters properly
-            print(dem_security_margin)
+            req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
+            dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)] # TODO set parameters properly
             hd.demandForecast = list(map(add,hd.demandForecast,dem_security_margin))
         updateLoad(hd.demandForecast,counter)
         counter+=1
@@ -745,6 +772,7 @@ for mc_iter in range(1,iterations+1):
     # generate EV availability and battery state of charge forecast
     for ev in evs:
         ev.generateAvailabilityForecast()
+        ev.generateAvailabilityProbability()
         ev.generateBatterySOCForecast()
         
     print(">> @Scen: Vehicle availability and battery SOC forecasts generated.")
