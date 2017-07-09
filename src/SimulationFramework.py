@@ -654,7 +654,7 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
 
 # Administrative
-rd.seed(19627372)
+rd.seed(196273724)
 np.set_printoptions(threshold=np.nan)
 print(">> @Init: Utilities defined.")
 
@@ -745,6 +745,7 @@ for mc_iter in range(1,iterations+1):
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
+        hd.demandSimulated = hd.demandForecast
         if cfg.get("uncertainty_mitigation", "demand") == "norm":
             # TODO investigate further options - 
             req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
@@ -820,11 +821,9 @@ for mc_iter in range(1,iterations+1):
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
             error = get_rednoise(0.8, 0.3, 4) #  TODO proper demand uncertainty
-            hd.demandSimulated =  list(map(add,hd.demandForecast,error))
+            hd.demandSimulated =  list(map(add,hd.demandSimulated,error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
-        for hd in households:
-            hd.demandSimulated = hd.demandForecast
         print(">> @Sim: Demand uncertainty not realised.")
     
     # generate actual electricity prices    
