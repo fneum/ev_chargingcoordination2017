@@ -9,6 +9,7 @@ import csv
 import fileinput
 import multiprocessing
 import os
+import copy
 import numpy.random as rd
 import numpy as np
 import scipy as sp
@@ -745,7 +746,7 @@ for mc_iter in range(1,iterations+1):
                                      str(hd.inhabitants)+"_"+str(resolution)+"min"+format(hd.day_id_2,"03d")+".txt")
         hd.demandForecast = merge_timeseries(demand_ts1,demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
-        hd.demandSimulated = hd.demandForecast
+        hd.demandSimulated = copy.deepcopy(hd.demandForecast)
         if cfg.get("uncertainty_mitigation", "demand") == "norm":
             # TODO investigate further options - 
             req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
