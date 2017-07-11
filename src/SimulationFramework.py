@@ -26,6 +26,7 @@ from VehicleSpecifications import ElectricVehicle
 from HouseholdSpecifications import Household
 from scipy.stats.stats import spearmanr
 from unittest.test.testmock.testpatch import something
+from copy import deepcopy
 
 # *****************************************************************************************************
 # * Utility Functions
@@ -277,19 +278,35 @@ def runNetworkGreedy(urgency_mode):
             print("-> Required "+str(t)+" slots to complete charge")  
             
             # test proposed schedule for voltage problems
-            newload = list(map(add,households[hd_id].demandForecast, schedules[hd_id]))
-            updateLoad(newload,hd_id+1)
-            solvePowerFlow()
-            slot_minvolts = np.zeros(num_slots)
-            for i in range(num_slots):
-                slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
-            
-            if cfg.getboolean("networkGREEDY", "overload_constraints"):
-                slot_overloads = np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV",delimiter=',',skip_header=1,usecols=(0,))) / conv.Time(min=resolution).hr -1
-                slot_overloads = [int(i) for i in slot_overloads.tolist()]
+            if not cfg.getboolean("general", "network_sensitivity"):
+                newload = list(map(add,households[hd_id].demandForecast, schedules[hd_id]))
+                updateLoad(newload,hd_id+1)
+                solvePowerFlow()
+                slot_minvolts = np.zeros(num_slots)
+                for i in range(num_slots):
+                    slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
+                
+                if cfg.getboolean("networkGREEDY", "overload_constraints"):
+                    slot_overloads = np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV",delimiter=',',skip_header=1,usecols=(0,))) / conv.Time(min=resolution).hr -1
+                    slot_overloads = [int(i) for i in slot_overloads.tolist()]
+                else:
+                    slot_overloads = []
             else:
-                slot_overloads = []
-            
+                approx_volts = np.asarray(copy.deepcopy(v_init))
+                for t in range(num_slots):
+                     for i in range(num_households):
+                         for j in range(num_households):
+                             approx_volts[i][t] += v_sensitivity[j][i]*schedules[j][t]
+                slot_minvolts = np.zeros(num_slots)
+                for i in range(num_slots):
+                    slot_minvolts[i] = min(approx_volts.T[i])
+                    
+                if cfg.getboolean("networkGREEDY", "overload_constraints"):
+                    slot_overloads = []  #TODO
+                else:
+                    slot_overloads = []
+                
+        
             if min(slot_minvolts) < voltage_min*230 or len(slot_overloads) > 0:
                 
                 if min(slot_minvolts) < voltage_min*230 and len(slot_overloads) > 0:
@@ -320,7 +337,7 @@ def runNetworkGreedy(urgency_mode):
                 print("-> No violations. Continue with proposed schedule.")
                 feasible = True
 
-        ev.schedule = schedules[hd_id].tolist()
+        ev.schedule = schedules[hd_id].tolist()   
         
     return schedules
 
@@ -528,8 +545,15 @@ def evaluateResults(code):
                         schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
                         forced_stop = True
                 households[j].ev.schedule = schedules[j]
-                
-    
+    else:
+        if cfg.getboolean("general","network_sensitivity"):
+            approx_volts = np.asarray(copy.deepcopy(v_init))
+            for t in range(num_slots):
+                for i in range(num_households):
+                    for j in range(num_households):
+                        approx_volts[i][t] += v_sensitivity[j][i]*schedules[j][t]
+            np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxVoltages.csv", np.asarray(approx_volts), delimiter=",")             
+
     # reparation controller
     # TODO
     
