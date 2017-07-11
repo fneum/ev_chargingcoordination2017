@@ -11,7 +11,7 @@ Redirect Loads.txt
 Redirect Monitors.txt
 
 !Set voltagebases=[11  .416]
-Set voltagebases=[11  .39837] ! .23*sqrt(3)
+Set voltagebases=[11  .400] ! .23*sqrt(3)
 Calcvoltagebases
 buscoords buscoords.txt
 

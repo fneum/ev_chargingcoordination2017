@@ -77,13 +77,58 @@ def solvePowerFlow():
     DSSSolution.Solve()
     DSSMonitors.SaveAll
 
-def getVolts(): 
+def getVolts():
     volts = []
     for i in range(num_households):
         DSSMonitors.Name = "VI_MON"+str(i+1)
         volts.append(list(DSSMonitors.Channel(1)))
         households[i].voltages = volts[i]
     return volts
+
+def getVoltageSensitivities():
+    matrix = []
+    DSSText.Command = "set mode=snap year=0"
+    
+    DSSText.Command = "reset"
+    DSSSolution.Solve()
+    DSSMonitors.SaveAll
+    DSSText.Command = "sample"
+    for i in range(num_households):
+        DSSText.Command = "export monitor VI_MON"+str(i+1)
+    
+    basecase_volts = []
+    for i in range(num_households):
+        DSSMonitors.Name = "VI_MON"+str(i+1)
+        basecase_volts.append(DSSMonitors.Channel(1)[0])
+        
+    for i in range(num_households):
+        
+        print(">> @Init: Get sensitivity for load change at household "+str(i+1))
+        
+        if i == 0:
+            DSSText.Command = "Edit Load.LOAD"+str(i+1)+" kW=3"
+        else:
+            DSSText.Command = "Edit Load.LOAD"+str(i+1)+" kW=3"
+            DSSText.Command = "Edit Load.LOAD"+str(i)+" kW=2"
+        
+        DSSText.Command = "reset"
+        DSSSolution.Solve()
+        DSSMonitors.SaveAll
+        DSSText.Command = "sample"
+        for i in range(num_households):
+            DSSText.Command = "export monitor VI_MON"+str(i+1)
+        
+        newcase_volts = []
+        for i in range(num_households):
+            DSSMonitors.Name = "VI_MON"+str(i+1)
+            newcase_volts.append(DSSMonitors.Channel(1)[0])
+            
+        delta_volts = list(map(sub,newcase_volts,basecase_volts))
+        matrix.append(delta_volts)
+        
+    np.savetxt("../log/VoltageSensitivities.csv", np.asarray(matrix), delimiter=",")
+
+    return np.asarray(matrix)
 
 # CONTROLLER
 def chargeAsFastAsPossible():
@@ -714,17 +759,19 @@ DSSMonitors = DSSCircuit.Monitors
 
 # Compile and set major parameters
 DSSText.Command = r"Compile '..\network_details\Master.dss'"
-DSSText.Command = "set mode=daily number="+str(num_slots)+" stepsize="+str(resolution)+"m"
-# DSSText.Command = "set loadmult="+str(loadmultiplier) # cf. alternative option
+print(">> @Init: Network instantiated and compiled.")
 
+if cfg.getboolean("general", "network_sensitivity"):     
+    v_sensitivity = getVoltageSensitivities()
+
+# set major parameters
+DSSText.Command = "set mode=daily number="+str(num_slots)+" stepsize="+str(resolution)+"m"
 for i in range(num_households):
     DSSText.Command = "New Loadshape.Shape_"+str(i+1)
     DSSText.Command = "~ npts="+str(num_slots)
     DSSText.Command = "~ minterval="+str(resolution)
     DSSText.Command = "~ useactual=true"
     
-print(">> @Init: Network instantiated and compiled.")
-
 COST = []
 for mc_iter in range(1,iterations+1):
     # *****************************************************************************************************
@@ -788,8 +835,12 @@ for mc_iter in range(1,iterations+1):
     price_ts = [((item - mean_price) * spread + mean_price + surcharge) for item in price_ts]
     print(">> @Scen: Electricity market prices forecast generated.")
     
-    DSSText.Command = "set year=1"
-    DSSSolution.Solve()
+    #DSSText.Command = "set year=1"
+    #DSSSolution.Solve()
+    
+    solvePowerFlow()
+    v_init = getVolts()
+    print(v_init)
     
     # *****************************************************************************************************
     # * Run Simulation
