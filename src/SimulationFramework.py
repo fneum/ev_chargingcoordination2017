@@ -178,7 +178,7 @@ def chargeAsFastAsPossible():
 # * Optimisation Functions
 # *****************************************************************************************************
 
-# TODO Gurobi!
+# Run linear program with GUROBI
 def runLinearProgram():
     
     try:
@@ -947,7 +947,7 @@ for mc_iter in range(1,iterations+1):
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
         hd.demandSimulated = copy.deepcopy(hd.demandForecast)
         if cfg.get("uncertainty_mitigation", "demand") == "norm":
-            # TODO investigate further options - 
+            # TODO investigate further options for demand uncertainty representation 
             req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
             dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)] # TODO set parameters properly
             hd.demandForecast = list(map(add,hd.demandForecast,dem_security_margin))
@@ -1040,8 +1040,8 @@ for mc_iter in range(1,iterations+1):
         price_ts_sim = list(price_ts)
         print(">> @Sim: Price uncertainty not realised.")
     
-    # TEST TODO
-    print(spearmanr(price_ts, price_ts_sim))
+    # TEST how ranking varies due to realisatio of random variables
+    # print(spearmanr(price_ts, price_ts_sim))
     
     # *****************************************************************************************************
     # * Run Optimisation
