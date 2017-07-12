@@ -12,6 +12,7 @@ import os
 import copy
 import numpy.random as rd
 import numpy as np
+import pandas as pd
 import scipy as sp
 import scipy.stats as sps
 import measurement.measures as conv
@@ -87,8 +88,17 @@ def getVolts():
         households[i].voltages = volts[i]
     return volts
 
-def getVoltageSensitivities():
-    matrix = []
+def getLoadings():
+    loadings = []
+    for i in range(num_linerecords): # TODO if I only consider the first line, reasonable assumption
+        DSSMonitors.Name = "LINE"+str(i+1)+"_VI_vs_Time"    
+        DSSText.Command = "export monitor LINE"+str(i+1)+"_VI_vs_Time"      
+        loadings.append( [ list(DSSMonitors.Channel(7)), list(DSSMonitors.Channel(9)), list(DSSMonitors.Channel(11)) ] )
+    return loadings
+
+def getSensitivities():
+    v_matrix = []
+    s_matrix = []
     DSSText.Command = "set mode=snap year=0"
     
     DSSText.Command = "reset"
@@ -97,6 +107,15 @@ def getVoltageSensitivities():
     DSSText.Command = "sample"
     for i in range(num_households):
         DSSText.Command = "export monitor VI_MON"+str(i+1)
+   
+    # line loadings sensitivity
+    DSSText.Command = "export currents LVTest_Loadings.csv"
+    df_lines = pd.read_csv('LVTest_Loadings.csv', sep=',',skiprows=2,header=None,nrows=num_linerecords,usecols=[1,3,5])
+    basecase_loadings = [df_lines[1].tolist(), df_lines[3].tolist(), df_lines[5].tolist()]
+    
+    # TODO transformer p.r.n.
+    #DSSText.Command = "export powers"
+    #df_tx = pd.read_csv('LVTest_EXP_POWERS.csv', sep=',',skiprows=907,header=None,nrows=1,usecols=[1,3,5])
     
     basecase_volts = []
     for i in range(num_households):
@@ -120,15 +139,21 @@ def getVoltageSensitivities():
         for i in range(num_households):
             DSSText.Command = "export monitor VI_MON"+str(i+1)
         
+        DSSText.Command = "export currents LVTest_Loadings.csv"
+        df_lines = pd.read_csv('LVTest_Loadings.csv', sep=',',skiprows=2,header=None,nrows=num_linerecords,usecols=[1,3,5])
+        newcase_loadings = [df_lines[1].tolist(), df_lines[3].tolist(), df_lines[5].tolist()]
+        
         newcase_volts = []
         for i in range(num_households):
             DSSMonitors.Name = "VI_MON"+str(i+1)
             newcase_volts.append(DSSMonitors.Channel(1)[0])
             
         delta_volts = list(map(sub,newcase_volts,basecase_volts))
-        matrix.append(delta_volts)
+        delta_loadings = [list(map(sub,newcase_loadings[i],basecase_loadings[i])) for i in range(3)]
+        v_matrix.append(delta_volts)
+        s_matrix.append(delta_loadings)
         
-    return np.asarray(matrix)
+    return np.asarray(v_matrix), np.asarray(s_matrix)
 
 # CONTROLLER
 def chargeAsFastAsPossible():
@@ -157,13 +182,11 @@ def chargeAsFastAsPossible():
 def runLinearProgram():
     
     try:
-
         # Create a new model
         m = Model()
-    
+
         # Create variables
         x = m.addVars(num_households,num_slots, ub=chargingrate_max)  
-        print(x)
 
         # Set objective
         coeff = [price_ts[i%num_slots]*conv.Time(min=resolution).hr for i in range(num_households*num_slots)]
@@ -173,7 +196,6 @@ def runLinearProgram():
             y = m.addVars(num_households,num_slots,vtype=GRB.BINARY)
             m.update()
             revenue = (-1)*charging_efficiency*chargingrate_max*reg_price*y.sum()
-            print(revenue)
             m.setObjective(LinExpr(coeff,vars)+LinExpr(revenue), GRB.MINIMIZE)
         else:
             m.setObjective(LinExpr(coeff,vars), GRB.MINIMIZE)
@@ -191,11 +213,20 @@ def runLinearProgram():
                     expr = [x[i,k] for k in range(j+1)]
                     m.addConstr(y[i,j]*(households[i].ev.batterySOC_forecast+charging_efficiency*conv.Time(min=resolution).hr*LinExpr([1 for _ in range(len(expr))],expr)) >= reg_threshold*households[i].ev.capacity)
         
-        # Add technical vehicle constraints:
+        # Add technical constraints:
         for i in range(num_households):
                 for j in range(num_slots):
-                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i],[x[k,j] for k in range(num_households)]) >= voltage_min*230)
-
+                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i],[x[k,j] for k in range(num_households)]) >= voltage_min*base_volt_perphase)
+        
+        if cfg.getboolean("general", "overload_constraints"):
+            rating = 165 # TODO automatic rating reading
+            for i in range(num_linerecords):
+                for t in range(num_slots):
+                    for p in range(3):
+                        stv = [s_sensitivity[k,p,i] for k in range(num_households)]
+                        var = [x[k,t] for k in range(num_households)]
+                        m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= rating)
+        
         #m.write("../log/linearprogram.lp")
         m.optimize()
         print('Obj: %g' % m.objVal)
@@ -349,7 +380,7 @@ def runNetworkGreedy(urgency_mode):
                 for i in range(num_slots):
                     slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
                 
-                if cfg.getboolean("networkGREEDY", "overload_constraints"):
+                if cfg.getboolean("general", "overload_constraints"):
                     slot_overloads = np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV",delimiter=',',skip_header=1,usecols=(0,))) / conv.Time(min=resolution).hr -1
                     slot_overloads = [int(i) for i in slot_overloads.tolist()]
                 else:
@@ -363,24 +394,37 @@ def runNetworkGreedy(urgency_mode):
                 slot_minvolts = np.zeros(num_slots)
                 for i in range(num_slots):
                     slot_minvolts[i] = min(approx_volts.T[i])
-                    
-                if cfg.getboolean("networkGREEDY", "overload_constraints"):
-                    slot_overloads = []  #TODO
+                
+                if cfg.getboolean("general", "overload_constraints"):
+                    approx_loadings = np.asarray(copy.deepcopy(s_init))
+                    for t in range(num_slots):
+                        for i in range(num_linerecords):
+                            for j in range(num_households):
+                                for p in range(3):
+                                    approx_loadings[i][p][t] += s_sensitivity[j][p][i]*schedules[j][t]
+                    approx_loadings = np.max(approx_loadings,axis=1)
+                    slot_overloads = []
+                    rating = 165 # TODO automatic line rating reading
+                    for t in range(num_slots):
+                        for i in range(num_linerecords):
+                            if approx_loadings[i][t] > rating:
+                                slot_overloads.append(t)
+                    slot_overloads = list(set(slot_overloads))
                 else:
                     slot_overloads = []
                 
         
-            if min(slot_minvolts) < voltage_min*230 or len(slot_overloads) > 0:
+            if min(slot_minvolts) < voltage_min*base_volt_perphase or len(slot_overloads) > 0:
                 
-                if min(slot_minvolts) < voltage_min*230 and len(slot_overloads) > 0:
-                    print("-> Voltage violation with "+format(min(slot_minvolts)/230, ".3f")+" and overload at slot "+str(slot_overloads)+". Enter mitigation routine.")
-                elif min(slot_minvolts) < voltage_min*230:
-                    print("-> Only voltage violation with "+format(min(slot_minvolts)/230, ".3f")+". Enter mitigation routine.")
+                if min(slot_minvolts) < voltage_min*base_volt_perphase and len(slot_overloads) > 0:
+                    print("-> Voltage violation with "+format(min(slot_minvolts)/base_volt_perphase, ".3f")+" and overload at slot "+str(slot_overloads)+". Enter mitigation routine.")
+                elif min(slot_minvolts) < voltage_min*base_volt_perphase:
+                    print("-> Only voltage violation with "+format(min(slot_minvolts)/base_volt_perphase, ".3f")+". Enter mitigation routine.")
                 elif len(slot_overloads) > 0:
                     print("-> Only overload at slot "+str(slot_overloads))
                 
                 # set price to infinity, update order of price time series
-                indices = [l for l,v in enumerate(slot_minvolts < voltage_min*230) if v]
+                indices = [l for l,v in enumerate(slot_minvolts < voltage_min*base_volt_perphase) if v]
                 indices.extend(slot_overloads)
                 indices = list(set(indices))
                 block_indices = []
@@ -578,7 +622,7 @@ def feasible(individual):
     slot_minvolts = np.zeros(num_slots)
     for i in range(num_slots):
         slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
-    if min(slot_minvolts) < voltage_min*230:
+    if min(slot_minvolts) < voltage_min*base_volt_perphase:
         feasible = False
     return feasible
 
@@ -610,12 +654,24 @@ def evaluateResults(code):
                 households[j].ev.schedule = schedules[j]
     else:
         if cfg.getboolean("general","network_sensitivity"):
+            
+            # voltages
             approx_volts = np.asarray(copy.deepcopy(v_init))
             for t in range(num_slots):
                 for i in range(num_households):
                     for j in range(num_households):
                         approx_volts[i][t] += v_sensitivity[j][i]*schedules[j][t]
             np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxVoltages.csv", np.asarray(approx_volts), delimiter=",")             
+            
+            # approximate line loadings
+            approx_loadings = np.asarray(copy.deepcopy(s_init))
+            for t in range(num_slots):
+                for i in range(num_linerecords):
+                    for j in range(num_households):
+                        for p in range(3):
+                            approx_loadings[i][p][t] += s_sensitivity[j][p][i]*schedules[j][t]
+            approx_loadings = np.max(approx_loadings,axis=1)
+            np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxLoadings.csv", approx_loadings, delimiter=",")             
 
     # reparation controller
     # TODO
@@ -635,6 +691,10 @@ def evaluateResults(code):
     solvePowerFlow()
     household_voltages = getVolts()
     eval_start = timer()
+    
+    # actual loadings log
+    actual_loadings = np.max(np.asarray(getLoadings()),axis=1)
+    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ActualLoadings.csv", actual_loadings, delimiter=",")             
     
     # WRITE HOUSEHOLD AGGREGATE LOG
     filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_HouseholdAggregate.csv"
@@ -720,7 +780,7 @@ def evaluateResults(code):
                                    'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
                 for i in range(num_slots):
                     solution_writer.writerow( ( (i+1), netloads[j][i], eva_demand[i], 0, schedules[j][i],\
-                                        av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/230, eva_price[i],chCost[j][i],\
+                                        av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/base_volt_perphase, eva_price[i],chCost[j][i],\
                                         regRev[j][i],netChCost[j][i],resCost[j][i],totalCost[j][i]) )
             finally:
                 f.close()
@@ -728,7 +788,7 @@ def evaluateResults(code):
         hdlog_writer.writerow( ( (j+1), hd.inhabitants, max(av[j]), sum(chCost[j]), sum(regRev[j]), sum(netChCost[j]), sum(resCost[j]),\
                               sum(totalCost[j]), conv.Time(min=duration).hr*sum(netloads[j])/len(netloads[j]),\
                               conv.Time(min=duration).hr*sum(schedules[j])/len(schedules[j]),\
-                              conv.Time(min=duration).hr*sum(eva_demand)/len(eva_demand), 0, min(hd.voltages), min(hd.voltages)/230 ) )
+                              conv.Time(min=duration).hr*sum(eva_demand)/len(eva_demand), 0, min(hd.voltages), min(hd.voltages)/base_volt_perphase ) )
         j+=1
     
     log_hd.close()
@@ -746,7 +806,7 @@ def evaluateResults(code):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
                                    sum(np.asarray(schedules).T[i]*av.T[i]), sum(av.T[i]),sum(regAv.T[i]),\
                                    sum(batterySOC.T[i])/(num_evs*ev.capacity),min(batterySOC.T[i])/ev.capacity,min(np.asarray(household_voltages).T[i]),\
-                                   min(np.asarray(household_voltages).T[i])/230,eva_price[i],sum(chCost.T[i]),\
+                                   min(np.asarray(household_voltages).T[i])/base_volt_perphase,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
     log_slot.close()
     
@@ -824,6 +884,8 @@ start_slot = int(start/resolution)
 
 # non-changeable final parameters
 num_households = 55
+base_volt_perphase = 230
+num_linerecords = 1 # or 905 for all lines
 
 print(">> @Init: Parameters read.")
 
@@ -852,7 +914,7 @@ DSSText.Command = r"Compile '..\network_details\Master.dss'"
 print(">> @Init: Network instantiated and compiled.")
 
 if cfg.getboolean("general", "network_sensitivity"):     
-    v_sensitivity = getVoltageSensitivities()
+    v_sensitivity, s_sensitivity = getSensitivities()
 
 # set major parameters
 DSSText.Command = "set mode=daily number="+str(num_slots)+" stepsize="+str(resolution)+"m"
@@ -930,7 +992,7 @@ for mc_iter in range(1,iterations+1):
     
     solvePowerFlow()
     v_init = getVolts()
-    print(v_init)
+    s_init = getLoadings()
     
     # *****************************************************************************************************
     # * Run Simulation

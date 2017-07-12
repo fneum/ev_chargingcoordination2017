@@ -108,8 +108,8 @@ New Monitor.VI_MON54 Load.LOAD54 1 Mode=0
 New Monitor.PQ_MON54 Load.LOAD54 1 Mode=1 ppolar=0
 New Monitor.VI_MON55 Load.LOAD55 1 Mode=0
 New Monitor.PQ_MON55 Load.LOAD55 1 Mode=1 ppolar=0
-! New Monitor.LINE1_PQ_vs_Time Line.LINE1 2 Mode=1 ppolar=0
-! New Monitor.LINE1_VI_vs_Time Line.LINE1 2 Mode=0
+New Monitor.LINE1_PQ_vs_Time Line.LINE1 2 Mode=1 ppolar=0
+New Monitor.LINE1_VI_vs_Time Line.LINE1 2 Mode=0
 ! New Monitor.LINE2_PQ_vs_Time Line.LINE2 2 Mode=1 ppolar=0
 ! New Monitor.LINE2_VI_vs_Time Line.LINE2 2 Mode=0
 ! New Monitor.LINE3_PQ_vs_Time Line.LINE3 2 Mode=1 ppolar=0
@@ -1223,7 +1223,7 @@ New Monitor.PQ_MON55 Load.LOAD55 1 Mode=1 ppolar=0
 ! New Monitor.LINE557_PQ_vs_Time Line.LINE557 2 Mode=1 ppolar=0
 ! New Monitor.LINE557_VI_vs_Time Line.LINE557 2 Mode=0
 ! New Monitor.LINE558_PQ_vs_Time Line.LINE558 2 Mode=1 ppolar=0
-New Monitor.LINE558_VI_vs_Time Line.LINE558 2 Mode=0
+! New Monitor.LINE558_VI_vs_Time Line.LINE558 2 Mode=0
 ! New Monitor.LINE559_PQ_vs_Time Line.LINE559 2 Mode=1 ppolar=0
 ! New Monitor.LINE559_VI_vs_Time Line.LINE559 2 Mode=0
 ! New Monitor.LINE560_PQ_vs_Time Line.LINE560 2 Mode=1 ppolar=0
