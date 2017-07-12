@@ -16,6 +16,7 @@ import scipy as sp
 import scipy.stats as sps
 import measurement.measures as conv
 from math import *
+from gurobipy import *
 from statistics import mean
 from operator import add, sub, mul
 from timeit import default_timer as timer
@@ -127,8 +128,6 @@ def getVoltageSensitivities():
         delta_volts = list(map(sub,newcase_volts,basecase_volts))
         matrix.append(delta_volts)
         
-    np.savetxt("../log/VoltageSensitivities.csv", np.asarray(matrix), delimiter=",")
-
     return np.asarray(matrix)
 
 # CONTROLLER
@@ -153,6 +152,70 @@ def chargeAsFastAsPossible():
 # *****************************************************************************************************
 # * Optimisation Functions
 # *****************************************************************************************************
+
+# TODO Gurobi!
+def runLinearProgram():
+    
+    try:
+
+        # Create a new model
+        m = Model()
+    
+        # Create variables
+        x = m.addVars(num_households,num_slots, ub=chargingrate_max)  
+        print(x)
+
+        # Set objective
+        coeff = [price_ts[i%num_slots]*conv.Time(min=resolution).hr for i in range(num_households*num_slots)]
+        vars = [x[i,j] for i in range(num_households) for j in range(num_slots)]
+        
+        if cfg.getboolean("general", "regulation_service"):
+            y = m.addVars(num_households,num_slots,vtype=GRB.BINARY)
+            m.update()
+            revenue = (-1)*charging_efficiency*chargingrate_max*reg_price*y.sum()
+            print(revenue)
+            m.setObjective(LinExpr(coeff,vars)+LinExpr(revenue), GRB.MINIMIZE)
+        else:
+            m.setObjective(LinExpr(coeff,vars), GRB.MINIMIZE)
+    
+        # Add electric vehicle constraints:
+        for i in range(num_households):
+            if households[i].ev != None:
+                for j in range(num_slots):
+                    m.addConstr((1-households[i].ev.availability_forecast[j])*x[i,j]==0)
+                    if j >= 1:
+                        m.addConstr((households[i].ev.availability_forecast[j]*households[i].ev.availability_forecast[j-1])*(x[i,j]-x[i,j-1]) >= -change_max)
+                        m.addConstr((households[i].ev.availability_forecast[j]*households[i].ev.availability_forecast[j-1])*(x[i,j]-x[i,j-1]) <= change_max)
+                m.addConstr(households[i].ev.batterySOC_forecast + charging_efficiency*conv.Time(min=resolution).hr*x.sum(i,'*') == households[i].ev.capacity)
+                if cfg.getboolean("general", "regulation_service"):
+                    expr = [x[i,k] for k in range(j+1)]
+                    m.addConstr(y[i,j]*(households[i].ev.batterySOC_forecast+charging_efficiency*conv.Time(min=resolution).hr*LinExpr([1 for _ in range(len(expr))],expr)) >= reg_threshold*households[i].ev.capacity)
+        
+        # Add technical vehicle constraints:
+        for i in range(num_households):
+                for j in range(num_slots):
+                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i],[x[k,j] for k in range(num_households)]) >= voltage_min*230)
+
+        #m.write("../log/linearprogram.lp")
+        m.optimize()
+        print('Obj: %g' % m.objVal)
+        
+        #translate to schedule
+        schedules = np.zeros((num_households,num_slots))
+        for i in range(num_households):
+            for j in range(num_slots):
+                schedules[i][j] = x[i,j].X
+            if households[i].ev != None:
+                households[i].ev.schedule = schedules[i]
+        return schedules
+    
+    except GurobiError as e:
+        print('Error code ' + str(e.errno) + ": " + str(e))
+    
+    except AttributeError:
+        print('Encountered an attribute error')
+    
+    return 0
 
 # priceGREEDY
 def runPriceGreedy():
@@ -744,9 +807,12 @@ start = conv.Time(hr=cfg.getfloat("general","starting")).min
 duration = conv.Time(hr=cfg.getint("general","duration")).min
 resolution = cfg.getint("general","resolution")
 season = cfg.get("general", "season")
-reg_price = cfg.get("market_prices", "regulation_price")
+reg_price = cfg.getfloat("market_prices", "regulation_price")
+reg_threshold = cfg.getfloat("electric_vehicles","reg_threshold")
 targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
 chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
+charging_efficiency = cfg.getfloat("electric_vehicles", "charging_efficiency")
+change_max = cfg.getfloat("electric_vehicles", "change_max")
 voltage_min = cfg.getfloat("network","voltage_min")
 loadmultiplier = cfg.getfloat("network","load_multiplier")
 urgency_mode = cfg.get("networkGREEDY","urgency_mode")
@@ -932,6 +998,8 @@ for mc_iter in range(1,iterations+1):
         schedules = runOptGenetic()
     elif alg == "PSO":
         schedules = runOptParticleSwarm()
+    elif alg == "LP":
+        schedules = runLinearProgram()
     else:
         schedules = chargeAsFastAsPossible()
     
