@@ -18,7 +18,7 @@ import scipy.stats as sps
 import measurement.measures as conv
 from math import *
 from gurobipy import *
-from statistics import mean
+from statistics import mean, median
 from operator import add, sub, mul
 from timeit import default_timer as timer
 from deap import base,creator,tools,algorithms
@@ -55,15 +55,16 @@ def merge_timeseries(x,y):
     return z
 
 # UNCERTAINTY
-def get_rednoise(r,s):
+def get_rednoise(r,s,d):
     rednoise = []
-    for i in range(num_slots):
+    for i in range(round(num_slots/d)):
         w = sps.norm.rvs(0,s)
         if i == 0:
             x = w
         else:
             x = r*x + sqrt(1-r**2) * w
-        rednoise.append(x)
+        for _ in range(d):
+            rednoise.append(x)
     return rednoise
 
 # NETWORK    
@@ -180,6 +181,11 @@ def chargeAsFastAsPossible():
 # Run linear program with GUROBI
 def runLinearProgram():
     
+    if cfg.get("uncertainty_mitigation", "price") == "prob":
+        price_ts_opt = price_ts_sec
+    else:
+        price_ts_opt = price_ts
+    
     try:
         # Create a new model
         m = Model()
@@ -188,7 +194,7 @@ def runLinearProgram():
         x = m.addVars(num_households,num_slots, ub=chargingrate_max)  
 
         # Set objective
-        coeff = [price_ts[i%num_slots]*conv.Time(min=resolution).hr for i in range(num_households*num_slots)]
+        coeff = [price_ts_opt[i%num_slots]*conv.Time(min=resolution).hr for i in range(num_households*num_slots)]
         vars = [x[i,j] for i in range(num_households) for j in range(num_slots)]
         
         if cfg.getboolean("general", "regulation_service"):
@@ -226,7 +232,7 @@ def runLinearProgram():
                     for p in range(3):
                         stv = [s_sensitivity[k,p,i] for k in range(num_households)]
                         var = [x[k,t] for k in range(num_households)]
-                        m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= rating)
+                        m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= line_max*rating)
         
         #m.write("../log/linearprogram.lp")
         m.optimize()
@@ -253,9 +259,14 @@ def runLinearProgram():
 def runPriceGreedy():
     schedules = np.zeros((num_households,num_slots))
     
+    if cfg.get("uncertainty_mitigation", "price") == "prob":
+        price_ts_opt = price_ts_sec
+    else:
+        price_ts_opt = price_ts
+    
     # sort price time series
     if not cfg.get("uncertainty_mitigation","availability") == "penalty":
-        price_ts_opt = np.array(price_ts)
+        price_ts_opt = np.array(price_ts_opt)
         order_prices = np.argsort(price_ts_opt)
     
     for ev in evs:
@@ -265,7 +276,7 @@ def runPriceGreedy():
             penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
             price_ts_opt = []
             for i in range(num_slots):
-                price = p_av[i] * price_ts[i] + (1-p_av[i]) * penalty
+                price = p_av[i] * price_ts_opt[i] + (1-p_av[i]) * penalty
                 price_ts_opt.append(price)
             order_prices = np.argsort(price_ts_opt)
         
@@ -288,9 +299,14 @@ def runPriceGreedy():
 def runNetworkGreedy(urgency_mode):
     schedules = np.zeros((num_households,num_slots))
     
+    if cfg.get("uncertainty_mitigation", "price") == "prob":
+        price_ts_opt = price_ts_sec
+    else:
+        price_ts_opt = price_ts
+    
     # sort price time series
     if not cfg.get("uncertainty_mitigation","availability") == "penalty":
-        price_ts_opt = np.array(price_ts)
+        price_ts_opt = np.array(price_ts_opt)
         order_prices = np.argsort(price_ts_opt)
     
     if urgency_mode == "distance":
@@ -341,7 +357,7 @@ def runNetworkGreedy(urgency_mode):
             penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
             price_ts_opt = []
             for i in range(num_slots):
-                price = p_av[i] * price_ts[i] + (1-p_av[i]) * penalty
+                price = p_av[i] * price_ts_opt[i] + (1-p_av[i]) * penalty
                 price_ts_opt.append(price)
             print(spearmanr(price_ts, price_ts_opt))
             order_prices = np.argsort(price_ts_opt)
@@ -414,7 +430,7 @@ def runNetworkGreedy(urgency_mode):
                     rating = 165 # TODO automatic line rating reading
                     for t in range(num_slots):
                         for i in range(num_linerecords):
-                            if approx_loadings[i][t] > rating:
+                            if approx_loadings[i][t] > line_max*rating:
                                 slot_overloads.append(t)
                     slot_overloads = list(set(slot_overloads))
                 else:
@@ -836,6 +852,14 @@ def evaluateResults(code):
     np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
     np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
 
+    quantiles = [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
+    price_range = []
+    for q in quantiles:
+        margins = [sps.norm.ppf(q, loc=0, scale=deviations[i]) for i in range(num_slots)] 
+        price_range.append(list(map(add,price_ts,margins)))
+        print(spearmanr(price_ts, list(map(add,price_ts,margins))))
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/Results_PriceUncertainty.csv", np.asarray(price_range), delimiter=",")    
+
     eval_end = timer()
     eval_time = eval_end - eval_start
     print(">> @Eval: Evaluation completed after "+format(eval_time, ".3f")+" seconds.")
@@ -876,30 +900,42 @@ print(">> @Init: Utilities defined.")
 cfg = configparser.ConfigParser()
 cfg.read("../parameters/evalParams.ini")
 
-# assign parameter names
+# ASSIGN PARAMETERS
+
+## general information
 iterations = cfg.getint("general","iterations")
-surcharge = cfg.getfloat("market_prices","surcharge")
-spread = cfg.getfloat("market_prices","spread")
-evpenetration = cfg.getfloat("electric_vehicles","penetration")
 start = conv.Time(hr=cfg.getfloat("general","starting")).min 
 duration = conv.Time(hr=cfg.getint("general","duration")).min
 resolution = cfg.getint("general","resolution")
 season = cfg.get("general", "season")
+
+## market characteristics
+surcharge = cfg.getfloat("market_prices","surcharge")
+spread = cfg.getfloat("market_prices","spread")
 reg_price = cfg.getfloat("market_prices", "regulation_price")
+
+## ev characteristics
+evpenetration = cfg.getfloat("electric_vehicles","penetration")
 reg_threshold = cfg.getfloat("electric_vehicles","reg_threshold")
 targetSOC = cfg.getfloat("electric_vehicles","targetSOC")
 chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
 charging_efficiency = cfg.getfloat("electric_vehicles", "charging_efficiency")
 change_max = cfg.getfloat("electric_vehicles", "change_max")
+
+## network specific
 voltage_min = cfg.getfloat("network","voltage_min")
 voltage_max = cfg.getfloat("network","voltage_max")
 loadmultiplier = cfg.getfloat("network","load_multiplier")
+line_max = cfg.getfloat("network", "line_max")
+
+## algorithm specific
 urgency_mode = cfg.get("networkGREEDY","urgency_mode")
 
 # calculate further parameters from config
 num_slots = int(duration/resolution)
 dayswitch_slot = int((duration-start)/resolution) # first slot belonging to new day
 start_slot = int(start/resolution)
+reg_price = reg_price/conv.Time(min=resolution).hr
 
 # non-changeable final parameters
 num_households = 55
@@ -998,13 +1034,23 @@ for mc_iter in range(1,iterations+1):
         
     print(">> @Scen: Vehicle availability and battery SOC forecasts generated.")
     
-    # generate electricity price forecast
+    # generate electricity price forecast (ML)
     day_id = rd.randint(0,999)
     price_ts1 = read_floatseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id,"04d")+".txt")
     price_ts2 = read_floatseries("../price_timeseries/"+str(resolution)+"min/priceprofile_ukpx_"+str(resolution)+"min"+format(day_id+1,"04d")+".txt")
     price_ts = merge_timeseries(price_ts1, price_ts2)
     mean_price = mean(price_ts)
     price_ts = [((item - mean_price) * spread + mean_price + surcharge) for item in price_ts]
+    
+    # define price uncertainty + generate electricity price forecast (SEC)
+    deviations = [p-median(price_ts) for p in price_ts]
+    max_deviation = max(deviations)
+    rand_deviation = get_rednoise(0.9, 0.4, 2)
+    deviations = [(1+abs(rand_deviation[k])+abs(deviations[k])/max_deviation)**2 for k in range(num_slots)] # TODO set and place properly
+    req_price_certainty = cfg.getfloat("uncertainty_mitigation","req_price_certainty")
+    price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)] # check if scale equals standard deviation
+    price_ts_sec = list(map(add,price_ts,price_sec_margins))       
+
     print(">> @Scen: Electricity market prices forecast generated.")
     
     #DSSText.Command = "set year=1"
@@ -1044,7 +1090,7 @@ for mc_iter in range(1,iterations+1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            error = get_rednoise(0.8, 0.3) #  TODO proper demand uncertainty
+            error = get_rednoise(0.8, 0.3,1) #  TODO proper demand uncertainty
             hd.demandSimulated =  list(map(add,hd.demandSimulated,error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
@@ -1053,8 +1099,8 @@ for mc_iter in range(1,iterations+1):
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
         price_ts_sim = np.zeros(num_slots)
-        error = get_rednoise(0.9, 1) # TODO set properly
-        price_ts_sim = list(map(add,price_ts,error))
+        error = get_rednoise(0.7, 1,2) 
+        price_ts_sim = list(map(add,price_ts,map(mul,deviations,error)))
         print(">> @Sim: Price uncertainty realised.")
     else:
         price_ts_sim = list(price_ts)

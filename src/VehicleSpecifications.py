@@ -18,6 +18,9 @@ class ElectricVehicle:
         self.capacity = cfg.getfloat('electric_vehicles', 'capacity')
         self.charging_efficiency = cfg.getfloat("electric_vehicles","charging_efficiency")
         self.chargingrate_max = cfg.getfloat("electric_vehicles", "chargingrate_max")
+        self.targetSOC = cfg.getfloat("electric_vehicles", "targetSOC")
+        self.change_max = cfg.getfloat("electric_vehicles", "change_max")
+        self.reg_threshold = cfg.getfloat("electric_vehicles", "reg_threshold")
         self.position = pos
         
         # arrival time behaviour
