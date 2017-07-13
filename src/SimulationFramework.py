@@ -788,10 +788,10 @@ def evaluateResults(code):
                 solution_writer = csv.writer(f,delimiter=',')
                 solution_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
                                    'evAvailability', 'regAvailability', 'energyCharged','batterySOC',\
-                                   'voltageV','voltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
+                                   'voltageV','voltagePU', 'mainsLoading','elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
                 for i in range(num_slots):
                     solution_writer.writerow( ( (i+1), netloads[j][i], eva_demand[i], 0, schedules[j][i],\
-                                        av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/base_volt_perphase, eva_price[i],chCost[j][i],\
+                                        av[j][i], 0, eCharged[j][i],batterySOC[j][i], hd.voltages[i], hd.voltages[i]/base_volt_perphase, actual_loadings[0][i]/165, eva_price[i],chCost[j][i],\
                                         regRev[j][i],netChCost[j][i],resCost[j][i],totalCost[j][i]) )
             finally:
                 f.close()
@@ -811,13 +811,13 @@ def evaluateResults(code):
     slotlog_writer = csv.writer(log_slot,delimiter=',')
     slotlog_writer.writerow( ( 'slot', 'netLoad', 'resLoad', 'pvGen','evSchedule',\
                        'evAvailability', 'regAvailability', 'batterySOC','batterySOCmin',\
-                       'minVoltageV','minVoltagePU', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
+                       'minVoltageV','minVoltagePU', 'mainsLoading', 'elPrice', 'chCost', 'regRev', 'netChCost','resCost','totalCost' ) )
     
     for i in range(num_slots):
         slotlog_writer.writerow( ( (i+1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,\
                                    sum(np.asarray(schedules).T[i]*av.T[i]), sum(av.T[i]),sum(regAv.T[i]),\
                                    sum(batterySOC.T[i])/(num_evs*ev.capacity),min(batterySOC.T[i])/ev.capacity,min(np.asarray(household_voltages).T[i]),\
-                                   min(np.asarray(household_voltages).T[i])/base_volt_perphase,eva_price[i],sum(chCost.T[i]),\
+                                   min(np.asarray(household_voltages).T[i])/base_volt_perphase,actual_loadings[0][i]/165,eva_price[i],sum(chCost.T[i]),\
                                    sum(regRev.T[i]),sum(netChCost.T[i]),sum(resCost.T[i]),sum(totalCost.T[i]) ) )
     log_slot.close()
     
