@@ -55,9 +55,8 @@ def merge_timeseries(x,y):
     return z
 
 # UNCERTAINTY
-def get_rednoise(r,s,max_shift):
+def get_rednoise(r,s):
     rednoise = []
-    shift = rd.randint(-max_shift,max_shift)
     for i in range(num_slots):
         w = sps.norm.rvs(0,s)
         if i == 0:
@@ -90,7 +89,7 @@ def getVolts():
 
 def getLoadings():
     loadings = []
-    for i in range(num_linerecords): # TODO if I only consider the first line, reasonable assumption
+    for i in range(num_linerecords): # COULDDO if I only consider the first line, reasonable assumption, otherwise too slow
         DSSMonitors.Name = "LINE"+str(i+1)+"_VI_vs_Time"    
         DSSText.Command = "export monitor LINE"+str(i+1)+"_VI_vs_Time"      
         loadings.append( [ list(DSSMonitors.Channel(7)), list(DSSMonitors.Channel(9)), list(DSSMonitors.Channel(11)) ] )
@@ -113,7 +112,7 @@ def getSensitivities():
     df_lines = pd.read_csv('LVTest_Loadings.csv', sep=',',skiprows=2,header=None,nrows=num_linerecords,usecols=[1,3,5])
     basecase_loadings = [df_lines[1].tolist(), df_lines[3].tolist(), df_lines[5].tolist()]
     
-    # TODO transformer p.r.n.
+    # COULDDO transformer pro re nata
     #DSSText.Command = "export powers"
     #df_tx = pd.read_csv('LVTest_EXP_POWERS.csv', sep=',',skiprows=907,header=None,nrows=1,usecols=[1,3,5])
     
@@ -217,7 +216,9 @@ def runLinearProgram():
         for i in range(num_households):
                 for j in range(num_slots):
                     m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i],[x[k,j] for k in range(num_households)]) >= voltage_min*base_volt_perphase)
-        
+                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i],[x[k,j] for k in range(num_households)]) <= voltage_max*base_volt_perphase)
+
+                    
         if cfg.getboolean("general", "overload_constraints"):
             rating = 165 # TODO automatic rating reading
             for i in range(num_linerecords):
@@ -293,15 +294,21 @@ def runNetworkGreedy(urgency_mode):
         order_prices = np.argsort(price_ts_opt)
     
     if urgency_mode == "distance":
-        # only works if all households have EV TODO
         alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
         load_locations = read_intseries("../network_details/LoadLocations.txt")
-        distances = np.zeros(num_households)
-        for i in range(len(load_locations)):
-            distances[i] = alldistances[load_locations[i]]
+        
+#         distances = np.zeros(num_households)
+#         for i in range(len(load_locations)):
+#             distances[i] = alldistances[load_locations[i]]
+            
+        distances = np.zeros(num_evs)
+        for i in range(num_evs):
+            hd_id = evs[i].position
+            distances[i] = alldistances[load_locations[hd_id]]
+            
         order_urgency = np.argsort(distances)
     elif urgency_mode == "manual":
-        # only works if all households have EV TODO
+        # TODO only works if all households have EV
         order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
     elif urgency_mode == "arrival":
         arrival_slots = np.zeros(num_evs)
@@ -342,7 +349,7 @@ def runNetworkGreedy(urgency_mode):
         max_rate = [chargingrate_max for i in range(num_slots)]
 
         # select electric vehicle
-        if urgency_mode == "dist" or urgency_mode == "manual":
+        if urgency_mode == "manual":
             ev = households[order_urgency[k]].ev
         else:
             ev_id = order_urgency[k]
@@ -508,7 +515,7 @@ def runOptParticleSwarm():
 # GA
 def runOptGenetic():
     
-    # TODO parametrisation
+    # COULDDO parametrisation
     
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
     creator.create("Individual", list, fitness=creator.FitnessMin)
@@ -517,7 +524,7 @@ def runOptGenetic():
     POP_SIZE = 30
     
     toolbox = base.Toolbox()
-    toolbox.register("attr_float", rd.random) # TODO heuristic init
+    toolbox.register("attr_float", rd.random) # COULDDO heuristic init
     toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_float, n=IND_SIZE)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=POP_SIZE)
     toolbox.register("evaluate", evaluate)
@@ -587,7 +594,7 @@ def evaluate(individual):
         for t in range(num_slots):
             fitness+=individual[k*num_slots+t]*price_ts[t]*conv.Time(min=duration).hr
             # Regulation Service
-            # TODO
+            # COULDDO
     return fitness, # must be tuple
 
 def feasible(individual):
@@ -607,10 +614,10 @@ def feasible(individual):
             feasible = False
     
     # change of charging rate bound
-    # TODO
+    # COULDDO
     
     # regulation service bound
-    # TODO
+    # COULDDO
 
     # technical bounds
     ev_schedules = [individual[i:i+num_slots] for i in range(0, len(individual), num_slots)]
@@ -627,7 +634,7 @@ def feasible(individual):
     return feasible
 
 def distance(individual):
-    return 0.0 # TODO
+    return 0.0 # COULDDO
 
 # *****************************************************************************************************
 # * Evaluation after Simulation or Optimisation
@@ -652,26 +659,30 @@ def evaluateResults(code):
                         schedules[j][i] = max(0,households[j].ev.capacity - currentSOC + schedules[j][i]*ev.charging_efficiency*conv.Time(min=resolution).hr)/(ev.charging_efficiency*conv.Time(min=resolution).hr)
                         forced_stop = True
                 households[j].ev.schedule = schedules[j]
-    else:
-        if cfg.getboolean("general","network_sensitivity"):
-            
-            # voltages
-            approx_volts = np.asarray(copy.deepcopy(v_init))
-            for t in range(num_slots):
-                for i in range(num_households):
-                    for j in range(num_households):
-                        approx_volts[i][t] += v_sensitivity[j][i]*schedules[j][t]
-            np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxVoltages.csv", np.asarray(approx_volts), delimiter=",")             
-            
-            # approximate line loadings
-            approx_loadings = np.asarray(copy.deepcopy(s_init))
-            for t in range(num_slots):
-                for i in range(num_linerecords):
-                    for j in range(num_households):
-                        for p in range(3):
-                            approx_loadings[i][p][t] += s_sensitivity[j][p][i]*schedules[j][t]
-            approx_loadings = np.max(approx_loadings,axis=1)
-            np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxLoadings.csv", approx_loadings, delimiter=",")             
+
+    if cfg.getboolean("general","network_sensitivity"):
+        
+        # voltages
+        approx_volts = np.asarray(copy.deepcopy(v_init))
+        for t in range(num_slots):
+            for i in range(num_households):
+                for j in range(num_households):
+                    approx_volts[i][t] += v_sensitivity[j][i]*schedules[j][t]
+        filename = "../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxVoltages.csv"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        np.savetxt(filename, np.asarray(approx_volts), delimiter=",")             
+        
+        # approximate line loadings
+        approx_loadings = np.asarray(copy.deepcopy(s_init))
+        for t in range(num_slots):
+            for i in range(num_linerecords):
+                for j in range(num_households):
+                    for p in range(3):
+                        approx_loadings[i][p][t] += s_sensitivity[j][p][i]*schedules[j][t]
+        approx_loadings = np.max(approx_loadings,axis=1)
+        filename = "../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ApproxLoadings.csv"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        np.savetxt(filename, approx_loadings, delimiter=",")             
 
     # reparation controller
     # TODO
@@ -694,10 +705,10 @@ def evaluateResults(code):
     
     # actual loadings log
     actual_loadings = np.max(np.asarray(getLoadings()),axis=1)
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ActualLoadings.csv", actual_loadings, delimiter=",")             
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ActualLoadings.csv", actual_loadings, delimiter=",")             
     
     # WRITE HOUSEHOLD AGGREGATE LOG
-    filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_HouseholdAggregate.csv"
+    filename = "../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_HouseholdAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_hd = open(filename, 'w', newline='')
     hdlog_writer = csv.writer(log_hd,delimiter=',')
@@ -770,7 +781,7 @@ def evaluateResults(code):
     
          
         # WRITE individual household solutions to CSV
-        filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_household"+format(j+1,"02d")+".csv"
+        filename = "../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_household"+format(j+1,"02d")+".csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w', newline='') as f:
             try:
@@ -794,7 +805,7 @@ def evaluateResults(code):
     log_hd.close()
     
     # SLOTWISE AGGREGATE LOG
-    filename = "../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_SlotwiseAggregate.csv"
+    filename = "../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_SlotwiseAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_slot = open(filename, 'w', newline='')
     slotlog_writer = csv.writer(log_slot,delimiter=',')
@@ -811,19 +822,19 @@ def evaluateResults(code):
     log_slot.close()
     
     # WRITE SOME MORE FILES
-    pathname = "../log/iter"+str(mc_iter)
+    pathname = "../log/"+alg+"/iter"+str(mc_iter)
     os.makedirs(os.path.dirname(pathname), exist_ok=True)
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Schedules.csv", np.asarray(schedules), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_EVAvailability.csv", np.asarray(av), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResCost.csv", np.asarray(resCost), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
-    np.savetxt("../log/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_Schedules.csv", np.asarray(schedules), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_EVAvailability.csv", np.asarray(av), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_ResCost.csv", np.asarray(resCost), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
+    np.savetxt("../log/"+alg+"/iter"+str(mc_iter)+"/"+code+"/"+code+"Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
 
     eval_end = timer()
     eval_time = eval_end - eval_start
@@ -837,8 +848,15 @@ def evaluateResults(code):
     # DSSText.Command = "export loads"
     # DSSText.Command = "export summary"
     
-    # TODO extend for MC analysis
-    return sum(map(sum,netChCost))
+    mccost =sum(map(sum,netChCost))
+    mcfulfil_tot = sum(batterySOC.T[-1])/(num_evs*ev.capacity)
+    mcfulfil_min = min(batterySOC.T[-1])/ev.capacity
+    mcoverload_sev = max(map(max,actual_loadings)) / 165 # TODO automatic line parameter reading
+    mcoverload_freq = len(np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV",delimiter=',',skip_header=1,usecols=(0,)))) / num_slots
+    mcundervolt_sev = min(map(min,household_voltages))/base_volt_perphase
+    mcundervolt_freq = sum(x[i] < voltage_min*base_volt_perphase for i in range(num_slots) for x in household_voltages) / (num_slots*num_households)
+    
+    return [mccost, mcfulfil_tot, mcfulfil_min, mcoverload_sev, mcoverload_freq, mcundervolt_sev, mcundervolt_freq]
 
 # *****************************************************************************************************
 # * General Framework Initialisation
@@ -874,6 +892,7 @@ chargingrate_max = cfg.getfloat("electric_vehicles","chargingrate_max")
 charging_efficiency = cfg.getfloat("electric_vehicles", "charging_efficiency")
 change_max = cfg.getfloat("electric_vehicles", "change_max")
 voltage_min = cfg.getfloat("network","voltage_min")
+voltage_max = cfg.getfloat("network","voltage_max")
 loadmultiplier = cfg.getfloat("network","load_multiplier")
 urgency_mode = cfg.get("networkGREEDY","urgency_mode")
 
@@ -924,7 +943,8 @@ for i in range(num_households):
     DSSText.Command = "~ minterval="+str(resolution)
     DSSText.Command = "~ useactual=true"
     
-COST = []
+MC_LOG_OPT = []
+MC_LOG_SIM = []
 for mc_iter in range(1,iterations+1):
     # *****************************************************************************************************
     # * Generate Scenario
@@ -956,7 +976,7 @@ for mc_iter in range(1,iterations+1):
     print(">> @Scen: "+str(num_households)+" households initialised and demand forecasts generated.")
     
     # assign PV generation forecast in network
-    # TODO
+    # COULDDO
     
     # assign EV behaviour in network
     num_evs = round(evpenetration * num_households)
@@ -1024,7 +1044,7 @@ for mc_iter in range(1,iterations+1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            error = get_rednoise(0.8, 0.3, 4) #  TODO proper demand uncertainty
+            error = get_rednoise(0.8, 0.3) #  TODO proper demand uncertainty
             hd.demandSimulated =  list(map(add,hd.demandSimulated,error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
@@ -1033,7 +1053,7 @@ for mc_iter in range(1,iterations+1):
     # generate actual electricity prices    
     if cfg.getboolean("uncertainty", "unc_pri"):
         price_ts_sim = np.zeros(num_slots)
-        error = get_rednoise(0.9, 1, 2) # TODO set properly
+        error = get_rednoise(0.9, 1) # TODO set properly
         price_ts_sim = list(map(add,price_ts,error))
         print(">> @Sim: Price uncertainty realised.")
     else:
@@ -1071,12 +1091,19 @@ for mc_iter in range(1,iterations+1):
     # * Evaluation Commands
     # *****************************************************************************************************
     
-    c = evaluateResults("opt")
-    d = evaluateResults("sim")
+    mc_opt = evaluateResults("opt")
+    mc_sim = evaluateResults("sim") 
+    MC_LOG_OPT.append(mc_opt)
+    MC_LOG_SIM.append(mc_sim)
     
-    # TODO extend MC logs
-    COST.append(c)
+filename = "../log/"+alg+"/Results_MonteCarloDistributions.csv"
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+log_mc = open(filename, 'w', newline='')
+mclog_writer = csv.writer(log_mc,delimiter=',')
+mclog_writer.writerow( ( 'id', 'opt_cost', 'opt_fulfil_tot', 'opt_fulfil_min', 'opt_overload_sev', 'opt_overload_freq', 'opt_undervolt_sev', 'opt_undervolt_freq', 'sim_cost', 'sim_fulfil_tot', 'sim_fulfil_min', 'sim_overload_sev', 'sim_overload_freq', 'sim_undervolt_sev', 'sim_undervolt_freq') )
+
+for i in range(mc_iter):
     
-np.savetxt("../log/Results_COSTDIST.csv", np.asarray(COST), delimiter=",")
+    mclog_writer.writerow( [i+1] + MC_LOG_OPT[i] + MC_LOG_SIM[i] )
 
 print("Programme terminated!")

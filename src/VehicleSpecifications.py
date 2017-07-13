@@ -125,7 +125,6 @@ class ElectricVehicle:
         resolution = self.cfg.getint('general','resolution')
         num_slots = int(duration/resolution)
         
-        # TODO choose between triangular and normal distribution
         if arr == True:
             actual_end = norm.rvs( loc=self.tripend_mu, scale=self.tripend_sig )
         else:
