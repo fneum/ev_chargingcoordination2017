@@ -10,8 +10,18 @@ import scipy.stats as sps
 
 
 class ElectricVehicle:
+    '''
+    
+    '''
     
     def __init__(self, cfg, pos):
+        '''
+        
+        @param cfg:
+        @type cfg:
+        @param pos:
+        @type pos:
+        '''
         
         # config file
         self.cfg = cfg
@@ -85,6 +95,11 @@ class ElectricVehicle:
         self.schedule = []
         
     def generateAvailabilityForecast(self):
+        '''
+        
+        @return:
+        @rtype:
+        '''
         start = conv.Time(hr=self.cfg.getfloat('general', 'starting')).min 
         duration = conv.Time(hr=self.cfg.getint('general', 'duration')).min
         resolution = self.cfg.getint('general', 'resolution')
@@ -106,6 +121,12 @@ class ElectricVehicle:
         return self.availability_forecast
     
     def generateAvailabilityProbability(self):
+        '''
+        
+        @return:
+        @rtype:
+        '''
+        
         start = conv.Time(hr=self.cfg.getfloat('general', 'starting')).min 
         duration = conv.Time(hr=self.cfg.getint('general', 'duration')).min
         resolution = self.cfg.getint('general', 'resolution')
@@ -117,6 +138,12 @@ class ElectricVehicle:
         return self.availability_probability
     
     def generateBatterySOCForecast(self):
+        '''
+        
+        @return:
+        @rtype:
+        '''
+        
         if self.cfg.get("uncertainty_mitigation", "battery_soc") == "prob":
             req_bsoc_certainty = self.cfg.getfloat("uncertainty_mitigation", "req_bsoc_certainty")
             mileage_forecast = sps.norm.ppf(req_bsoc_certainty, self.mileage_mu, self.mileage_sig)
@@ -126,6 +153,16 @@ class ElectricVehicle:
         return self.batterySOC_forecast
         
     def simulateAvailability(self, arr, dep):
+        '''
+        
+        @param arr:
+        @type arr:
+        @param dep:
+        @type dep:
+        @return:
+        @rtype:
+        '''
+        
         start = conv.Time(hr=self.cfg.getfloat('general', 'starting')).min 
         duration = conv.Time(hr=self.cfg.getint('general', 'duration')).min
         resolution = self.cfg.getint('general', 'resolution')
@@ -154,6 +191,12 @@ class ElectricVehicle:
         return self.availability_simulated
     
     def simulateBatterySOC(self):
+        '''
+        
+        @return:
+        @rtype:
+        '''
+        
         self.batterySOC_simulated = min(30, max(0, self.capacity - conv.Distance(mi=norm.rvs(self.mileage_mu, self.mileage_sig)).km * self.consumption))
         if self.batterySOC_simulated > 30:
             print(self.batterySOC_simulated)

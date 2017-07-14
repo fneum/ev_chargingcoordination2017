@@ -2,8 +2,15 @@ from VehicleSpecifications import ElectricVehicle
 import numpy.random as rd
 
 class Household:
+    '''
+    
+    '''
 
     def __init__(self):
+        '''
+        
+        '''
+        
         x = rd.random()
         self.inhabitants = 0
         self.id_range = 0

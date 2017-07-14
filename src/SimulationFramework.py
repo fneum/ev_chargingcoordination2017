@@ -34,16 +34,33 @@ import scipy.stats as sps
 # *****************************************************************************************************
 # READING
 def read_floatseries(filename):
+    '''
+    
+    @param filename:
+    @type filename:
+    '''
     with open(filename) as file:
         data = [float(line) for line in file]
     return data
 
 def read_intseries(filename):
+    '''
+    
+    @param filename:
+    @type filename:
+    '''
     with open(filename) as file:
         data = [int(line) for line in file]
     return data
 
 def merge_timeseries(x, y):
+    '''
+    
+    @param x:
+    @type x:
+    @param y:
+    @type y:
+    '''
     z = []
     for i in range(num_slots):
         if i < dayswitch_slot:
@@ -54,6 +71,17 @@ def merge_timeseries(x, y):
 
 # UNCERTAINTY
 def get_rednoise(r, s, d):
+    '''
+    
+    @param r:
+    @type r:
+    @param s:
+    @type s:
+    @param d:
+    @type d: int
+    @return:
+    @rtype:
+    '''
     rednoise = []
     for i in range(round(num_slots / d)):
         w = sps.norm.rvs(0, s)
@@ -67,11 +95,21 @@ def get_rednoise(r, s, d):
 
 # NETWORK    
 def updateLoad(ts, id):
+    '''
+    
+    @param ts:
+    @type ts:
+    @param id:
+    @type id:
+    '''
     dmd_dss = str(ts).replace(',', '').replace('[', '').replace(']', '')
     DSSText.Command = "Edit Loadshape.Shape_" + str(id) + " mult=(" + dmd_dss + ")"
     DSSText.Command = "Edit Load.LOAD" + str(id) + " daily=Shape_" + str(id)
 
 def solvePowerFlow():
+    '''
+    
+    '''
     DSSText.Command = "reset"
     DSSText.Command = "set year=2"
     time = timer()
@@ -79,6 +117,11 @@ def solvePowerFlow():
     DSSMonitors.SaveAll
 
 def getVolts():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     volts = []
     for i in range(num_households):
         DSSMonitors.Name = "VI_MON" + str(i + 1)
@@ -87,6 +130,11 @@ def getVolts():
     return volts
 
 def getLoadings():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     loadings = []
     for i in range(num_linerecords):  # COULDDO if I only consider the first line, reasonable assumption, otherwise too slow
         DSSMonitors.Name = "LINE" + str(i + 1) + "_VI_vs_Time"    
@@ -95,6 +143,11 @@ def getLoadings():
     return loadings
 
 def getSensitivities():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     v_matrix = []
     s_matrix = []
     DSSText.Command = "set mode=snap year=0"
@@ -156,6 +209,11 @@ def getSensitivities():
 
 # CONTROLLER
 def chargeAsFastAsPossible():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     schedules = np.zeros((num_households, num_slots))
     targetSOC = cfg.getfloat("electric_vehicles", "targetSOC")
     for ev in evs:
@@ -179,6 +237,11 @@ def chargeAsFastAsPossible():
 
 # Run linear program with GUROBI
 def runLinearProgram():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     
     if cfg.get("uncertainty_mitigation", "price") == "prob":
         price_ts_opt = price_ts_sec
@@ -256,6 +319,11 @@ def runLinearProgram():
 
 # priceGREEDY
 def runPriceGreedy():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     schedules = np.zeros((num_households, num_slots))
     
     if cfg.get("uncertainty_mitigation", "price") == "prob":
@@ -296,6 +364,13 @@ def runPriceGreedy():
 
 # networkGREEDY
 def runNetworkGreedy(urgency_mode):
+    '''
+    
+    @param urgency_mode:
+    @type urgency_mode:
+    @return:
+    @rtype:
+    '''
     schedules = np.zeros((num_households, num_slots))
     
     if cfg.get("uncertainty_mitigation", "price") == "prob":
@@ -488,6 +563,11 @@ def runNetworkGreedy(urgency_mode):
 
 # PSO
 def runOptParticleSwarm():
+    '''
+    
+    @return:
+    @rtype:
+    '''
     
     # TODO parametrisation
     
@@ -545,7 +625,11 @@ def runOptParticleSwarm():
 
 # GA
 def runOptGenetic():
+    '''
     
+    @return:
+    @rtype:
+    '''
     # COULDDO parametrisation
     
     creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
@@ -596,6 +680,21 @@ def runOptGenetic():
 # *****************************************************************************************************
 
 def generate(size, pmin, pmax, smin, smax):
+    '''
+    
+    @param size:
+    @type size:
+    @param pmin:
+    @type pmin:
+    @param pmax:
+    @type pmax:
+    @param smin:
+    @type smin:
+    @param smax:
+    @type smax:
+    @return:
+    @rtype:
+    '''
     part = creator.Particle(rd.uniform(pmin, pmax) for _ in range(size)) 
     part.speed = [rd.uniform(smin, smax) for _ in range(size)]
     part.smin = smin
@@ -603,6 +702,17 @@ def generate(size, pmin, pmax, smin, smax):
     return part
 
 def updateParticle(part, best, phi1, phi2):
+    '''
+    
+    @param part:
+    @type part:
+    @param best:
+    @type best:
+    @param phi1:
+    @type phi1:
+    @param phi2:
+    @type phi2:
+    '''
     u1 = (rd.uniform(0, phi1) for _ in range(len(part)))
     u2 = (rd.uniform(0, phi2) for _ in range(len(part)))
     v_u1 = map(mul, u1, map(sub, part.best, part))
@@ -616,6 +726,13 @@ def updateParticle(part, best, phi1, phi2):
     part[:] = list(map(add, part, part.speed))
 
 def evaluate(individual):
+    '''
+    
+    @param individual:
+    @type individual:
+    @return:
+    @rtype:
+    '''
     fitness = 0
     for k in range(num_evs):
         for t in range(num_slots):
@@ -625,6 +742,13 @@ def evaluate(individual):
     return fitness,  # must be tuple
 
 def feasible(individual):
+    '''
+    
+    @param individual:
+    @type individual:
+    @return:
+    @rtype:
+    '''
     feasible = True
     for k in range(num_evs):
         power_drawn = 0.0
@@ -661,6 +785,13 @@ def feasible(individual):
     return feasible
 
 def distance(individual):
+    '''
+    
+    @param individual:
+    @type individual:
+    @return:
+    @rtype:
+    '''
     return 0.0  # COULDDO
 
 # *****************************************************************************************************
@@ -668,6 +799,13 @@ def distance(individual):
 # *****************************************************************************************************
 
 def evaluateResults(type):
+    '''
+    
+    @param type:
+    @type type:
+    @return:
+    @rtype:
+    '''
     
     print("-------------------------------------------------")
     print(">> @Eval: Starting " + type + " evaluation and fill logs.")
