@@ -261,6 +261,21 @@ def runLinearProgram():
         price_ts_opt = price_ts_sec
     else:
         price_ts_opt = price_ts
+
+    if cfg.get("uncertainty_mitigation", "availability") == "penalty":
+        price_ts_ind = []
+        for i in range(num_households):
+            if households[i].ev is None:
+                p_av = [0 for _ in range(num_slots)]
+            else:
+                p_av = households[i].ev.availability_probability
+                penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+                for i in range(num_slots):
+                    price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
+                    price_ts_ind.append(price)
+        coeff = [price_ts_ind[i] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
+    else:
+        coeff = [price_ts_opt[i % num_slots] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
     
     try:
         # Create a new model
@@ -268,9 +283,6 @@ def runLinearProgram():
 
         # Create variables
         x = m.addVars(num_households, num_slots, ub=chargingrate_max)  
-
-        # Set objective
-        coeff = [price_ts_opt[i % num_slots] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
         vars = [x[i, j] for i in range(num_households) for j in range(num_slots)]
         
         if cfg.getboolean("general", "regulation_service"):

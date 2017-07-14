@@ -3278,3 +3278,29 @@ Barrier solve interrupted - model solved by another algorithm
 Solved with dual simplex
 Solved in 3462 iterations and 1.22 seconds
 Optimal objective  6.474438741e+03
+
+Gurobi 7.0.2 (win64, Python) logging started 07/14/17 19:41:19
+
+Optimize a model with 26633 rows, 5280 columns and 618308 nonzeros
+Coefficient statistics:
+  Matrix range     [3e-03, 5e+00]
+  Objective range  [3e+00, 3e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [1e+00, 2e+02]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 1472 rows and 16760 columns
+Presolve time: 0.17s
+Presolved: 3808 rows, 15153 columns, 207285 nonzeros
+
+Ordering time: 0.36s
+
+Barrier performed 0 iterations in 0.57 seconds
+Barrier solve interrupted - model solved by another algorithm
+
+
+Solved with dual simplex
+Solved in 1847 iterations and 0.57 seconds
+Optimal objective  6.808839553e+03
