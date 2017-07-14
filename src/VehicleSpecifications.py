@@ -1,10 +1,13 @@
+from builtins import int
+import math
+
+from scipy.stats._continuous_distns import norm, triang
+
+import measurement.measures as conv
+import numpy.random as rd
 import scipy as sp
 import scipy.stats as sps
-import numpy.random as rd
-from scipy.stats._continuous_distns import norm, triang
-import math
-import measurement.measures as conv
-from builtins import int
+
 
 class ElectricVehicle:
     

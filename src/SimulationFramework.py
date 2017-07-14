@@ -2,7 +2,6 @@
 # * Imports
 # *****************************************************************************************************
 
-# Standard Import 
 import configparser
 from copy import deepcopy
 import copy
@@ -30,8 +29,6 @@ import pandas as pd
 import scipy as sp
 import scipy.stats as sps
 
-
-# Class Imports
 # *****************************************************************************************************
 # * Utility Functions
 # *****************************************************************************************************
