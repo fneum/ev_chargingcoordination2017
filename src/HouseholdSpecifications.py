@@ -1,11 +1,14 @@
+''' The modules docstring...'''
+
 from VehicleSpecifications import ElectricVehicle
 import numpy.random as rd
+
 
 class Household:
     '''
     
     '''
-
+    
     def __init__(self):
         '''
         

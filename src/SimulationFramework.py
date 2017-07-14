@@ -1,3 +1,5 @@
+''' The modules docstring...'''
+
 # *****************************************************************************************************
 # * Imports
 # *****************************************************************************************************
@@ -32,6 +34,8 @@ import scipy.stats as sps
 # *****************************************************************************************************
 # * Utility Functions
 # *****************************************************************************************************
+
+
 # READING
 def read_floatseries(filename):
     '''
@@ -43,6 +47,7 @@ def read_floatseries(filename):
         data = [float(line) for line in file]
     return data
 
+
 def read_intseries(filename):
     '''
     
@@ -52,6 +57,7 @@ def read_intseries(filename):
     with open(filename) as file:
         data = [int(line) for line in file]
     return data
+
 
 def merge_timeseries(x, y):
     '''
@@ -68,6 +74,7 @@ def merge_timeseries(x, y):
         else:
             z.append(y[i - dayswitch_slot])
     return z
+
 
 # UNCERTAINTY
 def get_rednoise(r, s, d):
@@ -93,6 +100,7 @@ def get_rednoise(r, s, d):
             rednoise.append(x)
     return rednoise
 
+
 # NETWORK    
 def updateLoad(ts, id):
     '''
@@ -106,6 +114,7 @@ def updateLoad(ts, id):
     DSSText.Command = "Edit Loadshape.Shape_" + str(id) + " mult=(" + dmd_dss + ")"
     DSSText.Command = "Edit Load.LOAD" + str(id) + " daily=Shape_" + str(id)
 
+
 def solvePowerFlow():
     '''
     
@@ -115,6 +124,7 @@ def solvePowerFlow():
     time = timer()
     DSSSolution.Solve()
     DSSMonitors.SaveAll
+
 
 def getVolts():
     '''
@@ -129,6 +139,7 @@ def getVolts():
         households[i].voltages = volts[i]
     return volts
 
+
 def getLoadings():
     '''
     
@@ -139,8 +150,9 @@ def getLoadings():
     for i in range(num_linerecords):  # COULDDO if I only consider the first line, reasonable assumption, otherwise too slow
         DSSMonitors.Name = "LINE" + str(i + 1) + "_VI_vs_Time"    
         DSSText.Command = "export monitor LINE" + str(i + 1) + "_VI_vs_Time"      
-        loadings.append([ list(DSSMonitors.Channel(7)), list(DSSMonitors.Channel(9)), list(DSSMonitors.Channel(11)) ])
+        loadings.append([list(DSSMonitors.Channel(7)), list(DSSMonitors.Channel(9)), list(DSSMonitors.Channel(11))])
     return loadings
+
 
 def getSensitivities():
     '''
@@ -207,6 +219,7 @@ def getSensitivities():
         
     return np.asarray(v_matrix), np.asarray(s_matrix)
 
+
 # CONTROLLER
 def chargeAsFastAsPossible():
     '''
@@ -234,6 +247,7 @@ def chargeAsFastAsPossible():
 # *****************************************************************************************************
 # * Optimisation Functions
 # *****************************************************************************************************
+
 
 # Run linear program with GUROBI
 def runLinearProgram():
@@ -269,7 +283,7 @@ def runLinearProgram():
     
         # Add electric vehicle constraints:
         for i in range(num_households):
-            if households[i].ev != None:
+            if households[i].ev is not None:
                 for j in range(num_slots):
                     m.addConstr((1 - households[i].ev.availability_forecast[j]) * x[i, j] == 0)
                     if j >= 1:
@@ -304,7 +318,7 @@ def runLinearProgram():
         for i in range(num_households):
             for j in range(num_slots):
                 schedules[i][j] = x[i, j].X
-            if households[i].ev != None:
+            if households[i].ev is not None:
                 households[i].ev.schedule = schedules[i]
         return schedules
     
@@ -316,6 +330,7 @@ def runLinearProgram():
     
     # if no feasible model obtained
     return []
+
 
 # priceGREEDY
 def runPriceGreedy():
@@ -361,6 +376,7 @@ def runPriceGreedy():
         ev.schedule = schedules[ev.position].tolist()
     
     return schedules
+
 
 # networkGREEDY
 def runNetworkGreedy(urgency_mode):
@@ -561,6 +577,7 @@ def runNetworkGreedy(urgency_mode):
         
     return schedules
 
+
 # PSO
 def runOptParticleSwarm():
     '''
@@ -623,6 +640,7 @@ def runOptParticleSwarm():
         
     return schedules
 
+
 # GA
 def runOptGenetic():
     '''
@@ -679,6 +697,7 @@ def runOptGenetic():
 # * Metaheuristics Side Functions
 # *****************************************************************************************************
 
+
 def generate(size, pmin, pmax, smin, smax):
     '''
     
@@ -700,6 +719,7 @@ def generate(size, pmin, pmax, smin, smax):
     part.smin = smin
     part.smax = smax
     return part
+
 
 def updateParticle(part, best, phi1, phi2):
     '''
@@ -725,6 +745,7 @@ def updateParticle(part, best, phi1, phi2):
             part.speed[i] = part.smax
     part[:] = list(map(add, part, part.speed))
 
+
 def evaluate(individual):
     '''
     
@@ -740,6 +761,7 @@ def evaluate(individual):
             # Regulation Service
             # COULDDO
     return fitness,  # must be tuple
+
 
 def feasible(individual):
     '''
@@ -784,6 +806,7 @@ def feasible(individual):
         feasible = False
     return feasible
 
+
 def distance(individual):
     '''
     
@@ -797,6 +820,7 @@ def distance(individual):
 # *****************************************************************************************************
 # * Evaluation Functions
 # *****************************************************************************************************
+
 
 def evaluateResults(type):
     '''
@@ -813,7 +837,7 @@ def evaluateResults(type):
     # schedule reality adjustment
     if type == "sim":
         for j in range(num_households):
-            if households[j].ev != None:
+            if households[j].ev is not None:
                 currentSOC = households[j].ev.batterySOC_simulated
                 forced_stop = False
                 for i in range(num_slots):
@@ -878,7 +902,7 @@ def evaluateResults(type):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_hd = open(filename, 'w', newline='')
     hdlog_writer = csv.writer(log_hd, delimiter=',')
-    hdlog_writer.writerow(('id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal', 'resCostTotal', 'totalCostTotal', \
+    hdlog_writer.writerow(('id', 'inhabitants', 'withEV', 'chCostTotal', 'regRevTotal', 'netChCostTotal', 'resCostTotal', 'totalCostTotal',
                           'netDemandTotal', 'evDemandTotal', 'resDemandTotal', 'pvGenTotal', 'minVoltageV', 'minVoltagePU'))
     
     # instantiate arrays for post-calculations
@@ -954,19 +978,19 @@ def evaluateResults(type):
         with open(filename, 'w', newline='') as f:
             try:
                 solution_writer = csv.writer(f, delimiter=',')
-                solution_writer.writerow(('slot', 'netLoad', 'resLoad', 'pvGen', 'evSchedule', \
-                                   'evAvailability', 'regAvailability', 'energyCharged', 'batterySOC', \
+                solution_writer.writerow(('slot', 'netLoad', 'resLoad', 'pvGen', 'evSchedule',
+                                   'evAvailability', 'regAvailability', 'energyCharged', 'batterySOC',
                                    'voltageV', 'voltagePU', 'mainsLoading', 'elPrice', 'chCost', 'regRev', 'netChCost', 'resCost', 'totalCost'))
                 for i in range(num_slots):
-                    solution_writer.writerow(((i + 1), netloads[j][i], eva_demand[i], 0, schedules[j][i], \
-                                        av[j][i], 0, eCharged[j][i], batterySOC[j][i], hd.voltages[i], hd.voltages[i] / base_volt_perphase, actual_loadings[0][i] / 165, eva_price[i], chCost[j][i], \
+                    solution_writer.writerow(((i + 1), netloads[j][i], eva_demand[i], 0, schedules[j][i],
+                                        av[j][i], 0, eCharged[j][i], batterySOC[j][i], hd.voltages[i], hd.voltages[i] / base_volt_perphase, actual_loadings[0][i] / 165, eva_price[i], chCost[j][i],
                                         regRev[j][i], netChCost[j][i], resCost[j][i], totalCost[j][i]))
             finally:
                 f.close()
                  
-        hdlog_writer.writerow(((j + 1), hd.inhabitants, max(av[j]), sum(chCost[j]), sum(regRev[j]), sum(netChCost[j]), sum(resCost[j]), \
-                              sum(totalCost[j]), conv.Time(min=duration).hr * sum(netloads[j]) / len(netloads[j]), \
-                              conv.Time(min=duration).hr * sum(schedules[j]) / len(schedules[j]), \
+        hdlog_writer.writerow(((j + 1), hd.inhabitants, max(av[j]), sum(chCost[j]), sum(regRev[j]), sum(netChCost[j]), sum(resCost[j]),
+                              sum(totalCost[j]), conv.Time(min=duration).hr * sum(netloads[j]) / len(netloads[j]),
+                              conv.Time(min=duration).hr * sum(schedules[j]) / len(schedules[j]),
                               conv.Time(min=duration).hr * sum(eva_demand) / len(eva_demand), 0, min(hd.voltages), min(hd.voltages) / base_volt_perphase))
         j += 1
     
@@ -977,15 +1001,15 @@ def evaluateResults(type):
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_slot = open(filename, 'w', newline='')
     slotlog_writer = csv.writer(log_slot, delimiter=',')
-    slotlog_writer.writerow(('slot', 'netLoad', 'resLoad', 'pvGen', 'evSchedule', \
-                       'evAvailability', 'regAvailability', 'batterySOC', 'batterySOCmin', \
+    slotlog_writer.writerow(('slot', 'netLoad', 'resLoad', 'pvGen', 'evSchedule',
+                       'evAvailability', 'regAvailability', 'batterySOC', 'batterySOCmin',
                        'minVoltageV', 'minVoltagePU', 'mainsLoading', 'elPrice', 'chCost', 'regRev', 'netChCost', 'resCost', 'totalCost'))
     
     for i in range(num_slots):
-        slotlog_writer.writerow(((i + 1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0, \
-                                   sum(np.asarray(schedules).T[i] * av.T[i]), sum(av.T[i]), sum(regAv.T[i]), \
-                                   sum(batterySOC.T[i]) / (num_evs * ev.capacity), min(batterySOC.T[i]) / ev.capacity, min(np.asarray(household_voltages).T[i]), \
-                                   min(np.asarray(household_voltages).T[i]) / base_volt_perphase, actual_loadings[0][i] / 165, eva_price[i], sum(chCost.T[i]), \
+        slotlog_writer.writerow(((i + 1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,
+                                   sum(np.asarray(schedules).T[i] * av.T[i]), sum(av.T[i]), sum(regAv.T[i]),
+                                   sum(batterySOC.T[i]) / (num_evs * ev.capacity), min(batterySOC.T[i]) / ev.capacity, min(np.asarray(household_voltages).T[i]),
+                                   min(np.asarray(household_voltages).T[i]) / base_volt_perphase, actual_loadings[0][i] / 165, eva_price[i], sum(chCost.T[i]),
                                    sum(regRev.T[i]), sum(netChCost.T[i]), sum(resCost.T[i]), sum(totalCost.T[i])))
     log_slot.close()
     
@@ -1035,6 +1059,7 @@ def evaluateResults(type):
     mcundervolt_freq = sum(x[i] < voltage_min * base_volt_perphase for i in range(num_slots) for x in household_voltages) / (num_slots * num_households)
     
     return [mccost, mcfulfil_tot, mcfulfil_min, mcoverload_sev, mcoverload_freq, mcundervolt_sev, mcundervolt_freq]
+
 
 # *****************************************************************************************************
 # * General Framework Initialisation
@@ -1157,10 +1182,10 @@ for mc_iter in range(1, iterations + 1):
     counter = 1
     for hd in households:
         hd.day_id_1 = rd.randint(1, hd.id_range)
-        demand_ts1 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" + \
+        demand_ts1 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" +
                                      str(hd.inhabitants) + "_" + str(resolution) + "min" + format(hd.day_id_1, "03d") + ".txt")
         hd.day_id_2 = rd.randint(1, hd.id_range)
-        demand_ts2 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" + \
+        demand_ts2 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" +
                                      str(hd.inhabitants) + "_" + str(resolution) + "min" + format(hd.day_id_2, "03d") + ".txt")
         hd.demandForecast = merge_timeseries(demand_ts1, demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
@@ -1250,7 +1275,7 @@ for mc_iter in range(1, iterations + 1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            error = get_rednoise(0.8, 0.3, 1)  #  TODO proper demand uncertainty
+            error = get_rednoise(0.8, 0.3, 1)  # TODO proper demand uncertainty
             hd.demandSimulated = list(map(add, hd.demandSimulated, error))
         print(">> @Sim: Demand uncertainty realised.")
     else:
@@ -1317,3 +1342,4 @@ for i in range(mc_iter):
 print(">> @Eval: Log files for MC simulation written.")
 
 print("Programme ran successfully! Restart for another algorithm?")
+
