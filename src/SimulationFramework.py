@@ -814,7 +814,7 @@ def evaluateResults(type):
             totalCost[j][i] = resCost[j][i] + netChCost[j][i]
     
         # WRITE individual household solutions to CSV
-        filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_household" + format(j + 1, "02d") + ".csv"
+        filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/individual/" + type + "Results_household" + format(j + 1, "02d") + ".csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w', newline='') as f:
             try:
