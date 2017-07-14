@@ -853,18 +853,19 @@ def evaluateResults(type):
     
     # WRITE SOME MORE FILES
     pathname = "../log/" + alg + "/iter" + str(mc_iter)
+    commonname = pathname + "/" + type + "/" + type
     os.makedirs(os.path.dirname(pathname), exist_ok=True)
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_Schedules.csv", np.asarray(schedules), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_EVAvailability.csv", np.asarray(av), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ResCost.csv", np.asarray(resCost), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
+    np.savetxt(commonname + "Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
+    np.savetxt(commonname + "Results_Schedules.csv", np.asarray(schedules), delimiter=",")
+    np.savetxt(commonname + "Results_NetLoads.csv", np.asarray(netloads), delimiter=",")
+    np.savetxt(commonname + "Results_ResLoads.csv", np.asarray(resDemand), delimiter=",")
+    np.savetxt(commonname + "Results_EVAvailability.csv", np.asarray(av), delimiter=",")
+    np.savetxt(commonname + "Results_NetChCost.csv", np.asarray(netChCost), delimiter=",")
+    np.savetxt(commonname + "Results_TotalCost.csv", np.asarray(totalCost), delimiter=",")
+    np.savetxt(commonname + "Results_ResCost.csv", np.asarray(resCost), delimiter=",")
+    np.savetxt(commonname + "Results_BatterySOC.csv", np.asarray(batterySOC), delimiter=",")
+    np.savetxt(commonname + "Results_RegAvailability.csv", np.asarray(regAv), delimiter=",")
+    np.savetxt(commonname + "Results_PAvailability.csv", np.asarray(prob_av), delimiter=",")
 
     # display price uncertainty range
     quantiles = [0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
