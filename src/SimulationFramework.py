@@ -270,7 +270,6 @@ def runLinearProgram(type):
             for i in range(num_households):
                 if households[i].ev is None:
                     p_av = [0 for _ in range(num_slots)]
-                     
                 else:
                     p_av = households[i].ev.availability_probability
                 penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
@@ -334,7 +333,7 @@ def runLinearProgram(type):
                         var = [x[k, t] for k in range(num_households)]
                         m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= line_max * line_rating)
          
-        # m.write("../log/linearprogram.lp")
+        m.write("../log/linearprogram"+type+".lp")
         m.optimize()
         print('Obj: %g' % m.objVal)
          
@@ -1402,6 +1401,7 @@ for mc_iter in range(1, iterations + 1):
     
     # Run optimisation
     type = "ref"
+    print("------------------------------------------------")
     print(">> @Opt: " + alg + " run with full knowledge for comparison.")
     start = timer()
     
@@ -1431,6 +1431,7 @@ for mc_iter in range(1, iterations + 1):
 # *****************************************************************************************************
 # * WRITE MC EVALUATION RESULTS
 # *****************************************************************************************************
+print("------------------------------------------------")
 filename = "../log/" + alg + "/Results_MonteCarloDistributions.csv"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 log_mc = open(filename, 'w', newline='')
@@ -1441,5 +1442,5 @@ for i in range(mc_iter):
     mclog_writer.writerow([i + 1] + mcLogOpt[i] + mcLogSim[i])
 print(">> @Eval: Log files for MC simulation written.")
  
-print("--------------------------------------------")
+print("------------------------------------------------")
 print("Programme ran successfully! Restart for another algorithm?")
