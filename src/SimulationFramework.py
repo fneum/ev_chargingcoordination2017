@@ -75,6 +75,9 @@ def merge_timeseries(x, y):
             z.append(y[i - dayswitch_slot])
     return z
 
+# RANDOM
+def rotate(lst, x):
+    lst[:] =  lst[-x:] + lst[:-x]
 
 # UNCERTAINTY
 def get_rednoise(r, s, d):
@@ -1122,6 +1125,7 @@ voltage_min = cfg.getfloat("network", "voltage_min")
 voltage_max = cfg.getfloat("network", "voltage_max")
 loadmultiplier = cfg.getfloat("network", "load_multiplier")
 line_max = cfg.getfloat("network", "line_max")
+window_size = ceil(cfg.getfloat("uncertainty_mitigation", "req_demand_windowsize") / conv.Time(min=resolution).hr)
 
 # # algorithm characteristics
 urgency_mode = cfg.get("networkGREEDY", "urgency_mode")
@@ -1209,7 +1213,6 @@ for mc_iter in range(1, iterations + 1):
                 dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)]  # TODO set parameters properly
                 hd.demandForecast = list(map(add, hd.demandForecast, dem_security_margin))
             elif cfg.get("uncertainty_mitigation", "demand") == "max":
-                window_size = ceil(cfg.getfloat("uncertainty_mitigation", "req_demand_windowsize") / conv.Time(min=resolution).hr)
                 sec_demand_forecast = []
                 for i in range(num_slots):
                     rolling = 0
@@ -1258,7 +1261,7 @@ for mc_iter in range(1, iterations + 1):
     rand_deviation = get_rednoise(0.9, 0.4, 2)
     deviations = [(1 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 2 for k in range(num_slots)]
     req_price_certainty = cfg.getfloat("uncertainty_mitigation", "req_price_certainty")
-    price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)]  # TODO check if scale equals standard deviation
+    price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)]
     price_ts_sec = list(map(add, price_ts, price_sec_margins))       
 
     print(">> @Scen: Electricity market prices forecast generated.")
@@ -1297,8 +1300,10 @@ for mc_iter in range(1, iterations + 1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            error = get_rednoise(0.8, 0.3, 1)  # TODO proper demand uncertainty
-            hd.demandSimulated = list(map(add, hd.demandSimulated, error))
+#             error = get_rednoise(0.8, 0.3, 1) # TODO proper demand uncertainty
+#             hd.demandSimulated = list(map(add, hd.demandSimulated, error))
+            error = rd.randint(-window_size, window_size)
+            rotate(hd.demandSimulated, error)
         print(">> @Sim: Demand uncertainty realised.")
     else:
         print(">> @Sim: Demand uncertainty not realised.")

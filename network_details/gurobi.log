@@ -3336,3 +3336,55 @@ Barrier solve interrupted - model solved by another algorithm
 Solved with dual simplex
 Solved in 92 iterations and 0.28 seconds
 Optimal objective  7.451883913e+03
+
+Gurobi 7.0.2 (win64, Python) logging started 07/16/17 11:49:14
+
+Optimize a model with 12570 rows, 5280 columns and 598989 nonzeros
+Coefficient statistics:
+  Matrix range     [3e-03, 5e+00]
+  Objective range  [4e+00, 3e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [1e+00, 2e+02]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 7394 rows and 137 columns
+Presolve time: 0.15s
+Presolved: 5176 rows, 5143 columns, 277368 nonzeros
+
+Ordering time: 0.01s
+
+Barrier performed 0 iterations in 0.20 seconds
+Barrier solve interrupted - model solved by another algorithm
+
+
+Solved with dual simplex
+Solved in 6 iterations and 0.20 seconds
+Optimal objective  4.309277565e+02
+
+Gurobi 7.0.2 (win64, Python) logging started 07/16/17 11:50:19
+
+Optimize a model with 12570 rows, 5280 columns and 598989 nonzeros
+Coefficient statistics:
+  Matrix range     [3e-03, 5e+00]
+  Objective range  [4e+00, 3e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [1e+00, 2e+02]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 7394 rows and 137 columns
+Presolve time: 0.15s
+Presolved: 5176 rows, 5143 columns, 277368 nonzeros
+
+Ordering time: 0.01s
+
+Barrier performed 0 iterations in 0.21 seconds
+Barrier solve interrupted - model solved by another algorithm
+
+
+Solved with dual simplex
+Solved in 6 iterations and 0.21 seconds
+Optimal objective  4.309277565e+02
