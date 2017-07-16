@@ -3826,3 +3826,90 @@ Barrier solve interrupted - model solved by another algorithm
 Solved with dual simplex
 Solved in 1462 iterations and 1.17 seconds
 Optimal objective  2.330591860e+03
+
+Gurobi 7.0.2 (win64, Python) logging started 07/16/17 20:20:07
+
+Optimize a model with 26633 rows, 5280 columns and 618308 nonzeros
+Coefficient statistics:
+  Matrix range     [3e-03, 5e+00]
+  Objective range  [2e+00, 1e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [7e-01, 2e+02]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 1477 rows and 17107 columns
+Presolve time: 0.24s
+Presolved: 3803 rows, 14806 columns, 206703 nonzeros
+
+Ordering time: 0.45s
+
+Barrier performed 0 iterations in 0.73 seconds
+Barrier solve interrupted - model solved by another algorithm
+
+
+Solved with dual simplex
+Solved in 1462 iterations and 0.73 seconds
+Optimal objective  2.330591860e+03
+Optimize a model with 26633 rows, 5280 columns and 618308 nonzeros
+Coefficient statistics:
+  Matrix range     [3e-03, 5e+00]
+  Objective range  [1e+00, 1e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [7e-01, 2e+02]
+
+Concurrent LP optimizer: dual simplex and barrier
+Showing barrier log only...
+
+Presolve removed 1477 rows and 17107 columns
+Presolve time: 0.32s
+Presolved: 3803 rows, 14806 columns, 206703 nonzeros
+
+Ordering time: 0.53s
+
+Barrier performed 0 iterations in 0.90 seconds
+Barrier solve interrupted - model solved by another algorithm
+
+
+Solved with dual simplex
+Solved in 1605 iterations and 0.91 seconds
+Optimal objective  1.897801124e+03
+
+Gurobi 7.0.2 (win64, Python) logging started 07/16/17 20:54:48
+
+
+Gurobi 7.0.2 (win64, Python) logging started 07/16/17 20:55:54
+
+Optimize a model with 55 rows, 5280 columns and 5280 nonzeros
+Coefficient statistics:
+  Matrix range     [2e-01, 2e-01]
+  Objective range  [2e+00, 1e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [1e+00, 2e+01]
+Presolve removed 0 rows and 2734 columns
+Presolve time: 0.01s
+Presolved: 55 rows, 2546 columns, 2546 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    4.5877352e+03   1.579429e+03   0.000000e+00      0s
+      53    4.7528466e+03   0.000000e+00   0.000000e+00      0s
+
+Solved in 53 iterations and 0.01 seconds
+Optimal objective  4.752846556e+03
+Optimize a model with 55 rows, 5280 columns and 5280 nonzeros
+Coefficient statistics:
+  Matrix range     [2e-01, 2e-01]
+  Objective range  [2e+00, 1e+01]
+  Bounds range     [4e+00, 4e+00]
+  RHS range        [1e+00, 2e+01]
+Presolve removed 0 rows and 2734 columns
+Presolve time: 0.00s
+Presolved: 55 rows, 2546 columns, 2546 nonzeros
+
+Iteration    Objective       Primal Inf.    Dual Inf.      Time
+       0    4.5877352e+03   1.579429e+03   0.000000e+00      0s
+      53    4.7528466e+03   0.000000e+00   0.000000e+00      0s
+
+Solved in 53 iterations and 0.01 seconds
+Optimal objective  4.752846556e+03

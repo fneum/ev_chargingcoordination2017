@@ -77,7 +77,7 @@ def merge_timeseries(x, y):
  
 # RANDOM
 def rotate(lst, x):
-    lst[:] =  lst[-x:] + lst[:-x]
+    lst[:] = lst[-x:] + lst[:-x]
  
 # UNCERTAINTY
 def get_rednoise(r, s, d):
@@ -291,7 +291,7 @@ def runLinearProgram(type):
         x = m.addVars(num_households, num_slots, ub=chargingrate_max)  
         vars = [x[i, j] for i in range(num_households) for j in range(num_slots)]
          
-        if cfg.getboolean("general", "regulation_service"):
+        if cfg.getboolean("LP", "regulation_service"):
             y = m.addVars(num_households, num_slots, vtype=GRB.BINARY)
             m.update()
             revenue = (-1) * charging_efficiency * chargingrate_max * reg_price * y.sum()
@@ -308,22 +308,24 @@ def runLinearProgram(type):
                 else:
                     av = households[i].ev.availability_simulated
                     bsoc = households[i].ev.batterySOC_simulated
-                for j in range(num_slots):
-                    m.addConstr((1 - av[j]) * x[i, j] == 0)
-                    if j >= 1:
-                        m.addConstr((av[j] * av[j - 1]) * (x[i, j] - x[i, j - 1]) >= -change_max)
-                        m.addConstr((av[j] * av[j - 1]) * (x[i, j] - x[i, j - 1]) <= change_max)
-                m.addConstr(bsoc + charging_efficiency * conv.Time(min=resolution).hr * x.sum(i, '*') == households[i].ev.capacity)
-                if cfg.getboolean("general", "regulation_service"):
+                if cfg.getboolean("LP", "change_limit"):
+                    for j in range(num_slots):
+                        m.addConstr((1 - av[j]) * x[i, j] == 0)
+                        if j >= 1:
+                            m.addConstr((av[j] * av[j - 1]) * (x[i, j] - x[i, j - 1]) >= -change_max)
+                            m.addConstr((av[j] * av[j - 1]) * (x[i, j] - x[i, j - 1]) <= change_max)
+                if cfg.getboolean("LP", "regulation_service"):
                     expr = [x[i, k] for k in range(j + 1)]
                     m.addConstr(y[i, j] * (bsoc + charging_efficiency * conv.Time(min=resolution).hr * LinExpr([1 for _ in range(len(expr))], expr)) >= reg_threshold * households[i].ev.capacity)
+                m.addConstr(bsoc + charging_efficiency * conv.Time(min=resolution).hr * x.sum(i, '*') == households[i].ev.capacity)
           
         # Add technical constraints:
         # # voltage:
-        for i in range(num_households):
-                for j in range(num_slots):
-                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i], [x[k, j] for k in range(num_households)]) >= voltage_min * base_volt_perphase)
-                    m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i], [x[k, j] for k in range(num_households)]) <= voltage_max * base_volt_perphase)        
+        if cfg.getboolean("general", "voltage_constraints"):
+            for i in range(num_households):
+                    for j in range(num_slots):
+                        m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i], [x[k, j] for k in range(num_households)]) >= voltage_min * base_volt_perphase)
+                        m.addConstr(v_init[i][j] + LinExpr(v_sensitivity.T[i], [x[k, j] for k in range(num_households)]) <= voltage_max * base_volt_perphase)        
         # # line loading:
         if cfg.getboolean("general", "overload_constraints"):
             for i in range(num_linerecords):
@@ -333,7 +335,7 @@ def runLinearProgram(type):
                         var = [x[k, t] for k in range(num_households)]
                         m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= line_max * line_rating)
          
-        m.write("../log/linearprogram"+type+".lp")
+        # m.write("../log/linearprogram"+type+".lp")
         m.optimize()
         print('Obj: %g' % m.objVal)
          
@@ -536,10 +538,11 @@ def runNetworkGreedy(type, urgency_mode):
                 newload = list(map(add, households[hd_id].demandForecast, schedules[hd_id]))
                 updateLoad(newload, hd_id + 1)
                 solvePowerFlow()
-                slot_minvolts = np.zeros(num_slots)
-                 
-                for i in range(num_slots):
-                    slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
+                slot_minvolts = np.ones(num_slots)
+                
+                if cfg.getboolean("general", "voltage_constraints"):
+                    for i in range(num_slots):
+                        slot_minvolts[i] = min(np.asarray(getVolts()).T[i])
                      
                 if cfg.getboolean("general", "overload_constraints"):
                     slot_overloads = np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV", delimiter=',', skip_header=1, usecols=(0,))) / conv.Time(min=resolution).hr - 1
@@ -556,10 +559,11 @@ def runNetworkGreedy(type, urgency_mode):
                          for j in range(num_households):
                              approx_volts[i][t] += v_sensitivity[j][i] * schedules[j][t]
                               
-                slot_minvolts = np.zeros(num_slots)
-                 
-                for i in range(num_slots):
-                    slot_minvolts[i] = min(approx_volts.T[i])
+                slot_minvolts = np.ones(num_slots)
+                
+                if cfg.getboolean("general", "voltage_constraints"): 
+                    for i in range(num_slots):
+                        slot_minvolts[i] = min(approx_volts.T[i])
                  
                 if cfg.getboolean("general", "overload_constraints"):
                      
@@ -1081,7 +1085,7 @@ def evaluateResults(type):
     for q in quantiles:
         margins = [sps.norm.ppf(q, loc=0, scale=deviations[i]) for i in range(num_slots)] 
         price_range.append(list(map(add, price_ts, margins)))
-        #print(spearmanr(price_ts, list(map(add, price_ts, margins))))
+        # print(spearmanr(price_ts, list(map(add, price_ts, margins))))
     np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/Results_PriceUncertainty.csv", np.asarray(price_range), delimiter=",")    
  
     eval_end = timer()
@@ -1230,10 +1234,10 @@ for mc_iter in range(1, iterations + 1):
     counter = 1
     for hd in households:
         hd.day_id_1 = rd.randint(1, hd.id_range)
-        demand_ts1 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" +
+        demand_ts1 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" + 
                                      str(hd.inhabitants) + "_" + str(resolution) + "min" + format(hd.day_id_1, "03d") + ".txt")
         hd.day_id_2 = rd.randint(1, hd.id_range)
-        demand_ts2 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" +
+        demand_ts2 = read_floatseries("../demand_timeseries/loadprofile_" + season + "_inh" + 
                                      str(hd.inhabitants) + "_" + str(resolution) + "min" + format(hd.day_id_2, "03d") + ".txt")
         hd.demandForecast = merge_timeseries(demand_ts1, demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
@@ -1247,8 +1251,8 @@ for mc_iter in range(1, iterations + 1):
                 sec_demand_forecast = []
                 for i in range(num_slots):
                     rolling = 0
-                    for j in range(-window_size,window_size+1):
-                        rolling = max(rolling,hd.demandForecast[(i+j)%num_slots])
+                    for j in range(-window_size, window_size + 1):
+                        rolling = max(rolling, hd.demandForecast[(i + j) % num_slots])
                     sec_demand_forecast.append(rolling)
                 hd.demandForecast = sec_demand_forecast
         updateLoad(hd.demandForecast, counter)
@@ -1363,7 +1367,7 @@ for mc_iter in range(1, iterations + 1):
     if alg == "priceGREEDY":
         schedules = runPriceGreedy(type)
     elif alg == "networkGREEDY":
-        schedules = runNetworkGreedy(type,urgency_mode)
+        schedules = runNetworkGreedy(type, urgency_mode)
     elif alg == "GA":
         schedules = runOptGenetic()
     elif alg == "PSO":
@@ -1408,7 +1412,7 @@ for mc_iter in range(1, iterations + 1):
     if alg == "priceGREEDY":
         schedules = runPriceGreedy(type)
     elif alg == "networkGREEDY":
-        schedules = runNetworkGreedy(type,urgency_mode)
+        schedules = runNetworkGreedy(type, urgency_mode)
     elif alg == "GA":
         schedules = runOptGenetic()
     elif alg == "PSO":
