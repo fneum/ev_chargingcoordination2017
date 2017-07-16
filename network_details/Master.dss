@@ -16,6 +16,7 @@ Calcvoltagebases
 buscoords buscoords.txt
 
 New EnergyMeter.Main Line.LINE1 1
+! New EnergyMeter.Main2 Transformer.TR1 1
 
 ! ???
 set overloadreport=true  ! TURN OVERLOAD REPORT ON

@@ -281,8 +281,7 @@ def runLinearProgram(type):
             coeff = [price_ts_opt[i % num_slots] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
     else:
         coeff = [price_ts_sim[i % num_slots] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
-
-        
+   
     try:
         # Create a new model
         m = Model()
@@ -1431,6 +1430,9 @@ for mc_iter in range(1, iterations + 1):
     # evaluate full knowledge optimisation
     mc_ref = evaluateResults("ref")
     mcLogRef.append(mc_ref)
+    
+    # DSSText.Command = "plot circuit power dots=y C1=red"
+    # DSSText.Command = "plot profile"
     
 # *****************************************************************************************************
 # * WRITE MC EVALUATION RESULTS

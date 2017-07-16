@@ -1,0 +1,20 @@
+SetProp, 1E050,   -1E050, 1E050, -1E050, 16777215, 16777215, 0, 4
+Caption, "L-N Voltage Profile"
+ChartCaption, "L-N Voltage Profile"
+Xlabel, "Distance (km)"
+Ylabel, "p.u. Voltage"
+ClickOn
+SetProp, 1E050,   -1E050, 1E050, -1E050, 16777215, 16777215, 0, 7
+TxtAlign, 1
+KeyClass, 1
+KeepAspect, 0
+PctRim, 2
+Range, 0, -1E050, 0.9, 1.1
+Width, 3
+DataColor, 255
+Move, 0, 1.05
+Draw, -1E050, 1.05
+Move, 0, 0.95
+Draw, -1E050, 0.95
+SetProp, 0,   -1E050, 0.9, 1.1, 16777215, 16777215, 0, 7
+PctRim, 2
