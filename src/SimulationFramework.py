@@ -267,12 +267,13 @@ def runLinearProgram():
         for i in range(num_households):
             if households[i].ev is None:
                 p_av = [0 for _ in range(num_slots)]
+                
             else:
                 p_av = households[i].ev.availability_probability
-                penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
-                for i in range(num_slots):
-                    price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
-                    price_ts_ind.append(price)
+            penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+            for i in range(num_slots):
+                price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
+                price_ts_ind.append(price)
         coeff = [price_ts_ind[i] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
     else:
         coeff = [price_ts_opt[i % num_slots] * conv.Time(min=resolution).hr for i in range(num_households * num_slots)]
@@ -458,11 +459,11 @@ def runNetworkGreedy(urgency_mode):
         if cfg.get("uncertainty_mitigation", "availability") == "penalty":
             p_av = evs[k].availability_probability
             penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
-            price_ts_opt = []
+            price_ts_ind = []
             for i in range(num_slots):
                 price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
-                price_ts_opt.append(price)
-            print(spearmanr(price_ts, price_ts_opt))
+                price_ts_ind.append(price)
+            price_ts_opt = price_ts_ind
             order_prices = np.argsort(price_ts_opt)
         
         max_rate = [chargingrate_max for i in range(num_slots)]
@@ -1047,7 +1048,7 @@ def evaluateResults(type):
     for q in quantiles:
         margins = [sps.norm.ppf(q, loc=0, scale=deviations[i]) for i in range(num_slots)] 
         price_range.append(list(map(add, price_ts, margins)))
-        print(spearmanr(price_ts, list(map(add, price_ts, margins))))
+        #print(spearmanr(price_ts, list(map(add, price_ts, margins))))
     np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/Results_PriceUncertainty.csv", np.asarray(price_range), delimiter=",")    
 
     eval_end = timer()
@@ -1202,11 +1203,20 @@ for mc_iter in range(1, iterations + 1):
         hd.demandForecast = merge_timeseries(demand_ts1, demand_ts2)
         hd.demandForecast = [x * loadmultiplier for x in hd.demandForecast]
         hd.demandSimulated = copy.deepcopy(hd.demandForecast)
-        if cfg.get("uncertainty_mitigation", "demand") == "norm":
-            # TODO investigate further options for demand uncertainty representation 
-            req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
-            dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)]  # TODO set parameters properly
-            hd.demandForecast = list(map(add, hd.demandForecast, dem_security_margin))
+        if cfg.getboolean("uncertainty", "unc_dem"):
+            if cfg.get("uncertainty_mitigation", "demand") == "norm":
+                req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
+                dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)]  # TODO set parameters properly
+                hd.demandForecast = list(map(add, hd.demandForecast, dem_security_margin))
+            elif cfg.get("uncertainty_mitigation", "demand") == "max":
+                window_size = ceil(cfg.getfloat("uncertainty_mitigation", "req_demand_windowsize") / conv.Time(min=resolution).hr)
+                sec_demand_forecast = []
+                for i in range(num_slots):
+                    rolling = 0
+                    for j in range(-window_size,window_size+1):
+                        rolling = max(rolling,hd.demandForecast[(i+j)%num_slots])
+                    sec_demand_forecast.append(rolling)
+                hd.demandForecast = sec_demand_forecast
         updateLoad(hd.demandForecast, counter)
         counter += 1
     print(">> @Scen: " + str(num_households) + " households initialised and demand forecasts generated.")
@@ -1353,5 +1363,6 @@ for i in range(mc_iter):
     mclog_writer.writerow([i + 1] + mcLogOpt[i] + mcLogSim[i])
 print(">> @Eval: Log files for MC simulation written.")
 
+print("--------------------------------------------")
 print("Programme ran successfully! Restart for another algorithm?")
 
