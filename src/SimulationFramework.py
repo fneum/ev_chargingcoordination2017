@@ -8,21 +8,22 @@ import configparser
 from copy import deepcopy
 import copy
 import csv
-import shortuuid
-import shutil
+from datetime import datetime
 import fileinput
 from math import *
 import multiprocessing
 from operator import add, sub, mul
 import os
+import shutil
 from statistics import mean, median
-from datetime import datetime
 from timeit import default_timer as timer
 from unittest.test.testmock.testpatch import something
 
 from deap import base, creator, tools, algorithms
 from gurobipy import *
 from scipy.stats.stats import spearmanr
+import shortuuid
+from sympy.stats.rv import cdf
 import win32com.client
 
 from HouseholdSpecifications import Household
@@ -33,7 +34,6 @@ import numpy.random as rd
 import pandas as pd
 import scipy as sp
 import scipy.stats as sps
-from sympy.stats.rv import cdf
 
 
 # *****************************************************************************************************
