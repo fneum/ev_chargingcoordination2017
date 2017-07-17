@@ -272,7 +272,7 @@ def runLinearProgram(type):
                     p_av = [0 for _ in range(num_slots)]
                 else:
                     p_av = households[i].ev.availability_probability
-                penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+                penalty = cfg.getfloat("uncertainty_mitigation", "av_penalty")
                 for i in range(num_slots):
                     price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
                     price_ts_ind.append(price)
@@ -448,7 +448,7 @@ def runNetworkGreedy(type, urgency_mode):
     if urgency_mode == "distance":
         alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
         load_locations = read_intseries("../network_details/LoadLocations.txt")
-# TODO: REMOVE ONCE VERIFIED        
+# ALTERNATIVE FOR ALL HOUSEHOLDS        
 #         distances = np.zeros(num_households)
 #         for i in range(len(load_locations)):
 #             distances[i] = alldistances[load_locations[i]]         
@@ -944,7 +944,9 @@ def evaluateResults(type):
      
     # actual loadings log
     actual_loadings = np.max(np.asarray(getLoadings()), axis=1)
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ActualLoadings.csv", actual_loadings, delimiter=",")             
+    filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ActualLoadings.csv"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    np.savetxt(filename, actual_loadings, delimiter=",")             
      
     # WRITE HOUSEHOLD AGGREGATE LOG
     filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_HouseholdAggregate.csv"
@@ -1431,6 +1433,7 @@ for mc_iter in range(1, iterations + 1):
     mc_ref = evaluateResults("ref")
     mcLogRef.append(mc_ref)
     
+    # TODO plots
     # DSSText.Command = "plot circuit power dots=y C1=red"
     # DSSText.Command = "plot profile"
     
