@@ -1,4 +1,5 @@
 ''' The modules docstring...'''
+# TODO Docstrings
  
 # *****************************************************************************************************
 # * Imports
@@ -78,9 +79,11 @@ def merge_timeseries(x, y):
             z.append(y[i - dayswitch_slot])
     return z
  
+ 
 # RANDOM
 def rotate(lst, x):
     lst[:] = lst[-x:] + lst[:-x]
+ 
  
 # UNCERTAINTY
 def get_rednoise(r, s, d):
@@ -927,7 +930,7 @@ def evaluateResults(type):
         np.savetxt(filename, approx_loadings, delimiter=",")             
  
     # reparation controller
-    # TODO
+    # COULDDO
      
     # include schedule in residential net load
     netloads = []
@@ -1255,7 +1258,7 @@ for mc_iter in range(1, iterations + 1):
         if cfg.getboolean("uncertainty", "unc_dem"):
             if cfg.get("uncertainty_mitigation", "demand") == "norm":
                 req_demand_certainty = cfg.getfloat("uncertainty_mitigation", "req_demand_certainty")
-                dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)]  # TODO set parameters properly
+                dem_security_margin = [sps.norm.ppf(req_demand_certainty, loc=0, scale=0.3) for _ in range(num_slots)]  # COULDDO set parameters properly
                 hd.demandForecast = list(map(add, hd.demandForecast, dem_security_margin))
             elif cfg.get("uncertainty_mitigation", "demand") == "max":
                 sec_demand_forecast = []
@@ -1345,7 +1348,7 @@ for mc_iter in range(1, iterations + 1):
     # generate actual demand behaviour
     if cfg.getboolean("uncertainty", "unc_dem"):
         for hd in households:
-            # error = get_rednoise(0.8, 0.3, 1) # TODO proper demand uncertainty
+            # error = get_rednoise(0.8, 0.3, 1) # COULDDO proper demand uncertainty
             # hd.demandSimulated = list(map(add, hd.demandSimulated, error))
             error = rd.randint(-window_size, window_size)
             rotate(hd.demandSimulated, error)
@@ -1373,7 +1376,6 @@ for mc_iter in range(1, iterations + 1):
     print(">> @Opt: " + alg + " selected as optimisation algorithm.")
     start = timer()
     
-     
     if alg == "priceGREEDY":
         schedules = runPriceGreedy(type)
     elif alg == "networkGREEDY":
