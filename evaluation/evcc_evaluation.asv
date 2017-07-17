@@ -11,7 +11,7 @@ msz = 8;       % MarkerSize
 
 set(0,'defaultLineLineWidth',1.5)
 
-path = '../log/20170717-13_19_11/iter14';
+path = '../log/20170717-12_07_10/iter14';
 sa_opt = csvread(strcat(path,'/opt/optResults_SlotwiseAggregate.csv'),1);
 sa_ref = csvread(strcat(path,'/ref/refResults_SlotwiseAggregate.csv'),1);
 sa_sim = csvread(strcat(path,'/sim/simResults_SlotwiseAggregate.csv'),1);
@@ -115,12 +115,5 @@ xlim([0 96]);
 %figure;
 %   hist(mc(:,2),20)
 
-path = '../log/20170717-12_07_10/iter14';
-path2 = '../log/20170717-11_51_04/iter14';
-test = csvread(strcat(path,'/sim/simResults_EVavailability.csv'));
-test2 = csvread(strcat(path2,'/sim/simResults_EVavailability.csv'));
+ = csvread(strcat(path,'/opt/optResults_schedules.csv',1);
 figure;
-subplot(1,2,1);
-heatmap(test);
-subplot(1,2,2);
-heatmap(test2);

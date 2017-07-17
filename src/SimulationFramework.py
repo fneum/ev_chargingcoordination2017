@@ -245,12 +245,12 @@ def chargeAsFastAsPossible():
             remainingEnergyDemand = targetSOC * ev.capacity - batterySOC
             chargingrate_need = remainingEnergyDemand / (ev.charging_efficiency * conv.Time(min=resolution).hr)
             chargingrate = ev.availability_simulated[t] * min(ev.chargingrate_max, chargingrate_need)
-            schedules[ev.position - 1][t] = chargingrate
+            schedules[ev.position][t] = chargingrate
             batterySOC += (chargingrate * ev.charging_efficiency * conv.Time(min=resolution).hr)
             t += 1
             if t == num_slots:
                 break
-        ev.schedule = schedules[ev.position - 1].tolist()
+        ev.schedule = schedules[ev.position].tolist()
     return schedules
  
 # *****************************************************************************************************
@@ -1437,11 +1437,14 @@ for mc_iter in range(1, iterations + 1):
     # Run no charging coordination if optimisation failed
     if len(schedules) == 0:
         schedules = chargeAsFastAsPossible()
+    
+    computation_time = timer() - start
      
-    print(">> @Opt: Perfect information optimisation cycle complete after " + format(timer() - start, ".3f") + " sec.")
+    print(">> @Opt: Perfect information optimisation cycle complete after " + format(computation_time, ".3f") + " sec.")
     
     # evaluate full knowledge optimisation
     mc_ref = evaluateResults("ref")
+    mc_ref.append(computation_time)
     mcLogRef.append(mc_ref)
     
     # TODO plots
@@ -1456,10 +1459,10 @@ filename = "../log/" + uuid + "/Results_MonteCarloDistributions.csv"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 log_mc = open(filename, 'w', newline='')
 mclog_writer = csv.writer(log_mc, delimiter=',')
-mclog_writer.writerow(('id', 'opt_cost', 'opt_fulfil_tot', 'opt_fulfil_min', 'opt_overload_sev', 'opt_overload_freq', 'opt_undervolt_sev', 'opt_undervolt_freq', 'sim_cost', 'sim_fulfil_tot', 'sim_fulfil_min', 'sim_overload_sev', 'sim_overload_freq', 'sim_undervolt_sev', 'sim_undervolt_freq'))
+mclog_writer.writerow(('id', 'opt_cost', 'opt_fulfil_tot', 'opt_fulfil_min', 'opt_overload_sev', 'opt_overload_freq', 'opt_undervolt_sev', 'opt_undervolt_freq', 'sim_cost', 'sim_fulfil_tot', 'sim_fulfil_min', 'sim_overload_sev', 'sim_overload_freq', 'sim_undervolt_sev', 'sim_undervolt_freq', 'ref_cost', 'ref_fulfil_tot', 'ref_fulfil_min', 'ref_overload_sev', 'ref_overload_freq', 'ref_undervolt_sev', 'ref_undervolt_freq', 'computation_time'))
  
 for i in range(mc_iter):
-    mclog_writer.writerow([i + 1] + mcLogOpt[i] + mcLogSim[i])
+    mclog_writer.writerow([i + 1] + mcLogOpt[i] + mcLogSim[i] + mcLogRef[i])
 print(">> @Eval: Log files for MC simulation written.")
  
 print("------------------------------------------------")
