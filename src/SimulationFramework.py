@@ -8,20 +8,23 @@ import configparser
 from copy import deepcopy
 import copy
 import csv
+import shortuuid
+import shutil
 import fileinput
 from math import *
 import multiprocessing
 from operator import add, sub, mul
 import os
 from statistics import mean, median
+from datetime import datetime
 from timeit import default_timer as timer
 from unittest.test.testmock.testpatch import something
- 
+
 from deap import base, creator, tools, algorithms
 from gurobipy import *
 from scipy.stats.stats import spearmanr
 import win32com.client
- 
+
 from HouseholdSpecifications import Household
 from VehicleSpecifications import ElectricVehicle
 import measurement.measures as conv
@@ -30,12 +33,12 @@ import numpy.random as rd
 import pandas as pd
 import scipy as sp
 import scipy.stats as sps
- 
+from sympy.stats.rv import cdf
+
+
 # *****************************************************************************************************
 # * Utility Functions
 # *****************************************************************************************************
- 
- 
 # READING
 def read_floatseries(filename):
     '''
@@ -165,7 +168,7 @@ def getSensitivities():
     '''
     v_matrix = []
     s_matrix = []
-    DSSText.Command = "set mode=snap year=0"
+    DSSText.Command = "set mode=snap year=1"
      
     DSSText.Command = "reset"
     DSSSolution.Solve()
@@ -334,7 +337,7 @@ def runLinearProgram(type):
                         var = [x[k, t] for k in range(num_households)]
                         m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= line_max * line_rating)
          
-        # m.write("../log/linearprogram"+type+".lp")
+        # m.write("../log/"+ uuid + "/linearprogram"+type+".lp")
         m.optimize()
         print('Obj: %g' % m.objVal)
          
@@ -907,7 +910,7 @@ def evaluateResults(type):
             for i in range(num_households):
                 for j in range(num_households):
                     approx_volts[i][t] += v_sensitivity[j][i] * schedules[j][t]
-        filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ApproxVoltages.csv"
+        filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ApproxVoltages.csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         np.savetxt(filename, np.asarray(approx_volts), delimiter=",")             
          
@@ -919,7 +922,7 @@ def evaluateResults(type):
                     for p in range(3):
                         approx_loadings[i][p][t] += s_sensitivity[j][p][i] * schedules[j][t]
         approx_loadings = np.max(approx_loadings, axis=1)
-        filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ApproxLoadings.csv"
+        filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ApproxLoadings.csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         np.savetxt(filename, approx_loadings, delimiter=",")             
  
@@ -944,12 +947,12 @@ def evaluateResults(type):
      
     # actual loadings log
     actual_loadings = np.max(np.asarray(getLoadings()), axis=1)
-    filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ActualLoadings.csv"
+    filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_ActualLoadings.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     np.savetxt(filename, actual_loadings, delimiter=",")             
      
     # WRITE HOUSEHOLD AGGREGATE LOG
-    filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_HouseholdAggregate.csv"
+    filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_HouseholdAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_hd = open(filename, 'w', newline='')
     hdlog_writer = csv.writer(log_hd, delimiter=',')
@@ -1024,7 +1027,7 @@ def evaluateResults(type):
             totalCost[j][i] = resCost[j][i] + netChCost[j][i]
      
         # WRITE individual household solutions to CSV
-        filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/individual/" + type + "Results_household" + format(j + 1, "02d") + ".csv"
+        filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/individual/" + type + "Results_household" + format(j + 1, "02d") + ".csv"
         os.makedirs(os.path.dirname(filename), exist_ok=True)
         with open(filename, 'w', newline='') as f:
             try:
@@ -1048,7 +1051,7 @@ def evaluateResults(type):
     log_hd.close()
      
     # SLOTWISE AGGREGATE LOG
-    filename = "../log/" + alg + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_SlotwiseAggregate.csv"
+    filename = "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/" + type + "Results_SlotwiseAggregate.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
     log_slot = open(filename, 'w', newline='')
     slotlog_writer = csv.writer(log_slot, delimiter=',')
@@ -1065,7 +1068,7 @@ def evaluateResults(type):
     log_slot.close()
      
     # WRITE SOME MORE FILES
-    pathname = "../log/" + alg + "/iter" + str(mc_iter)
+    pathname = "../log/" + uuid + "/iter" + str(mc_iter)
     common_name = pathname + "/" + type + "/" + type
     os.makedirs(os.path.dirname(pathname), exist_ok=True)
     np.savetxt(common_name + "Results_Voltages.csv", np.asarray(household_voltages), delimiter=",")
@@ -1087,7 +1090,10 @@ def evaluateResults(type):
         margins = [sps.norm.ppf(q, loc=0, scale=deviations[i]) for i in range(num_slots)] 
         price_range.append(list(map(add, price_ts, margins)))
         # print(spearmanr(price_ts, list(map(add, price_ts, margins))))
-    np.savetxt("../log/" + alg + "/iter" + str(mc_iter) + "/Results_PriceUncertainty.csv", np.asarray(price_range), delimiter=",")    
+    np.savetxt("../log/" + uuid + "/iter" + str(mc_iter) + "/Results_PriceUncertainty.csv", np.asarray(price_range), delimiter=",")    
+ 
+    # copy OpenDSS logfiles
+    shutil.copytree("../network_details/LVTest", "../log/" + uuid + "/iter" + str(mc_iter) + "/" + type + "/LVTest")
  
     eval_end = timer()
     eval_time = eval_end - eval_start
@@ -1120,18 +1126,21 @@ print(">>> Programme started.")
 print("-------------------------------------------------")
  
 # Administrative
-my_seed = 196273724
+cfg = configparser.ConfigParser()
+cfg.read("../parameters/evalParams.ini")
+my_seed = cfg.getint("general", "seed")
 rd.seed(my_seed)
 np.random.seed(my_seed)
 np.set_printoptions(threshold=np.nan)
+uuid = datetime.now().strftime('%Y%m%d-%H_%M_%S')  # shortuuid.uuid()
+filename = "../log/" + uuid + "/"
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+shutil.copy2("../parameters/evalParams.ini", filename)
 print(">> @Init: Utilities defined.")
  
 # *****************************************************************************************************
 # * Read Parameters
 # *****************************************************************************************************
- 
-cfg = configparser.ConfigParser()
-cfg.read("../parameters/evalParams.ini")
  
 # ASSIGN PARAMETERS
  
@@ -1441,7 +1450,7 @@ for mc_iter in range(1, iterations + 1):
 # * WRITE MC EVALUATION RESULTS
 # *****************************************************************************************************
 print("------------------------------------------------")
-filename = "../log/" + alg + "/Results_MonteCarloDistributions.csv"
+filename = "../log/" + uuid + "/Results_MonteCarloDistributions.csv"
 os.makedirs(os.path.dirname(filename), exist_ok=True)
 log_mc = open(filename, 'w', newline='')
 mclog_writer = csv.writer(log_mc, delimiter=',')
