@@ -111,9 +111,13 @@ title('Residential Load');
 ylabel('kW');
 xlim([0 96]);
 
-%mc = csvread('../log/20170717-12_07_10/Results_MonteCarloDistributions.csv',1);
-%figure;
-%   hist(mc(:,2),20)
+mc_afap = csvread('../log/20170717-13_19_11/Results_MonteCarloDistributions.csv',1);
+mc_price = csvread('../log/20170717-12_07_10/Results_MonteCarloDistributions.csv',1);
+mc_lp = csvread('../log/20170717-11_51_04/Results_MonteCarloDistributions.csv',1);
+
+figure;
+bar([mc_lp(:,2),mc_lp(:,9),mc_lp(:,16)]);
+
 
 path = '../log/20170717-12_07_10/iter14';
 path2 = '../log/20170717-11_51_04/iter14';
