@@ -11,7 +11,7 @@ msz = 8;       % MarkerSize
 
 set(0,'defaultLineLineWidth',1.5)
 
-path = '../log/20170717-13_19_11/iter14';
+path = '../log/20170725-18_35_40/iter1';
 sa_opt = csvread(strcat(path,'/opt/optResults_SlotwiseAggregate.csv'),1);
 sa_ref = csvread(strcat(path,'/ref/refResults_SlotwiseAggregate.csv'),1);
 sa_sim = csvread(strcat(path,'/sim/simResults_SlotwiseAggregate.csv'),1);

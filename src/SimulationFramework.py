@@ -395,7 +395,7 @@ def runPriceGreedy(type):
             
             if cfg.get("uncertainty_mitigation", "availability") == "penalty":
                 p_av = ev.availability_probability
-                penalty = cfg.getfloat("uncertainty_mitigation", "penalty")
+                penalty = cfg.getfloat("uncertainty_mitigation", "av_penalty")
                 price_ts_opt = []
                 for i in range(num_slots):
                     price = p_av[i] * price_ts_opt[i] + (1 - p_av[i]) * penalty
@@ -455,14 +455,15 @@ def runNetworkGreedy(type, urgency_mode):
         alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
         load_locations = read_intseries("../network_details/LoadLocations.txt")
 # ALTERNATIVE FOR ALL HOUSEHOLDS        
-#         distances = np.zeros(num_households)
-#         for i in range(len(load_locations)):
-#             distances[i] = alldistances[load_locations[i]]         
-        distances = np.zeros(num_evs)
-        for i in range(num_evs):
-            hd_id = evs[i].position
-            distances[i] = alldistances[load_locations[hd_id]]
+        distances = np.zeros(num_households)
+        for i in range(len(load_locations)):
+            distances[i] = alldistances[load_locations[i]]         
+#        distances = np.zeros(num_evs)
+#        for i in range(num_evs):
+#            hd_id = evs[i].position
+#            distances[i] = alldistances[load_locations[hd_id]]
         order_urgency = np.argsort(distances)
+        print(order_urgency)
          
     elif urgency_mode == "manual":
         # COULDDO only works if all households have EV
@@ -1215,10 +1216,19 @@ DSSMonitors = DSSCircuit.Monitors
 DSSText.Command = r"Compile '..\network_details\Master.dss'"
 print(">> @Init: Network instantiated and compiled.")
  
+# Get and store sensitivity matrices
 if cfg.getboolean("general", "network_sensitivity"):     
     v_sensitivity, s_sensitivity = getSensitivities()
     print(">> @Init: Acquired full voltage and load sensitivity matrices.")
- 
+
+filename = "../log/" + uuid + "/Results_VSensitivity.csv"
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+np.savetxt(filename,np.asarray(v_sensitivity), delimiter=",")
+
+filename = "../log/" + uuid + "/Results_SSensitivity.csv"
+os.makedirs(os.path.dirname(filename), exist_ok=True)
+np.savetxt(filename,np.asarray(s_sensitivity), delimiter=",")
+
 # set major parameters
 DSSText.Command = "set mode=daily number=" + str(num_slots) + " stepsize=" + str(resolution) + "m"
 for i in range(num_households):
@@ -1450,8 +1460,9 @@ for mc_iter in range(1, iterations + 1):
     mcLogRef.append(mc_ref)
     
     # TODO plots
-    # DSSText.Command = "plot circuit power dots=y C1=red"
+    # DSSText.Command = "plot circuit dots=y C1=red"
     # DSSText.Command = "plot profile"
+    # DSSText.Command = "plot type=General quantity=1 Max=.003 dots=y labels=no subs=yes object=MYFILE.csv C1=$0080FFFF C2=$000000FF"
     
 # *****************************************************************************************************
 # * WRITE MC EVALUATION RESULTS

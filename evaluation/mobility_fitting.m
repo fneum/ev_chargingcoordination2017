@@ -1,9 +1,9 @@
 clear all
 clc
 
-load tripend_sigmu
-load tripstart_sigmu
-load mileage_sigmu
+load data/tripend_sigmu
+load data/tripstart_sigmu
+load data/mileage_sigmu
 
 % RUN FITS
 fit_te_sigma = allfitdist(tripend_sigmu(:,1));
