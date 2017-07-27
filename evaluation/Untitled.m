@@ -1,0 +1,7 @@
+var(tripend_sigmu(:,1))
+var(tripend_sigmu(:,2))
+var(tripstart_sigmu(:,1))
+var(tripstart_sigmu(:,2))
+var(tripstart_sigmu(:,1))
+var(mileage_sigmu(:,1))
+var(mileage_sigmu(:,2))

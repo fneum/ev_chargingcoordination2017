@@ -1316,10 +1316,11 @@ for mc_iter in range(1, iterations + 1):
     # define price uncertainty + generate electricity price forecast (SEC)
     deviations = [p - median(price_ts) for p in price_ts]
     max_deviation = max(deviations)
-    rand_deviation = get_rednoise(0.9, 0.4, 2)
+    rand_deviation = get_rednoise(0.9, 0.25, 2)
     # TODO
-   # deviations = [(0.8 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 1.5 for k in range(num_slots)]
-    deviations = [(1 + spread * abs(deviations[k]) / max_deviation) for k in range(num_slots)]
+  #  deviations = [(0.8 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 1.5 for k in range(num_slots)]
+    deviations = [(0.5 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) for k in range(num_slots)]
+    # deviations = [(1 + spread * abs(deviations[k]) / max_deviation) for k in range(num_slots)]
     req_price_certainty = cfg.getfloat("uncertainty_mitigation", "req_price_certainty")
     price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)]
     price_ts_sec = list(map(add, price_ts, price_sec_margins))       
