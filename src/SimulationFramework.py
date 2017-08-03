@@ -430,6 +430,7 @@ def runNetworkGreedy(type, urgency_mode):
     @return:
     @rtype:
     '''
+    
     schedules = np.zeros((num_households, num_slots))
     
     if type == "opt": 
@@ -451,7 +452,7 @@ def runNetworkGreedy(type, urgency_mode):
         for hd in households:
             hd.demandForecast = hd.demandSimulated
      
-    if urgency_mode == "distance":
+    if urgency_mode == "distance_asc":
         alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
         load_locations = read_intseries("../network_details/LoadLocations.txt")
 # ALTERNATIVE FOR ALL HOUSEHOLDS        
@@ -464,7 +465,21 @@ def runNetworkGreedy(type, urgency_mode):
 #            distances[i] = alldistances[load_locations[hd_id]]
         order_urgency = np.argsort(distances)
         print(order_urgency)
-         
+    
+    elif urgency_mode == "distance_desc":
+        alldistances = DSSCircuit.AllNodeDistancesByPhase(1)
+        load_locations = read_intseries("../network_details/LoadLocations.txt")
+# ALTERNATIVE FOR ALL HOUSEHOLDS        
+        distances = np.zeros(num_households)
+        for i in range(len(load_locations)):
+            distances[i] = alldistances[load_locations[i]]         
+#        distances = np.zeros(num_evs)
+#        for i in range(num_evs):
+#            hd_id = evs[i].position
+#            distances[i] = alldistances[load_locations[hd_id]]
+        order_urgency = np.argsort(-distances)
+        print(order_urgency)
+    
     elif urgency_mode == "manual":
         # COULDDO only works if all households have EV
         order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
@@ -488,13 +503,25 @@ def runNetworkGreedy(type, urgency_mode):
         for k in range(num_evs):
             arrivalSOCs[k] = evs[k].batterySOC_forecast
             deg_freedom[k] = sum(evs[k].availability_forecast)
-            urgency[k] = evs[k].batterySOC_forecast * sum(evs[k].availability_forecast)      
+            urgency[k] = evs[k].batterySOC_forecast    
+        order_urgency = np.argsort(urgency)
+    elif urgency_mode == "availability":
+        # prioritise electric vehicles according to SOC and availability period
+        urgency = np.zeros(num_evs)
+        deg_freedom = np.zeros(num_evs)
+        arrivalSOCs = np.zeros(num_evs)
+        for k in range(num_evs):
+            arrivalSOCs[k] = evs[k].batterySOC_forecast
+            deg_freedom[k] = sum(evs[k].availability_forecast)
+            urgency[k] = sum(evs[k].availability_forecast)      
         order_urgency = np.argsort(urgency)
     else:
         urgency_mode = [i for i in range(num_evs)]
     print(order_urgency)
      
     for k in range(num_evs):
+        
+        time = timer()
          
         if type == "opt":
             if cfg.get("uncertainty_mitigation", "availability") == "penalty":
@@ -628,6 +655,9 @@ def runNetworkGreedy(type, urgency_mode):
                  
                 print("-> No violations. Continue with proposed schedule.")
                 feasible = True
+                
+            if timer()-time > 200:
+                break
  
         ev.schedule = schedules[hd_id].tolist()   
          
@@ -1221,13 +1251,13 @@ if cfg.getboolean("general", "network_sensitivity"):
     v_sensitivity, s_sensitivity = getSensitivities()
     print(">> @Init: Acquired full voltage and load sensitivity matrices.")
 
-filename = "../log/" + uuid + "/Results_VSensitivity.csv"
-os.makedirs(os.path.dirname(filename), exist_ok=True)
-np.savetxt(filename,np.asarray(v_sensitivity), delimiter=",")
-
-filename = "../log/" + uuid + "/Results_SSensitivity.csv"
-os.makedirs(os.path.dirname(filename), exist_ok=True)
-np.savetxt(filename,np.asarray(s_sensitivity), delimiter=",")
+    filename = "../log/" + uuid + "/Results_VSensitivity.csv"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    np.savetxt(filename,np.asarray(v_sensitivity), delimiter=",")
+    
+    filename = "../log/" + uuid + "/Results_SSensitivity.csv"
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    np.savetxt(filename,np.asarray(s_sensitivity), delimiter=",")
 
 # set major parameters
 DSSText.Command = "set mode=daily number=" + str(num_slots) + " stepsize=" + str(resolution) + "m"
@@ -1318,8 +1348,8 @@ for mc_iter in range(1, iterations + 1):
     max_deviation = max(deviations)
     rand_deviation = get_rednoise(0.9, 0.25, 2)
     # TODO
-  #  deviations = [(0.8 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 1.5 for k in range(num_slots)]
-    deviations = [(0.5 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) for k in range(num_slots)]
+    deviations = [(0.8 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 1.5 for k in range(num_slots)]
+    #deviations = [(0.5 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) for k in range(num_slots)]
     # deviations = [(1 + spread * abs(deviations[k]) / max_deviation) for k in range(num_slots)]
     req_price_certainty = cfg.getfloat("uncertainty_mitigation", "req_price_certainty")
     price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)]
