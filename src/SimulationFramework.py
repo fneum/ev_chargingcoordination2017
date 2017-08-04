@@ -1093,10 +1093,11 @@ def evaluateResults(type):
                        'evAvailability', 'regAvailability', 'batterySOC', 'batterySOCmin',
                        'minVoltageV', 'minVoltagePU', 'mainsLoading', 'elPrice', 'chCost', 'regRev', 'netChCost', 'resCost', 'totalCost'))
      
+    cap = cfg.getfloat("electric_vehicles", "capacity")
     for i in range(num_slots):
         slotlog_writer.writerow(((i + 1), sum(np.asarray(netloads).T[i]), sum(np.asarray(resDemand).T[i]), 0,
                                    sum(np.asarray(schedules).T[i] * av.T[i]), sum(av.T[i]), sum(regAv.T[i]),
-                                   sum(batterySOC.T[i]) / (num_evs * ev.capacity), min(batterySOC.T[i]) / ev.capacity, min(np.asarray(household_voltages).T[i]),
+                                   sum(batterySOC.T[i]) / (num_evs * cap), min(batterySOC.T[i]) / cap, min(np.asarray(household_voltages).T[i]),
                                    min(np.asarray(household_voltages).T[i]) / base_volt_perphase, actual_loadings[0][i] / 165, eva_price[i], sum(chCost.T[i]),
                                    sum(regRev.T[i]), sum(netChCost.T[i]), sum(resCost.T[i]), sum(totalCost.T[i])))
     log_slot.close()
@@ -1142,8 +1143,8 @@ def evaluateResults(type):
     # DSSText.Command = "export summary"
      
     mccost = sum(map(sum, netChCost))
-    mcfulfil_tot = sum(batterySOC.T[-1]) / (num_evs * ev.capacity)
-    mcfulfil_min = min(batterySOC.T[-1]) / ev.capacity
+    mcfulfil_tot = sum(batterySOC.T[-1]) / (num_evs * cap)
+    mcfulfil_min = min(batterySOC.T[-1]) / cap
     mcoverload_sev = max(map(max, actual_loadings)) / 165  # TODO automatic line parameter reading
     mcoverload_freq = len(np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV", delimiter=',', skip_header=1, usecols=(0,)))) / num_slots
     mcundervolt_sev = min(map(min, household_voltages)) / base_volt_perphase
