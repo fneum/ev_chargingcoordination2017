@@ -1,0 +1,9 @@
+ind01 = csvread('../log/joint/iter1/sim/individual/simResults_household10.csv',1);
+ind02 = csvread('../log/joint/iter1/sim/individual/simResults_household11.csv',1);
+ind01_opt = csvread('../log/joint/iter1/opt/individual/optResults_household10.csv',1);
+ind02_opt = csvread('../log/joint/iter1/opt/individual/optResults_household11.csv',1);
+
+figure;
+area(ind01(:,6))
+plot(ind01_opt(:,5))
+plot(

@@ -27,12 +27,12 @@ mc_joint = csvread('../log/joint/Results_MonteCarloDistributions.csv',1);
 mc_spread1 = csvread('../log/spread1/Results_MonteCarloDistributions.csv',1);
 mc_spread3 = csvread('../log/spread3/Results_MonteCarloDistributions.csv',1);
 mc_spread5 = csvread('../log/spread5/Results_MonteCarloDistributions.csv',1);
-mc_uc_spread1 = csvread('../log/spread1/Results_MonteCarloDistributions.csv',1);
-mc_uc_spread3 = csvread('../log/spread3/Results_MonteCarloDistributions.csv',1);
-mc_uc_spread5 = csvread('../log/spread5/Results_MonteCarloDistributions.csv',1);
-mc_pg_spread1 = csvread('../log/spread1/Results_MonteCarloDistributions.csv',1);
-mc_pg_spread3 = csvread('../log/spread3/Results_MonteCarloDistributions.csv',1);
-mc_pg_spread5 = csvread('../log/spread5/Results_MonteCarloDistributions.csv',1);
+mc_uc_spread1 = csvread('../log/uc_spread1/Results_MonteCarloDistributions.csv',1);
+mc_uc_spread3 = csvread('../log/uc_spread3/Results_MonteCarloDistributions.csv',1);
+mc_uc_spread5 = csvread('../log/uc_spread5/Results_MonteCarloDistributions.csv',1);
+mc_pg_spread1 = csvread('../log/pg_spread1/Results_MonteCarloDistributions.csv',1);
+mc_pg_spread3 = csvread('../log/pg_spread3/Results_MonteCarloDistributions.csv',1);
+mc_pg_spread5 = csvread('../log/pg_spread5/Results_MonteCarloDistributions.csv',1);
 
 % --------------------------------------------------------------------------------------------------------------------------------------------------
 % plot start
@@ -784,12 +784,12 @@ mc_pg_spread5 = csvread('../log/spread5/Results_MonteCarloDistributions.csv',1);
 % prices
 figure;
 subplot(1,2,1)
-x1 = mc_spread1(1:20,9)./mc_uc(1:20,9)
-y1 = mc_spread1(1:20,9)./mc_pg(1:20,9)
-x2 = mc_spread3(1:20,9)./mc_uc(1:20,9)
-y2 = mc_spread3(1:20,9)./mc_pg(1:20,9)
-x3 = mc_spread5(1:20,9)./mc_uc(1:20,9)
-y3 = mc_spread5(1:20,9)./mc_pg(1:20,9)
+x1 = mc_spread1(1:20,9)./mc_uc_spread1(1:20,9)
+y1 = mc_spread1(1:20,9)./mc_pg_spread1(1:20,9)
+x2 = mc_spread3(1:20,9)./mc_uc_spread3(1:20,9)
+y2 = mc_spread3(1:20,9)./mc_pg_spread3(1:20,9)
+x3 = mc_spread5(1:20,9)./mc_uc_spread5(1:20,9)
+y3 = mc_spread5(1:20,9)./mc_pg_spread5(1:20,9)
 %x4 = mc_joint(1:20,9)./mc_uc(1:20,9)
 %y4 = mc_joint(1:20,9)./mc_pg(1:20,9)
 %x5 = mc_av09(1:20,9)./mc_uc(1:20,9)
