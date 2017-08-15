@@ -12,10 +12,10 @@ msz = 8;       % MarkerSize
 set(0,'defaultLineLineWidth',1.5)
 
 path = '../log/20170725-18_35_40/iter1';
-sa_opt = csvread('../log/uc/iter1/sim/simResults_SlotwiseAggregate.csv',1);
-sa_ref = csvread('../log/pg/iter1/sim/simResults_SlotwiseAggregate.csv',1);
-sa_sim = csvread('../log/lp_con/iter1/sim/simResults_SlotwiseAggregate.csv',1);
-sa_ben = csvread('../log/joint/iter1/sim/simResults_SlotwiseAggregate.csv',1);
+rsa_opt = csvread('../log/uc/iter1/ref/refResults_SlotwiseAggregate.csv',1);
+rsa_ref = csvread('../log/pg/iter1/ref/refResults_SlotwiseAggregate.csv',1);
+rsa_sim = csvread('../log/lp_con/iter1/ref/refResults_SlotwiseAggregate.csv',1);
+rsa_ben = csvread('../log/joint/iter1/ref/refResults_SlotwiseAggregate.csv',1);
 
 figure;
 subplot(3,3,1)

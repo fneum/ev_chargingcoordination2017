@@ -1,0 +1,99 @@
+133ff87	Fabian Neumann	Sat Aug 5 13:44:02 2017	evaluation in MATLAB
+bd10f98	Fabian Neumann	Fri Aug 4 21:08:11 2017	monte carlo evaluation
+e340526	Fabian Neumann	Thu Aug 3 10:10:42 2017	minor
+4fdf037	Fabian Neumann	Thu Jul 27 17:17:59 2017	minor
+0696c7f	Fabian Neumann	Tue Jul 25 19:55:03 2017	misc evaluation
+f9a8c75	Fabian Neumann	Sat Jul 22 12:07:03 2017	Data evaluation in MATLAB
+38dd3d6	Fabian Neumann	Mon Jul 17 13:36:11 2017	matlab figures
+8e97a52	Fabian Neumann	Mon Jul 17 11:41:10 2017	update TODOs/COULDDOs
+6e012b3	Fabian Neumann	Mon Jul 17 11:34:01 2017	organise imports
+7c60d2f	Fabian Neumann	Mon Jul 17 11:33:17 2017	enhanced log for multiple configurations (unique folders)
+c4cfa54	Fabian Neumann	Mon Jul 17 10:10:22 2017	document evalParams
+00bcce0	Fabian Neumann	Sun Jul 16 21:34:28 2017	test
+8f8f00f	Fabian Neumann	Sun Jul 16 21:07:14 2017	list of experiments
+0c5d950	Fabian Neumann	Sun Jul 16 21:05:45 2017	make voltage constraints optional + matlab evaluation
+8a71abf	Fabian Neumann	Sun Jul 16 19:49:23 2017	checked reference optimisation
+29c1a70	Fabian Neumann	Sun Jul 16 13:52:18 2017	full knowledge optimisation for evaluation. TO BE CHECKED!
+3f16eb0	Fabian Neumann	Sun Jul 16 11:51:55 2017	uncertainty demand by shift representation
+6d3dcb8	Fabian Neumann	Sun Jul 16 11:27:19 2017	demand uncertainty max implementation
+8be39c4	Fabian Neumann	Fri Jul 14 19:43:49 2017	availability uncertainty mitigation by penalty in LP
+801b9fa	Fabian Neumann	Fri Jul 14 18:42:31 2017	pep8 style adjustment
+144041b	Fabian Neumann	Fri Jul 14 18:04:46 2017	docstrings
+e6f20ed	Fabian Neumann	Fri Jul 14 15:55:18 2017	additional monitors
+2418706	Fabian Neumann	Fri Jul 14 15:31:02 2017	tidy
+956364d	Fabian Neumann	Fri Jul 14 14:40:31 2017	organise imports
+3bb6fcc	Fabian Neumann	Fri Jul 14 14:36:46 2017	Merge branch 'master' of https://github.com/orley-enterprises/ev_chargingcoordination2017.git
+90e8de3	Fabian Neumann	Fri Jul 14 14:36:11 2017	individual households in log in separate folder
+9dc8511	Fabian Neumann	Fri Jul 14 14:36:11 2017	individual households in log in separate folder
+ac0d39b	Fabian Neumann	Fri Jul 14 14:31:54 2017	clean commit (reorganisation, comments, reformat)
+bd6773a	Fabian Neumann	Thu Jul 13 17:49:19 2017	price_uncertainty difference per slot - sense?
+7874be5	Fabian Neumann	Thu Jul 13 12:25:19 2017	modify log
+627a7b7	Fabian Neumann	Thu Jul 13 12:15:51 2017	MC simulation log
+1c6bdbb	Fabian Neumann	Wed Jul 12 15:35:17 2017	comments
+ffee496	Fabian Neumann	Wed Jul 12 15:30:25 2017	thermal loading sensitivity incorporation
+a55f05e	Fabian Neumann	Wed Jul 12 11:15:34 2017	gurobi implementation LP with additional constraints and target
+d53386b	Fabian Neumann	Tue Jul 11 14:47:27 2017	2nd networkGREEDY with voltage sensitivities
+b285f32	Fabian Neumann	Tue Jul 11 14:47:04 2017	networkGREEDY with voltage sensitivities
+6a6793c	Fabian Neumann	Tue Jul 11 12:44:54 2017	voltage sensitivity matrix
+7f90022	Fabian Neumann	Sun Jul 9 18:26:57 2017	check
+ef9408d	Fabian Neumann	Sun Jul 9 17:56:36 2017	check
+f7845a3	Fabian Neumann	Sun Jul 9 15:54:20 2017	uncertainty mitigation prob, penalty, output availability prob
+fa441b0	Fabian Neumann	Fri Jul 7 19:15:09 2017	demand security margin
+1e8b414	Fabian Neumann	Fri Jul 7 18:09:22 2017	shift
+2653c98	Fabian Neumann	Fri Jul 7 17:53:17 2017	overload constraint NG, GA/PSO speed control, schedule on arrival impl.
+3605b4b	Fabian Neumann	Fri Jul 7 13:41:31 2017	documents
+e47f2d7	Fabian Neumann	Fri Jul 7 13:41:09 2017	minor
+c27899e	Fabian Neumann	Thu Jul 6 15:18:20 2017	clean commit
+09246da	Fabian Neumann	Thu Jul 6 12:26:14 2017	line thermal limits, vizualisation, red noise
+6cd57da	Fabian Neumann	Wed Jul 5 17:09:30 2017	closing commit for today
+33efee8	Fabian Neumann	Wed Jul 5 16:49:22 2017	delete
+86f8c38	Fabian Neumann	Wed Jul 5 16:47:53 2017	comparison adjustments
+270f62d	Fabian Neumann	Wed Jul 5 15:08:25 2017	manual urgency order (joint partial feeders in order)
+6b172af	Fabian Neumann	Wed Jul 5 14:11:54 2017	urgency by electrical distance (networkGREEDY)
+27b77d1	Fabian Neumann	Wed Jul 5 11:50:16 2017	accurate constraint observation in networkGREEDY
+6fc4c5e	Fabian Neumann	Wed Jul 5 10:04:35 2017	solved voltage inconsistencies
+0a1fc2c	Fabian Neumann	Tue Jul 4 18:33:45 2017	mileage multiplier added
+c9f5c18	Fabian Neumann	Tue Jul 4 16:48:24 2017	schedule reality adjustment
+a166094	Fabian Neumann	Tue Jul 4 16:00:26 2017	testing
+0a47a98	Fabian Neumann	Tue Jul 4 14:53:37 2017	avoid negative parameters mu & sigma for normal distributions
+8d5dcda	Fabian Neumann	Tue Jul 4 12:52:31 2017	sort logs
+3491eb1	Fabian Neumann	Mon Jul 3 16:44:14 2017	load multiplier for more challenging network state
+92a2c78	Fabian Neumann	Mon Jul 3 14:16:32 2017	progress display
+904db29	Fabian Neumann	Mon Jul 3 14:11:08 2017	multiple penetration levels possible
+4b4266c	Fabian Neumann	Mon Jul 3 12:09:36 2017	minor
+0c86f9f	Fabian Neumann	Mon Jul 3 11:49:31 2017	log extension, monte carlo simulations and PSO implementation
+5dd94ba	Fabian Neumann	Mon Jun 26 11:24:37 2017	comments / reorganise
+de6f44f	Fabian Neumann	Mon Jun 26 10:54:21 2017	first genetic algorithm
+3e273a1	Fabian Neumann	Sun Jun 25 14:23:13 2017	network based greedy optimisation implemented, voltage inconsistency
+159a56c	Fabian Neumann	Sat Jun 24 13:16:01 2017	timer added
+08867bb	Fabian Neumann	Sat Jun 24 12:52:27 2017	generate some new result files
+c2904dd	Fabian Neumann	Sat Jun 24 12:51:08 2017	minor
+3f40254	Fabian Neumann	Sat Jun 24 12:50:41 2017	added file export of result matrices
+93a9017	Fabian Neumann	Sat Jun 24 12:45:22 2017	some comments added
+5448102	Fabian Neumann	Sat Jun 24 12:42:45 2017	slotwise aggregate evaluation added
+a7a4090	Fabian Neumann	Sat Jun 24 10:16:48 2017	Set voltage base to 230V instead of 240V + add voltage and schedule logs
+ad75df6	Fabian Neumann	Fri Jun 23 22:47:16 2017	added voltage profile extraction and logs
+1910878	Fabian Neumann	Fri Jun 23 11:26:46 2017	Implement log outputs and introduce some calculations on results.
+ac4fb3c	Fabian Neumann	Thu Jun 22 17:28:34 2017	result handling started
+4720c24	Fabian Neumann	Thu Jun 22 13:40:58 2017	output formats
+40cb342	Fabian Neumann	Thu Jun 22 13:37:00 2017	As Fast As Possible Charging Routine
+b4601f0	Fabian Neumann	Wed Jun 21 19:38:15 2017	delete obsolete load profiles
+1fdbe7a	Fabian Neumann	Wed Jun 21 19:36:30 2017	household specifications
+562527f	Fabian Neumann	Wed Jun 21 17:52:45 2017	reordering
+2921c65	Fabian Neumann	Wed Jun 21 12:48:12 2017	readme
+8a0af7f	Fabian Neumann	Wed Jun 21 12:47:06 2017	forecast generation
+61ce16f	Fabian Neumann	Tue Jun 20 21:44:28 2017	gitignore
+b94f14b	Fabian Neumann	Tue Jun 20 21:43:55 2017	daily clean update
+bb74b67	Fabian Neumann	Tue Jun 20 21:41:52 2017	fitter for scipy format + vehicle specification class
+a836640	Fabian Neumann	Tue Jun 20 17:56:26 2017	scenario1
+1cfdaa1	Fabian Neumann	Tue Jun 20 17:54:47 2017	scenario
+cc43f51	Fabian Neumann	Tue Jun 20 10:02:48 2017	merge parameters and runner
+24665cc	Fabian Neumann	Tue Jun 20 10:01:19 2017	restructuring
+d197cc4	Fabian Neumann	Thu Jun 15 17:56:46 2017	seasonal sampled pv time series
+e2e9182	Fabian Neumann	Thu Jun 15 16:53:42 2017	price and demand time series
+9089135	Fabian Neumann	Thu Jun 15 12:19:13 2017	parameters first commit
+1131800	Fabian Neumann	Thu Jun 1 12:02:11 2017	network integration
+51dbc6b	Fabian Neumann	Thu Jun 1 10:07:59 2017	add network
+06bb4f0	Fabian Neumann	Thu Jun 1 09:33:57 2017	project files
+733c258	Fabian Neumann	Thu Jun 1 09:32:59 2017	First commit
+9107451	orley-enterprises	Wed May 31 16:21:41 2017	Initial commit

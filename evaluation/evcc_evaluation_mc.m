@@ -391,8 +391,8 @@ mc_pg_spread5 = csvread('../log/pg_spread5/Results_MonteCarloDistributions.csv',
 % y3 = mc_av07(1:20,11)
 % x4 = mc_av08(1:20,10)
 % y4 = mc_av08(1:20,11)
-% %x5 = mc_av09(1:20,10)
-% %y5 = mc_av09(1:20,11)
+%x5 = mc_av09(1:20,10)
+%y5 = mc_av09(1:20,11)
 % 
 % n1 = cat(2,x1,y1)
 % n2 = cat(2,x2,y2)
@@ -782,55 +782,76 @@ mc_pg_spread5 = csvread('../log/pg_spread5/Results_MonteCarloDistributions.csv',
 
 % --------------------------
 % prices
+% figure;
+% subplot(1,2,1)
+% x1 = mc_spread1(1:20,9)./mc_uc_spread1(1:20,9)
+% y1 = mc_spread1(1:20,9)./mc_pg_spread1(1:20,9)
+% x2 = mc_spread3(1:20,9)./mc_uc_spread3(1:20,9)
+% y2 = mc_spread3(1:20,9)./mc_pg_spread3(1:20,9)
+% x3 = mc_spread5(1:20,9)./mc_uc_spread5(1:20,9)
+% y3 = mc_spread5(1:20,9)./mc_pg_spread5(1:20,9)
+%x4 = mc_joint(1:20,9)./mc_uc(1:20,9)
+%y4 = mc_joint(1:20,9)./mc_pg(1:20,9)
+%x5 = mc_av09(1:20,9)./mc_uc(1:20,9)
+%y5 = mc_av09(1:20,9)./mc_pg(1:20,9)
+
+%n1 = cat(2,x1,y1)
+%n2 = cat(2,x2,y2)
+%n3 = cat(2,x3,y3)
+%n4 = cat(2,x4,y4)
+%n5 = cat(2,x5,y5)
+
+% h = {x1,x2,x3}%,n4}%,n5}
+% 
+% aboxplot(h,'labels',['Comparison to Uncontrolled Charging';'Comparison to Price-based Heuristic'],'colorgrad','blue_up')
+% legend('heuristic (availability)', 'heuristic (SOC)', 'heuristic (distance asc.)', 'heuristic (distance desc.)', 'LP (with frequent cycles)','LP (without frequent cycles)')
+% title('Charging Costs')
+% hold on
+% refline(0,1)
+% 
+% subplot(1,2,2)
+% x1 = mc_spread1(1:20,9)./mc_uc_spread1(1:20,9)
+% y1 = mc_spread1(1:20,9)./mc_pg_spread1(1:20,9)
+% x2 = mc_spread3(1:20,9)./mc_uc_spread3(1:20,9)
+% y2 = mc_spread3(1:20,9)./mc_pg_spread3(1:20,9)
+% x3 = mc_spread5(1:20,9)./mc_uc_spread5(1:20,9)
+% y3 = mc_spread5(1:20,9)./mc_pg_spread5(1:20,9)
+% %x4 = mc_joint(1:20,9)./mc_uc(1:20,9)
+% %y4 = mc_joint(1:20,9)./mc_pg(1:20,9)
+% %x5 = mc_av09(1:20,9)./mc_uc(1:20,9)
+% %y5 = mc_av09(1:20,9)./mc_pg(1:20,9)
+% 
+% %n1 = cat(2,x1,y1)
+% %n2 = cat(2,x2,y2)
+% %n3 = cat(2,x3,y3)
+% %n4 = cat(2,x4,y4)
+% %n5 = cat(2,x5,y5)
+% 
+% h = {y1,y2,y3}%,n4}%,n5}
+% 
+% aboxplot(h,'labels',['Comparison to Uncontrolled Charging';'Comparison to Price-based Heuristic'],'colorgrad','blue_up')
+% legend('heuristic (availability)', 'heuristic (SOC)', 'heuristic (distance asc.)', 'heuristic (distance desc.)', 'LP (with frequent cycles)','LP (without frequent cycles)')
+% title('Charging Costs')
+% hold on
+% refline(0,1)
+
 figure;
-subplot(1,2,1)
-x1 = mc_spread1(1:20,9)./mc_uc_spread1(1:20,9)
-y1 = mc_spread1(1:20,9)./mc_pg_spread1(1:20,9)
-x2 = mc_spread3(1:20,9)./mc_uc_spread3(1:20,9)
-y2 = mc_spread3(1:20,9)./mc_pg_spread3(1:20,9)
-x3 = mc_spread5(1:20,9)./mc_uc_spread5(1:20,9)
-y3 = mc_spread5(1:20,9)./mc_pg_spread5(1:20,9)
-%x4 = mc_joint(1:20,9)./mc_uc(1:20,9)
-%y4 = mc_joint(1:20,9)./mc_pg(1:20,9)
+
+x1 = mc_lp_con(1:20,9)./mc_lp_con(1:20,2)
+x2 = mc_pr090(1:20,9)./mc_pr090(1:20,2)
+x3 = mc_pr095(1:20,9)./mc_pr095(1:20,2)
+x4 = mc_pr099(1:20,9)./mc_pr099(1:20,2)
 %x5 = mc_av09(1:20,9)./mc_uc(1:20,9)
 %y5 = mc_av09(1:20,9)./mc_pg(1:20,9)
 
-%n1 = cat(2,x1,y1)
-%n2 = cat(2,x2,y2)
-%n3 = cat(2,x3,y3)
-%n4 = cat(2,x4,y4)
+n1 = cat(2,x1,x2,x3,x4)
+% n2 = cat(2,x2,y2)
+% n3 = cat(2,x3,y3)
+% n4 = cat(2,x4,y4)
 %n5 = cat(2,x5,y5)
 
-h = {x1,x2,x3}%,n4}%,n5}
+h = {n1}%,n5}
 
 aboxplot(h,'labels',['Comparison to Uncontrolled Charging';'Comparison to Price-based Heuristic'],'colorgrad','blue_up')
 legend('heuristic (availability)', 'heuristic (SOC)', 'heuristic (distance asc.)', 'heuristic (distance desc.)', 'LP (with frequent cycles)','LP (without frequent cycles)')
 title('Charging Costs')
-hold on
-refline(0,1)
-
-subplot(1,2,2)
-x1 = mc_spread1(1:20,9)./mc_uc_spread1(1:20,9)
-y1 = mc_spread1(1:20,9)./mc_pg_spread1(1:20,9)
-x2 = mc_spread3(1:20,9)./mc_uc_spread3(1:20,9)
-y2 = mc_spread3(1:20,9)./mc_pg_spread3(1:20,9)
-x3 = mc_spread5(1:20,9)./mc_uc_spread5(1:20,9)
-y3 = mc_spread5(1:20,9)./mc_pg_spread5(1:20,9)
-%x4 = mc_joint(1:20,9)./mc_uc(1:20,9)
-%y4 = mc_joint(1:20,9)./mc_pg(1:20,9)
-%x5 = mc_av09(1:20,9)./mc_uc(1:20,9)
-%y5 = mc_av09(1:20,9)./mc_pg(1:20,9)
-
-%n1 = cat(2,x1,y1)
-%n2 = cat(2,x2,y2)
-%n3 = cat(2,x3,y3)
-%n4 = cat(2,x4,y4)
-%n5 = cat(2,x5,y5)
-
-h = {y1,y2,y3}%,n4}%,n5}
-
-aboxplot(h,'labels',['Comparison to Uncontrolled Charging';'Comparison to Price-based Heuristic'],'colorgrad','blue_up')
-legend('heuristic (availability)', 'heuristic (SOC)', 'heuristic (distance asc.)', 'heuristic (distance desc.)', 'LP (with frequent cycles)','LP (without frequent cycles)')
-title('Charging Costs')
-hold on
-refline(0,1)
