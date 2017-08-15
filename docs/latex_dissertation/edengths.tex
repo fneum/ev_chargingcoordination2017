@@ -1,0 +1,453 @@
+%%
+%% edengths.tex - LaTeX2e thesis driver
+%%
+%% Copyright (C) 1998 George Taylor
+%% Copyright (C) 2013 Mathew Topper <damm_horse@yahoo.co.uk>
+%%
+%% This file is part of the University of Edinburgh, Department of
+%% Engineering LaTeX2e thesis template.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with the University of Edinburgh, Department of Engineering
+%% LaTeX2e thesis template.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%
+%%   ABOUT
+%%
+%% This is the driver file for a Latex2e template which corresponds to the
+%% regulations regarding layout of a thesis submitted within the University
+%% of Edinburgh school of Engineering. It is not `official', but conforms
+%% as best as possible to the regulation as detailed at:
+%%
+%% http://www.ed.ac.uk/schools-departments/science-engineering/current-students/
+%% research/submitting-thesis
+%%
+%% Please feel free to alter the template to your own liking, but note that
+%% the template is made available under the GNU GPL and must be similarly
+%% licenced should you wish to release your modified template.
+%%
+%%
+%%   CREDITS
+%%
+%% This template is an amalgamtion of an existing Edinburgh University,
+%% Electrical Engineering PhD Thesis class file (jthesis-v1.cls) authored by
+%% George S Taylor which was released under the GNU GPL.
+%% Code is included from the dmathesis class Written by M. Imran
+%% for a thesis according to the university of Durham regulation, which was
+%% released without copyright. It also contains ideas (possibly code) from the
+%% Princeton thesis class file (PrincetonThesis.cls), authored by Mike Nolta.
+%% Mathew Topper, Eoghan Maguire and Bill Edwards forsaw the need to maintain a
+%% more recent latex implementation of the thesis regulations and thus, this
+%% project was born. It is hoped that the template will be maintained by the
+%% Edinburgh Engineering PhD community once released.
+%%
+%%
+%%   RECORD OF REVISIONS
+%%
+%%     Date      Programmer         Description of change
+%%     ====      ==========         =====================
+%%   21/06/10    Mathew Topper      First Try.
+%%
+%%   22/06/10                       Removed pdf option in favour of
+%%                                  ifpdf package.
+%%
+%%   23/06/10                       Can now include appendix files
+%%                                  rather than input. Need to include
+%%                                  the file appendix/edengapp.tex
+%%
+%%                                  Added includeonly command.
+%%
+%%   13/10/10                       Removed the input of packages.tex
+%%                                  this is now dealt with in the class
+%%                                  file.
+%%
+%%   20/10/10                       Added 'nobib' option to stop the
+%%                                  bibliography being printed and now
+%%                                  the frontmatter is also entered in 
+%%                                  an include statement.
+%%
+%%   29/10/10                       Added 'hyper' option to use hyperref
+%%                                  to add clickable links.
+%%
+%%   04/04/11                       Set a qualification command to set
+%%                                  a custom qualification on the front
+%%                                  page.
+%%
+%%                                  Added 'nomencl' option to use the
+%%                                  nomencl package to build a nomenclature.
+%%                                  You need to run ./makenomencl.sh to build
+%%                                  the nomenclature in linux
+%%
+%%   19/04/13                       Added some commented ``part'' definitions
+%%
+
+%%%% LOAD DOCUMENT CLASS
+
+\documentclass[11pt,twoside,nopardent,notitlepage,fancychap,hyper]{edengths}
+
+%% Class options go in the square brackets above
+%% i.e. \documentclass[options]{edengths}
+
+%% Default report class options are:
+%% (These are automatically included)
+%%
+%% a4paper
+%% openright - Start chapters on righthand side pages
+%% titlepage - Title should be on it's own page
+%%
+
+
+%% Standard available report class options are:
+%%
+%% 10pt
+%% 11pt
+%% 12pt
+%% draft
+%% final
+%% fleqno
+%% leqno
+%% oneside
+%% twoside
+
+%% edengths class specific options:
+%%
+%% subsubnos - Enable numbering of subsubsections (note: these don't
+%%             appear in the contents)
+%% nosans    - Don't use the sans serif headers and captions
+%% nopardent - Remove paragraph indent and add a line skip
+%% msfonts   - Use MS fonts rather than latex default
+%% fancychap - Use fancy chapter headings like jthesis
+%% crest     - Use a crest on the front page
+%% labels    - Print labels in spine margin.
+%% nobib     - do not print the bibliography
+%% hyper     - Use the hyperref package to put clickable links into 
+%%             the document. Use \autoref{fig:example} now instead of,
+%%             say, figure~\ref{fig:example}. Settings are in
+%%             edengfmt.tex.
+%% nomencl   - Use the nomencl package. Example of it's usage are in
+%%             front/nomencl.tex. The Nomenclature is called from
+%%             front/frontmatr.tex
+
+%% ADDITIONAL FORMATTING can be done in 'edengfmt.tex' where the page
+%% dimensions, header/footers, table of contents and the names of 
+%% the bibliography and other formatting settings can be altered.
+%% IN PARTICULAR THE LINE SPACING IS SET IN 'edengfmt.tex' AND
+%% THE HYPERREF OPTIONS ARE SET HERE TOO. THIS SETS THE NAME OF
+%% THE PDF, FOR EXAMPLE.
+
+%% The class file should automatically detect pdflatex and provide
+%% the right options.
+
+%%%% LOAD USER DEFINED PACKAGES.
+
+%% These are in ``packages.tex'' file and is automattically loaded
+%% by the class file
+
+%%%% LOAD USER DEFINED COMMANDS.
+
+\input{defintns}
+
+%%%% FOR NOMENCLATURE
+\usepackage[intoc]{nomencl}
+\makenomenclature
+
+\usepackage{etoolbox}
+\renewcommand\nomgroup[1]{%
+	\item[\bfseries
+		\ifstrequal{#1}{P}{Parameters}{%
+		\ifstrequal{#1}{V}{Variables}{%
+		\ifstrequal{#1}{D}{Decorations}{%
+		\ifstrequal{#1}{S}{Subscripts}{%
+		\ifstrequal{#1}{T}{Superscripts}{%
+		\ifstrequal{#1}{N}{Distributions and Mathematical Foundations}{%
+		\ifstrequal{#1}{A}{Abbreviations}{%
+		\ifstrequal{#1}{U}{Units}{}}}}}}}}%
+	]}
+
+% This will add the units
+%----------------------------------------------
+\newcommand{\nomunit}[1]{%
+	\renewcommand{\nomentryend}{\hspace*{\fill}#1}}
+%----------------------------------------------
+
+%\usepackage[toc]{glossaries}
+%\makeglossaries
+\usepackage{makeidx}
+\makeindex
+
+\usepackage{bm}
+\usepackage{comment}
+\usepackage{epstopdf}
+\usepackage{graphicx}
+\usepackage{xfrac}
+\usepackage{algorithm}
+%\usepackage[ruled, vlined, linesnumbered]{algorithm2e}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{lscape}
+\usepackage{longtable}
+
+\usepackage{tikz}
+\def\checkmark{\tikz\fill[scale=0.4](0,.35) -- (.25,0) -- (1,.7) -- (.25,.15) -- cycle;}
+
+%\usepackage[sorting=none]{bibtex}
+\usepackage[compress]{cite}
+
+\usepackage{pgfplots}
+\usepackage{array}
+\usepackage{colortbl}
+
+\usepackage{adjustbox}
+\newcolumntype{R}[2]{%
+	>{\adjustbox{angle=#1,lap=\width-(#2)}\bgroup}%
+	l%
+	<{\egroup}%
+}
+\newcommand*\rot{\multicolumn{1}{R{90}{1em}}}% no optional argument here, please!
+
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+
+\def\cdf(#1)(#2)(#3){0.5*(1+(erf((#1-#2)/(#3*sqrt(2)))))}%
+% to be used: \cdf(x)(mean)(variance)
+
+\DeclareMathOperator{\CDF}{cdf}
+
+%%%% SET THE PATH FOR DIAGRAMS.
+
+\graphicspath{{chapter1/}{chapter2/}}%{chapter4/}
+% {chapter_5/}{chapter_6/}{appendix/}}
+
+%%%% PATH TO CREST
+
+%% If you're not using the default crest files add the path here.
+%% The default files are found in the 'front' directory.
+%% Note: latex needs a eps file, while pdflatex needs pdf or jpg.
+% \crestfile{/path/to/crest.pdps}
+
+%%%% TITLE DETAILS
+
+%% Author
+\author{Fabian Neumann}
+
+%% Title
+\title{Optimal Scheduling of Electric Vehicles in Distribution Networks}
+
+%% Qualification (Defaults to \textit{Doctor of Philosphy})
+ \qualification{Master of Science}
+
+%% University (Defaults to \textsc{The University of Edinburgh})
+% \university{}
+
+%% Year of submission
+\date{August 2017}
+
+%% NOTE - IF YOUR USING hyper THEN THE ABOVE DETAILS NEED SET IN
+%% edengfmt.tex AS WELL.
+
+%%%% CHAPTERS TO INCLUDE
+
+%% You may restrict which chapters are compiled using \includeonly
+%% appendix/edengapp must be in the list if appendicies are included.
+%% To not print the bibliography use the nobib class option.
+
+%% TURN ON nobib
+% \includeonly{front/frontmtr, chapter1/chapter1}
+% \includeonly{chapter2/chapter2, chapter3/chapter3}
+
+%% TURN OFF nobib
+% \includeonly{chapter6/chapter6, appendix/edengapp,
+%              appendix/appendx1 appendix/appendix2}
+
+\newlength\longest
+
+% Math Definitions
+\newcommand{\pev}{P^{EV}_{k,t}}
+\newcommand{\pevi}{P^{EV}_{i,t}}
+\newcommand{\pevc}{P^{EV}_{k,\tau}}
+\newcommand{\pevb}{P^{EV}_{k,t-1}}
+\newcommand{\aev}{\hat{\alpha}^{EV}_{k,t}}
+\newcommand{\aevb}{\hat{\alpha}^{EV}_{k,t-1}}
+\newcommand{\lev}{\omega_{k,t}}
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
+
+
+\renewcommand\floatpagefraction{.9}
+\renewcommand\dblfloatpagefraction{.9} % for two column documents
+\renewcommand\topfraction{.9}
+\renewcommand\dbltopfraction{.9} % for two column documents
+\renewcommand\bottomfraction{.9}
+\renewcommand\textfraction{.1}   
+\setcounter{totalnumber}{50}
+\setcounter{topnumber}{50}
+\setcounter{bottomnumber}{50}
+
+\clubpenalty=9996
+\widowpenalty=9999
+
+%\expandafter\def\expandafter\normalsize\expandafter{%
+%	\normalsize
+%	\setlength\abovedisplayskip{-5pt}
+%	\setlength\belowdisplayskip{5pt}
+%	\setlength\abovedisplayshortskip{-5pt}
+%	\setlength\belowdisplayshortskip{5pt}
+%}
+
+%%%% START DOCUMENT
+
+\begin{document}
+
+% some definitions
+\pgfmathdeclarefunction{gauss}{2}{%
+	\pgfmathparse{1/(#2*sqrt(2*pi))*exp(-((x-#1)^2)/(2*#2^2))}%
+}
+
+%%%% FRONT MATTER
+
+\includepdf{title}
+\cleardoublepage
+
+\include{front/frontmtr}
+
+%% QUOTE
+%{\clearpage
+%	
+%	\thispagestyle{empty}
+%	\null\vfill
+%	
+%	\settowidth\longest{\large\itshape Beginning at the beginning, the King said, very gravely}
+%	\centering
+%	\parbox{\longest}{%
+%		\raggedright{\large\itshape%
+%			``Begin at the beginning,'' the King said, very gravely, \\
+%			``and go on till you come to the end: then stop.'' \par\bigskip
+%		}   
+%		\raggedleft\MakeUppercase{Lewis Carroll, Alice in Wonderland}\par%
+%	}
+%	
+%	\vfill\vfill
+%	
+%\clearpage}
+
+%%%% START MAIN BODY TEXT
+
+%% Call the edengths wrapper.
+\startbody
+
+%% Input the nomencl example if package is loaded.
+\ifthenelse{\boolean{nomenclflag}}{
+  \input{front/nomencl}
+}{}
+
+%\chapter{Test}
+%
+%Mein Test zur Nomenklatur
+%
+%\nomenclature{$m$}{mass}
+%\printnomenclature
+
+%% The template will work with part definitions (starred or otherwise), but note
+%% that nameref and autoref may not work properly for referencing them.
+% \part{The Fellowship of the Thing}
+
+
+\include{chapters/introduction}
+\include{chapters/foundations}
+\include{chapters/methodology}
+\include{chapters/optimisation}
+\include{chapters/evaluation}
+\include{chapters/conclusion}
+
+%\mbox{}
+%\thispagestyle{empty}
+%\newpage
+%
+%\mbox{}
+%\thispagestyle{empty}
+%\newpage
+
+%%%% ACKNOWLEDGEMENTS
+% \frontchapter{Acknowledgements}
+
+%%%% WRITE OUT BIBLIOGRAPHY
+
+%% Path to bib file. Use \edbibliography command here or nobib
+%% option and bibhyphenpenalty variable will not work.
+%\edbibliography{bib/edengref}
+
+%% Path to style file. It's recommended that you use the provided style
+%% file (a variation on plainnat) as it does italic et als and reduces
+%% all first names to initials. It also puts the surname first in apa style.
+%\bibliographystyle{bib/edengapa}
+\addcontentsline{toc}{chapter}{Bibliography}%
+
+\bibliographystyle{IEEEtran}
+%\bibliographystyle{amsplain}
+\bibliography{bib/edengref}
+
+%% List of figure
+% \listoffigures
+
+%% List of tables
+% \listoftables
+
+%% List of figures and tables
+\listoffiguresandtables
+
+%% Index
+%\addcontentsline{toc}{chapter}{\indexname}
+%\printindex
+
+%%%% START APPENDICIES
+
+%% Execute the appendix commands. To allow use of include
+%% for appendix files, the commands are maintained in a
+%% separate file.
+%%
+%% This file must also be listed in the \includeonly command.
+%\include{appendix/edengapp}
+
+%% Appendix files. Start each with \chapter
+%\include{appendix/testappendix}
+
+\chapter*{Acknowledgements and Pointers}
+\phantomsection
+\addcontentsline{toc}{chapter}{Acknowledgements and Pointers}%
+
+My deepest appreciation goes to my supervisor Dr. Wei Sun for his time and guidance on this project. Your feedback has encouraged me to explore new pathways. I am further indebted to my examiner Dr. Quan Li for taking the time to listen to my initial ideas and concerns on the scope of the project as well as for taking on the responsibility of assessing my work. A big shout out also to my companions Kelvin, Claudina, Farid, Conrad, Tony, Pablo and all the others of the Sustainable Energy Systems cohort for inspiration and friendship. You are fun to be around! Ultimately, thank you as well to my parents for heartfelt moral support and the constant link to home.
+
+At last, some housekeeping. To enable fellow researches to benefit from my work and modify the experiments or algorithms to complement my findings, the simulation environment was uploaded into a public GitHub repository which can be found here:
+
+\begin{center}
+\url{https://github.com/orley-enterprises/ev_chargingcoordination2017}
+\end{center}
+
+Guidance on installation and usage are provided. To spare a long appendix, all the necessary information to reproduce and check the conducted experiments are either included in the main body of this dissertation or complemented online, ready to run or download. I would sincerely appreciate further usage of the simulation tool and am happy to answer any queries via \href{mailto:fabian.neumann@outlook.de}{email}.
+
+% \include{back/backmtr}
+
+\mbox{}
+\thispagestyle{empty}
+\newpage
+
+\mbox{}
+\thispagestyle{empty}
+\newpage
+
+\includepdf[pages={1-}]{dse}
+
+
+
+\end{document}

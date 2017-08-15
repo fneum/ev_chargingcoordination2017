@@ -1,0 +1,14 @@
+This is makeindex, version 2.15 [MiKTeX 2.9 64-bit] (kpathsea + Thai support).
+Scanning style file C:/Program Files/MiKTeX 2.9/makeindex/nomencl/nomencl.ist.......
+** Input style error (file = C:/Program Files/MiKTeX 2.9/makeindex/nomencl/nomencl.ist, line = 70):
+   -- Unknown specifier lethead_prefix.
+** Input style error (file = C:/Program Files/MiKTeX 2.9/makeindex/nomencl/nomencl.ist, line = 71):
+   -- Unknown specifier lethead_suffix.
+** Input style error (file = C:/Program Files/MiKTeX 2.9/makeindex/nomencl/nomencl.ist, line = 72):
+   -- Unknown specifier lethead_flag.
+...done (10 attributes redefined, 3 ignored).
+Scanning input file edengths.nlo....done (153 entries accepted, 0 rejected).
+Sorting entries....done (1189 comparisons).
+Generating output file edengths.nls....done (314 lines written, 0 warnings).
+Output written in edengths.nls.
+Transcript written in edengths.nlg.

@@ -1,0 +1,331 @@
+%%
+%% edengfmt.tex - User defined formatting for thesis class
+%%
+%% Copyright (C) 2012 Mathew Topper <damm_horse@yahoo.co.uk>
+%%
+%% This file is part of the University of Edinburgh, Department of
+%% Engineering LaTeX2e thesis template.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with the University of Edinburgh, Department of Engineering
+%% LaTeX2e thesis template.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%
+%%   ABOUT
+%%
+%% This is the user defined formatting file for a Latex2e template which
+%% corresponds to the regulations regarding layout of a thesis submitted within
+%% the University of Edinburgh school of Engineering. It is not `official', but
+%% conforms as best as possible to the regulation as detailed at:
+%%
+%% http://www.ed.ac.uk/schools-departments/science-engineering/current-students/
+%% research/submitting-thesis
+%%
+%% Please feel free to alter the template to your own liking, but note that
+%% the template is made available under the GNU GPL and must be similarly
+%% licenced should you wish to release your modified template.
+%%
+%%   NOTE : THIS FILE MUST BE IN THE SAME DIRECTORY AS edengths.cls
+%%
+%%
+%%   CREDITS
+%%
+%% This template is an amalgamtion of an existing Edinburgh University,
+%% Electrical Engineering PhD Thesis class file (jthesis-v1.cls) authored by
+%% George S Taylor which was released under the GNU GPL.
+%% Code is included from the dmathesis class Written by M. Imran
+%% for a thesis according to the university of Durham regulation, which was
+%% released without copyright. It also contains ideas (possibly code) from the
+%% Princeton thesis class file (PrincetonThesis.cls), authored by Mike Nolta.
+%% Mathew Topper, Eoghan Maguire and Bill Edwards forsaw the need to maintain a
+%% more recent latex implementation of the thesis regulations and thus, this
+%% project was born. It is hoped that the template will be maintained by the
+%% Edinburgh Engineering PhD community once released.
+%%
+%%
+%%   RECORD OF REVISIONS
+%%
+%%     Date      Programmer         Description of change
+%%     ====      ==========         =====================
+%%   18/06/10    Mathew Topper      Made copy of format.tex and renamed.
+%%
+%%   19/06/10                       Added defaultfont to control the header
+%%                                  font using class options. Also reduce
+%%                                  the size of the header separation.
+%%
+%%   21/06/10                       Controlling headers using titlesec rather
+%%                                  than fancyhdr to avoid confusion.
+%%
+%%                                  Added \raggedbottom to stop the bad boxes
+%%                                  when the twoside option is set.
+%%
+%%   24/06/10                       Added another pagestyle 'twomain' which can
+%%                                  be used to set different headers (for even
+%%                                  pages) if twoside option is set.
+%%
+%%   25/06/10                       Setting bibsep as rapport3 sets it to zero.
+%%
+%%                                  Added singlespace option.
+%%
+%%   08/07/10                       Put some plus minus into bibsep to reduce
+%%                                  the number of entries that span pages.
+%%
+%%   12/10/10                       Added option to change the size of the font
+%%                                  for subfigure captions.
+%%
+%%   17/10/10                       Added hypenation penalties for the main body
+%%                                  and the bibliography.
+%%
+%%   20/10/10                       Added space to the footer.
+%%
+%%   29/10/10                       Added options for hyperref and defined 
+%%                                  \autoref and \Autoref commands. They are in
+%%                                  a wrapper to stop error if hyper option is
+%%                                  not used.
+%%
+%%   13/06/12                       Added \myfootskip to allow proper setting of
+%%                                  rubber length using the minus command rather
+%%                                  than the calc package symbol.
+%%
+%%   03/05/13                       Changed to xcolor package to use 'black'
+%%                                  rather than 'Black', which gives a better
+%%                                  color match.
+%%
+
+
+%% IN THIS FILE YOU CAN:
+%%
+%%   ** SET THE MARGINS
+%%   ** SET THE LINE SPACING
+%%   ** CONTROL THE HYPHENATION
+%%   ** ADD VERTICAL SPACE IN ALIGNED EQUATIONS
+%%   ** FORMAT THE TABLE OF CONTENTS AND LISTS
+%%   ** FORMAT THE BIBLIOGRAPHY
+%%   ** CHANGE FONT SIZE OF SUBFIGURE CAPTIONS
+%%   ** HYPERREF SETTINGS
+%%   ** FORMAT FANCY HEADERS
+%%   ** FIX VBOX ERROR WITH 'twoside' OPTION
+
+%%%% SET THE MARGINS
+
+%% Note, the margins here are University of Edinburgh, School of Engineering
+%% regulation. You may wish to borrow a millimetre here or there and change
+%% the header, for example, and thus the setting of the margins has been made
+%% available here. It's not recommended you change these too much!
+%% Note: Margins are controlled by the 'geometry' package.
+\geometry{top=20mm, inner=40mm, outer=25mm, bottom=40mm}
+
+%% Control the header height and separation for fancyhdr
+\geometry{headheight=15.2pt, headsep=4mm}
+
+%% Set the space between the main text and the start of the footnone
+\geometry{footnotesep=5mm}
+
+%% Set the space to the footer. We need to define a new length before applying
+%% it in order to use the minus rubber length to aid flexibility.
+\newlength\myfootskip
+\setlength\myfootskip{20mm minus 1em}
+
+\geometry{footskip=\myfootskip}
+
+
+%%%% SET THE LINE SPACING.
+
+%% Controlled by `setspace' package.
+%% Note: you can define environments for different spacings during the
+%% document, ie \begin{singlespace}blah blah\end{singlespace}.
+%%
+%% Quotes are automatically single spaced via this method.
+
+%% Pick one of these three options for global spacing.
+
+% \singlespacing                       % Single spaced
+
+% \onehalfspacing                        % One and a half spaced
+
+% \doublespacing                       % Double spacing
+
+ \setstretch{1.45}                    % Custom spacing. 1.3 ~ onehalf &
+                                       % 1.6 ~ double spaced
+
+%%%% HYPHENATION
+
+%% The university regs say ``hyphenation should be avoided if possible''.
+%% Latex looks rubbish with no hypenation but you can discourage it until
+%% you start to get lots of bad boxs. Try to set this number as high as
+%% possible (0-10000). You can also set a separate value for the
+%% bibliography using \bibhyphenpenalty.
+\hyphenpenalty=4000
+\bibhyphenpenalty=1000
+
+%%%% VERTICAL SPACE IN ALIGNED EQUATIONS
+
+%% Set a global spacing between vertically aligned equaions environments.
+%% (To add local space after the break do //[some space ie 12pt])
+% \setlength{\jot}{14pt}
+
+
+%%%% TABLE OF CONTENTS AND LISTS
+
+%% These commands are part of the `tocloft' package.
+
+%% Remove the indent on the list of figures and tables.
+\setlength{\cftfigindent}{0pt}
+\setlength{\cfttabindent}{0pt}
+
+
+%% Custom skip before chapters in the TOC. This is useful if, say, the
+%% appendicies entry is alone at the foot of the page and you need to 
+%% add a little more length.
+
+% \addtolength{\cftbeforechapskip}{2pt}
+
+
+%% If you don't like capitalised titles in the forematter you can change these
+%% here.
+
+% \renewcommand{\listfigurename}{List of figures}
+% \renewcommand{\listtablename}{List of tables}
+
+%%%% BIBLIOGRAPHY
+
+%% plus, minus reduces the number of entries which span pages.
+%\setlength{\bibsep}{2ex plus 1ex minus 1ex}
+
+%% Rename bibliography should you desire
+% \renewcommand{\bibname}{References}
+
+%%%% SUBFIGURE CAPTIONS
+
+%% Change size of subfigure captions.
+%%\captionsetup[subfloat]{font=normalsize}
+
+
+%%%% HYPERREF (for hyper package option).
+
+%% Provide options to hyperref. The boolean wrapper
+%% makes sure it won't mess up if the hyper option is not used.
+\ifthenelse{\boolean{hyperflag}}{%
+  \hypersetup{
+      plainpages=false,
+      breaklinks=true,
+      pdftitle={`edengths.cls': The Latex Class File for Formatting
+                a Phd Thesis About Clever Engineering Stuff at
+                The University of Edinburgh},
+      pdfauthor={Robert Boberson},
+      pdfsubject={Latex Stuff},             % subject of the document
+      pdfkeywords={Latex, Thesis Template}, % list of keywords
+      colorlinks=true,
+%       linkcolor=BrickRed,                   % color of internal links
+%       citecolor=Blue,                       % color of links to bibliography
+%       filecolor=black,                      % color of file links
+%       urlcolor=Violet                       % color of external links
+      linkcolor=black,                      % Boring colors. Note, 'black' is
+      citecolor=black,                      % blacker than 'Black'.
+      filecolor=black,
+      urlcolor=black
+  }%
+
+  %% \autoref or \Autoref is better to use rather than \ref 
+  %% as when using hyperref it links both the title and the number rather 
+  %% than just the number.
+
+  %% Create an all uppercase version of autoref, Autoref
+  \let\orgautoref\autoref
+  \providecommand{\Autoref}
+          {\def\equationautorefname{Equation}%
+          \def\figureautorefname{Figure}%
+          \def\subfigureautorefname{Figure}%
+          \def\Itemautorefname{Item}%
+          \def\tableautorefname{Table}%
+          \def\sectionautorefname{Section}%
+          \def\subsectionautorefname{Section}%
+          \def\subsubsectionautorefname{Section}%
+          \def\chapterautorefname{Chapter}%
+          \def\appendixautorefname{Appendix}%
+          \def\partautorefname{Part}%
+          \orgautoref}
+  
+  \renewcommand{\autoref}
+          {\def\equationautorefname{equation}%
+          \def\figureautorefname{figure}%
+          \def\subfigureautorefname{figure}%
+          \def\Itemautorefname{item}%
+          \def\tableautorefname{table}%
+          \def\sectionautorefname{section}%
+          \def\subsectionautorefname{section}%
+          \def\subsubsectionautorefname{section}%
+          \def\chapterautorefname{chapter}%
+          \def\appendixautorefname{appendix}%
+          \def\partautorefname{part}%
+          \orgautoref}
+
+  }%
+  {}
+
+%%%% FANCY HEADERS (using titlesec)
+
+%% You can mess around with these if you like, but I wouldn't bother, really.
+%% DON'T CHANGE THE NAMES 'main' AND 'twomain'.
+
+%% Headers for the main body of the text, ie from the contents onwards.
+%% These headers are used when the document is single sided.
+%% If there is no chapter number then uppercase lettering is used.
+%% Format is {left}{center}{right}. \default sets the font to sans.
+\newpagestyle{main}[\defaultfont\bfseries]{%
+  \headrule%
+  \sethead%
+   {\ifthesection{\thesection{.} \space}{\ifthechapter{\thechapter{.}%
+    \space}{}}\ifthesection{\sectiontitle}{\ifthechapter{\chaptertitle}{%
+    \MakeUppercase{\chaptertitle}}}}%
+   {}{\thepage}%
+  \setfoot{}{}{}%
+  }
+
+%% If the twoside option is set, the even pages can have different styles.
+%% These are defined in the sqaure brackets [left][centre][right]{}{}{}
+%% The headers are now controlled by the twomain pagstyle.
+\newpagestyle{twomain}[\defaultfont\bfseries]{%
+  \headrule%
+  \sethead%
+    [\thepage]%
+    [][\ifthechapter{\chaptertitle}{\MakeUppercase{\chaptertitle}}]%
+    {\ifthesection{\thesection{.} \space}{\ifthechapter{\thechapter{.}%
+    \space}{}}\ifthesection{\sectiontitle}{\ifthechapter{\chaptertitle}{%
+    \MakeUppercase{\chaptertitle}}}}%
+    {}{\thepage}%
+  \setfoot[][][]{}{}{}%
+  }
+
+%% Redefine the plain page style to use the defaultfont for the
+%% numbering.
+\renewpagestyle{plain}[\defaultfont]{%
+  \sethead{}{}{}%
+  \setfoot{}{\thepage}{}%
+}
+
+%%%% FIX VBOX ERROR WITH 'twoside' OPTION
+
+%% Makes all pages the height of the text on that page
+\raggedbottom
+
+%%%% CUSTOM
+
+%\usepackage[sc]{mathpazo}
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+\usepackage[scaled=.95]{sourcesanspro}
+\usepackage[scaled=.78]{beramono}
+\usepackage[protrusion=true,expansion=true]{microtype}

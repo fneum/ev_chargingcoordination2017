@@ -1,0 +1,67 @@
+\documentclass[11pt]{dmathesis}
+
+%% Load the packages to be used.
+\input{packages}
+
+%% The following is to control the format of your thesis.
+\input{format}
+
+%% The following adds user definitions.
+\input{defs}
+
+%% Set the path for diagrams.
+\graphicspath{{../diagrams/chapter_2/}{../diagrams/chapter_3/}{../diagrams/chapter_4/}
+{../diagrams/chapter_5/}{../diagrams/chapter_6/}{../diagrams/appendix/}}
+
+%% Print equation labels next to equation numbers. Use final option to stop
+\usepackage[inner]{showlabels}
+%\usepackage[notref,notcite]{showkeys}
+
+%\renewcommand{\showlabelfont}{\small\upshape}
+
+\begin{document}
+
+%% Front pages of thesis.
+\input{frontpage}
+
+%% Development table of contents
+% \newpage
+% \pagenumbering{roman}
+% \setcounter{page}{1}
+% \tableofcontents
+
+%% Main text.
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\include{chapter1}
+\include{chapter2}
+\include{chapter3}
+\include{chapter4}
+\include{chapter5}
+\include{chapter6}
+\include{chapter7}
+
+%% Appendices
+\appendix
+\noappendicestocpagenum
+\addappheadtotoc
+\renewcommand{\chaptername}{Appendix}
+\renewcommand{\theequation}{\Alph{chapter}.\arabic{equation}}
+
+\input{appendix8}
+\input{appendix2}
+\input{appendix3}
+\input{appendix4}
+\input{appendix5}
+\input{appendix6}
+\input{appendix7}
+\input{appendix1}
+
+
+%% Write out bibliography.
+\bibliography{mainrefs}{}
+\bibliographystyle{topplainnat}
+
+\end{document}

@@ -1,0 +1,92 @@
+%%
+%% defintns.tex - User defined commands for edengths.tex
+%%
+%% Copyright (C) 2012 Mathew Topper <damm_horse@yahoo.co.uk>
+%%
+%% This file is part of the University of Edinburgh, Department of
+%% Engineering LaTeX2e thesis template.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with the University of Edinburgh, Department of Engineering
+%% LaTeX2e thesis template.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%
+%%   ABOUT
+%%
+%% This file contains the user defined commands for a Latex2e template which
+%% corresponds to the regulations regarding layout of a thesis submitted within
+%% the University of Edinburgh School of Engineering. It is not `official',
+%% but conforms as best as possible to the regulation as detailed at:
+%%
+%%   http://www.scieng.ed.ac.uk/Postgraduate/PhD/settingoutyourthesis.htm
+%%
+%% Please feel free to alter the template to your own liking, but note that
+%% the template is made available under the GNU GPL and must be similarly
+%% licenced should you wish to release your modified template.
+%%
+%%
+%%   CREDITS
+%%
+%% This template is an amalgamtion of an existing Edinburgh University,
+%% Electrical Engineering PhD Thesis class file (jthesis-v1.cls) authored by
+%% George S Taylor which was released under the GNU GPL.
+%% Code is included from the dmathesis class Written by M. Imran
+%% for a thesis according to the university of Durham regulation, which was
+%% released without copyright. It also contains ideas (possibly code) from the
+%% Princeton thesis class file (PrincetonThesis.cls), authored by Mike Nolta.
+%% Mathew Topper, Eoghan Maguire and Bill Edwards forsaw the need to maintain a
+%% more recent latex implementation of the thesis regulations and thus, this
+%% project was born. It is hoped that the template will be maintained by the
+%% Edinburgh Engineering PhD community once released.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%             Define your commands here              %%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% New commands can be written using
+%%    \newcommand{command}[inputs]{definition}.
+%% In the definition the inputs are accessed with #1, #2, etc.
+%%
+%% If you want to override an existing command use \renewcommand instead
+%% of \newcommand. \newcommand with give an error if command is already
+%% defined.
+
+%% If you are concerned that your command might override a default
+%% you can use \providecommand which will ignore the new command if
+%% a command of that name already exists.
+
+%%%%% Some Example Maths Definitions (only use in maths mode)
+
+\newcommand{\pdif}[2]{\frac{\partial #1}{\partial #2}}
+%% ie \pdif{x}{t} would give partial x over t.
+
+\newcommand{\dpdif}[2]{\dfrac{\partial #1}{\partial #2}}
+%% inline partial derivative ie for $\dpdif{x}{t}$.
+%% (\dfrac needs amsmath package)
+
+\newcommand{\Ddif}[2]{\frac{D #1}{D #2}}
+%% Material derivative
+
+\newcommand{\spdif}[2]{\frac{\partial^{2} #1}{\partial #2^{2}}}
+%% second partial derivative.
+
+\newcommand{\altspdif}[3]{\frac{\partial^{2} #1}{\partial #2 \partial #3}} 
+% mixed second partial i.e. \altspdif{x}{z}{t} = d2x / dzdt
+
+\newcommand{\ndif}[2]{\frac{\mathrm{d} \, #1}{\mathrm{d} #2}}
+%% ordinary differential.
+
+\newcommand{\sndif}[2]{\frac{\mathrm{d} \,^{2} #1}{\mathrm{d} #2^{2}}}
+%% ordinary second differential.

@@ -1,0 +1,117 @@
+\chapter{Some Simple Text}
+
+\section{Using some `natbib' Citations}
+
+The following paragraph demonstrates some simple text with some citations. The
+command
+\begin{verbatim}
+\citep[see][]{bibtex:key}
+\end{verbatim}
+puts a citation in parathesis with the word `see' before the follows easily.
+reference itself. The second optional `[~]' puts something after the reference,
+such as `chapter 3' as seen \cite{Glover.2012} in the second citation in the paragraph \cite{Grainger.1994}. Also the
+command \cite{Jenkins.2000}
+\begin{verbatim}
+\citet[]{bibtex:key}
+\end{verbatim}
+will produce an inline citation, i.e., not in parenthesis. Note that a blank
+line must be places between paragraphs \index{Fourier Series}in the raw latex, e.g.
+\begin{verbatim}
+Some text in first paragraph.
+
+Some text in second paragraph.
+\end{verbatim}
+
+At the beginning of this, I'd like to add a reference by
+as it has a junior in it and it's good to see how that formats. Pellentesque id
+mi sit amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis. Pellentesque iaculis orci a nisl scelerisque quis accumsan sem
+viverra. In nec risus dolor, vitae adipiscing erat
+pellentesque id mi sit amet mauris elementum \index{Abernathy}
+sagittis eget at neque. Proin tincidunt sollicitudin sagittis. Pellentesque id
+mi sit amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis. Pellentesque iaculis orci a nisl scelerisque quis accumsan sem
+viverra. In nec risus dolor, vitae adipiscing erat
+pellentesque iaculis orci a nisl scelerisque
+quis accumsan sem viverra. In nec risus dolor, vitae adipiscing erat.
+
+\section{Entering and Referencing a Figure}
+
+The next paragraph demostrates a reference to a figure and then a the figure
+itself. Note the standard layout for a figure is
+\begin{verbatim}
+\begin{figure}[htb] % htb is positional preference (here, top, bottom)
+  \centering
+  \includegraphics[width=some width]{filename without extension}
+  \caption{Caption Title}
+  \label{fig:label}
+\end{figure}.
+\end{verbatim}
+The reference to the figure is then provided by something like
+\begin{verbatim}
+figure~\ref{fig:label}.
+\end{verbatim}
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque id mi sit
+amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis. Pellentesque iaculis orci a nisl scelerisque quis accumsan sem
+viverra. In nec risus dolor, vitae adipiscing erat. Etiam ultrices leo eget arcu
+faucibus congue. Nullam eget iaculis mauris. Ut gravida rutrum nisl eget auctor.
+Donec sodales enim at massa porta nec mattis est dapibus. Nunc nec vehicula
+tellus. Quisque massa tellus, lobortis vel sodales sed, aliquet varius dui.
+Proin tincidunt sollicitudin sagittis. Figure~\ref{fig:bottomkutta} shows
+something unrelated to this paragraph, but neatly demonstrates how to stick a
+figure in and reference it.
+
+\begin{figure}[htb]
+  \centering
+  %% Because graphicspath was set in edengths.tex you only need to
+  %% supply the file name here, i.e. examplepicture (doesn't need the
+  %% extension) and not the full path. Just remember to add the path
+  %% to \graphicspath{{thispath/}{thatpath/}}
+  \includegraphics[width=0.3\textwidth]{bottomkutta}
+  \caption{Alternative orientations of the wake vortex sheet as it separates
+  from the trailing edge of the aerofoil.}
+  \label{fig:bottomkutta}
+\end{figure}
+
+\section{Quoting Something}
+
+The final paragraph in this chapter illustrates a quote. To do a quote
+simply use the enviroment
+\begin{verbatim}
+\begin{quote}
+ The quote text.
+\end{quote}.
+\end{verbatim}
+Note that the edengths class forces quotes to single spacing as the thesis
+regulations demand this. Also, there is an inline citation in the next
+paragraph.
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque id mi sit
+amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis. Pellentesque iaculis orci a nisl scelerisque
+quis accumsan sem viverra. In nec risus dolor, vitae adipiscing erat. Etiam
+ultrices leo eget arcu faucibus congue. Nullam eget iaculis mauris. Ut gravida
+rutrum nisl eget auctor. Donec sodales enim at massa porta nec mattis est
+dapibus. Nunc nec vehicula tellus. Quisque massa tellus, lobortis vel sodales
+sed, aliquet varius dui. Proin tincidunt sollicitudin sagittis. 
+\begin{quote}
+ ``Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque id mi
+sit amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis.''
+\end{quote}
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque id mi sit
+amet mauris elementum sagittis eget at neque. Quisque id sapien magna, et
+pharetra enim. Aenean congue turpis et libero faucibus vitae vulputate erat
+facilisis. Pellentesque iaculis orci a nisl scelerisque quis accumsan sem
+viverra. In nec risus dolor, vitae adipiscing erat. Etiam ultrices leo eget arcu
+faucibus congue. Nullam eget iaculis mauris. Ut gravida rutrum nisl eget auctor.
+Donec sodales enim at massa porta nec mattis est dapibus. Nunc nec vehicula
+tellus. Quisque massa tellus, lobortis vel sodales sed, aliquet varius dui.
+Proin tincidunt sollicitudin sagittis. 

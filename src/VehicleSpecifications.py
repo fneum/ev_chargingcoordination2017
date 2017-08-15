@@ -1,5 +1,4 @@
 ''' The modules docstring...'''
-# TODO Docstrings
 
 from builtins import int
 import math
@@ -41,14 +40,14 @@ class ElectricVehicle:
         
         # arrival time behaviour
         while True:
-            self.tripend_mu = sps.genlogistic.rvs(cfg.getfloat('travel_patterns', 'c_tem'),  
-                                                  loc=cfg.getfloat('travel_patterns', 'loc_tem'),  
+            self.tripend_mu = sps.genlogistic.rvs(cfg.getfloat('travel_patterns', 'c_tem'),
+                                                  loc=cfg.getfloat('travel_patterns', 'loc_tem'),
                                                   scale=cfg.getfloat('travel_patterns', 'scale_tem'))
             if self.tripend_mu > 0:
                 break
         while True:
-             self.tripend_sig = sps.genlogistic.rvs(cfg.getfloat('travel_patterns', 'c_tes'),  
-                                                  loc=cfg.getfloat('travel_patterns', 'loc_tes'),  
+             self.tripend_sig = sps.genlogistic.rvs(cfg.getfloat('travel_patterns', 'c_tes'),
+                                                  loc=cfg.getfloat('travel_patterns', 'loc_tes'),
                                                   scale=cfg.getfloat('travel_patterns', 'scale_tes'))
              if self.tripend_sig > 0:
                 break
@@ -58,15 +57,15 @@ class ElectricVehicle:
         Z = rd.multivariate_normal([0, 0], [[1, corcoeff], [corcoeff, 1]])
         U = sps.norm.cdf(Z)
         while True:
-            self.tripstart_mu = sps.genlogistic.ppf(U[0],  
-                                      cfg.getfloat('travel_patterns', 'c_tsm'),  
-                                      loc=cfg.getfloat('travel_patterns', 'loc_tsm'),  
+            self.tripstart_mu = sps.genlogistic.ppf(U[0],
+                                      cfg.getfloat('travel_patterns', 'c_tsm'),
+                                      loc=cfg.getfloat('travel_patterns', 'loc_tsm'),
                                       scale=cfg.getfloat('travel_patterns', 'scale_tsm'))
             if self.tripstart_mu > 0:
                 break
         while True:
-            self.tripstart_sig = sps.halfnorm.ppf(U[1],  
-                                      loc=cfg.getfloat('travel_patterns', 'loc_tss'),  
+            self.tripstart_sig = sps.halfnorm.ppf(U[1],
+                                      loc=cfg.getfloat('travel_patterns', 'loc_tss'),
                                       scale=cfg.getfloat('travel_patterns', 'scale_tss'))
             if self.tripstart_sig > 0:
                 break
@@ -76,15 +75,15 @@ class ElectricVehicle:
         Z = rd.multivariate_normal([0, 0], [[1, corcoeff], [corcoeff, 1]])
         U = sps.norm.cdf(Z)
         while True:
-            self.mileage_mu = cfg.getfloat('travel_patterns', 'mileage_scaling') * sps.gamma.ppf(U[0],  
-                                    cfg.getfloat('travel_patterns', 'a_mim'),  
-                                    loc=cfg.getfloat('travel_patterns', 'loc_mim'),  
+            self.mileage_mu = cfg.getfloat('travel_patterns', 'mileage_scaling') * sps.gamma.ppf(U[0],
+                                    cfg.getfloat('travel_patterns', 'a_mim'),
+                                    loc=cfg.getfloat('travel_patterns', 'loc_mim'),
                                     scale=cfg.getfloat('travel_patterns', 'scale_mim'))
             if self.mileage_mu > 0:
                 break
         while True:
-            self.mileage_sig = sps.expon.ppf(U[1],  
-                                     loc=cfg.getfloat('travel_patterns', 'loc_mis'),  
+            self.mileage_sig = sps.expon.ppf(U[1],
+                                     loc=cfg.getfloat('travel_patterns', 'loc_mis'),
                                      scale=cfg.getfloat('travel_patterns', 'scale_mis'))
             if self.mileage_sig > 0:
                 break

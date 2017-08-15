@@ -1,0 +1,102 @@
+\ProvidesPackage{beamercolorthemeedinburgh}[2012/12/09 colour theme for Edinburgh Uni]
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Colour definitions
+
+% Core Colours
+\definecolor{PMS282}{RGB}{0, 33, 71}      % corporate blue
+\definecolor{PMS199}{RGB}{208, 16, 58}    % corporate red
+
+% Brights
+\definecolor{PMS207}{RGB}{167, 2, 64}     % red
+\definecolor{PMS226}{RGB}{207, 0, 114}    % pink
+\definecolor{PMS159}{RGB}{199, 91, 18}    % dark orange
+\definecolor{PMS130}{RGB}{240, 171, 0}    % light orange
+
+\definecolor{PMS2425}{RGB}{125, 0, 99}    % violet
+\definecolor{PMS3135}{RGB}{0, 148, 179}   % blue
+\definecolor{PMS311}{RGB}{12, 198, 222}   % light blue
+\definecolor{PMS368}{RGB}{105, 190, 40}   % grass green
+
+% Muted
+\definecolor{PMS5005}{RGB}{182, 132, 140}
+\definecolor{PMS483}{RGB}{103, 51, 39}   
+\definecolor{PMS7518}{RGB}{109, 80, 71}  
+\definecolor{PMS391}{RGB}{156, 154, 0}   
+\definecolor{PMS3025}{cmyk}{1,0.21,0,0.58}% dark blue
+\definecolor{PMS643}{RGB}{198,209,214}    % light blue
+\definecolor{PMS3435}{RGB}{2,73,48}       % 
+\definecolor{PMS7475}{RGB}{89,135,135}    % 
+
+% Neutrals
+\definecolor{PMS423}{RGB}{150,147,142}    % gray
+\definecolor{PMS432}{RGB}{68,79,81}       % dark gray
+\definecolor{PMS616}{RGB}{221,214,155}    % sand
+
+% Aliases
+\colorlet{UOEblue}{PMS282}
+\colorlet{UOEred}{PMS199}
+
+\colorlet{UOEdarkred}{PMS207}
+\colorlet{UOEpink}{PMS226}
+\colorlet{UOEorange}{PMS159}
+\colorlet{UOEyellow}{PMS130}
+
+\colorlet{UOEviolet}{PMS2425}
+\colorlet{UOEblue3}{PMS3135}
+\colorlet{UOEblue4}{PMS311}
+\colorlet{UOEgreen}{PMS368}
+\colorlet{UOEbrown1}{PMS5005}
+\colorlet{UOEbrown2}{PMS483}
+\colorlet{UOEbrown3}{PMS7518}
+\colorlet{UOEbrown4}{PMS391}
+\colorlet{UOEblue1}{PMS3025}
+\colorlet{UOEblue2}{PMS643}
+\colorlet{UOEcyan}{PMS3435}
+\colorlet{UOEcyan1}{PMS7475}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% In-presentation
+\mode<presentation>
+
+% TEXT
+\setbeamercolor{normal text}{fg=UOEblue}      % normal text
+\setbeamercolor{alerted text}{fg=UOEred}  % alerted text
+\setbeamercolor{structure}{fg=UOEred}         % structure (bullet poits etc)
+\setbeamercolor{example text}{fg=UOEcyan1}    % examples
+\setbeamercolor{title}{fg=white, bg=PMS3025}  % title
+
+%% NORMAL BLOCKS
+\setbeamercolor{block title}{fg=white,bg=UOEblue1}  % Title colour
+\setbeamercolor{block body}{parent=normal text, use=block title,bg=UOEblue2!50!bg} % Body colour
+
+%% ALERT BLOCKS
+\setbeamercolor{block title alerted}{bg=UOEdarkred, fg=white}
+\setbeamercolor{block body alerted}{use=block title alerted,bg=block title alerted.bg!15!bg}
+
+%% EXAMPLE BLOCKS
+\setbeamercolor{block title example}{fg=white,bg=example text.fg}
+\setbeamercolor{block body example}{use=block title example,bg=block title example.bg!15!bg}
+
+% TABLE OF CONTENTS
+\setbeamercolor{section in toc}{fg=UOEblue,bg=white}
+
+% BEAMER PALETTE - used throughout higher-level themes
+\setbeamercolor*{palette secondary}{fg=white,bg=PMS3025}  % blue
+\setbeamercolor*{palette primary}{bg=PMS643,fg=PMS282} % light blue
+\setbeamercolor*{palette tertiary}{bg=white, fg=PMS282} % white
+\setbeamercolor*{palette quaternary}{bg=PMS282, fg=white} % blue
+
+% BIBLIOGRAPHY
+\setbeamercolor{bibliography entry author}{fg=UOEviolet}
+\setbeamercolor{bibliography entry title}{fg=UOEblue}
+\setbeamercolor{bibliography entry location}{fg=UOEblue3}
+
+\setbeamercolor{section in head/foot}{bg=UOEblue1, fg=white}
+\setbeamercolor{subsection in head/foot}{bg=UOEblue2, fg=UOEblue}
+
+\setbeamercolor{frametitle}{bg=white, fg=UOEblue}
+\setbeamercolor{frametitle right}{bg=UOEblue2}
+\setbeamercolor{framesubtitle}{bg=white, fg=UOEviolet}
+
+\mode<all>

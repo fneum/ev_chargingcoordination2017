@@ -1,0 +1,153 @@
+\ProvidesPackage{beamerthemeEdinburgh}
+
+\newif\ifbeamer@theme@subsection
+\beamer@theme@subsectiontrue
+
+\DeclareOptionBeamer{footline}{\csname beamer@theme@footline@#1\endcsname}
+\DeclareOptionBeamer{subsection}[true]{\csname beamer@theme@subsection#1\endcsname}
+\ProcessOptionsBeamer
+
+
+\mode<presentation>
+\useinnertheme[]{rectangles}
+\usecolortheme{edinburgh}
+
+\setbeamertemplate{navigation symbols}{} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% FRAMES
+
+% auxiliary def for gradient
+\pgfdeclarehorizontalshading[frametitle.bg,frametitle right.bg]{beamer@frametitleshade}{\paperheight}{%
+  color(0pt)=(frametitle.bg);
+  color(\paperwidth)=(frametitle right.bg)}
+
+%% HEADLINES
+\defbeamertemplate*{headline}{miniframes theme}
+{%
+  \begin{beamercolorbox}[colsep=1.5pt]{upper separation line head}
+  \end{beamercolorbox}
+  \begin{beamercolorbox}{section in head/foot}
+    \vskip2pt\insertsectionnavigationhorizontal{\paperwidth}{}{}\vskip2pt
+  \end{beamercolorbox}%
+    \begin{beamercolorbox}[colsep=1.5pt]{middle separation line head}
+    \end{beamercolorbox}
+  \ifbeamer@theme@subsection%
+    \begin{beamercolorbox}[ht=2.0ex,dp=1.125ex,leftskip=.3cm]{subsection in head/foot}
+      \usebeamerfont{subsection in head/foot} \insertsubsectionhead
+      %\insertsubsectionnavigationhorizontal{\paperwidth}{}{filll}
+  \else
+    \begin{beamercolorbox}[ht=1.0ex,dp=1ex]{subsection in head/foot}
+  \fi%
+    \end{beamercolorbox}%
+  \begin{beamercolorbox}[colsep=1.5pt]{lower separation line head}
+  \end{beamercolorbox}
+}
+
+%% FRAME TITLES
+\defbeamertemplate*{frametitle}{Edinburgh theme}
+{%
+  \nointerlineskip%
+  \vskip-2pt%
+  \hbox{\leavevmode
+    \advance\beamer@leftmargin by -12bp%
+    \advance\beamer@rightmargin by -12bp%
+    \beamer@tempdim=\textwidth%
+    \advance\beamer@tempdim by \beamer@leftmargin%
+    \advance\beamer@tempdim by \beamer@rightmargin%
+    \hskip-\Gm@lmargin\hbox{%
+      \setbox\beamer@tempbox=\hbox{
+        \begin{minipage}[b]{\paperwidth}%
+          \vbox{}\vskip-.75ex%
+          \leftskip0.3cm%
+          \rightskip0.3cm plus1fil\leavevmode
+          \insertframetitle%
+          \ifx\insertframesubtitle\@empty%
+            \strut\par%
+          \else
+            \par{\usebeamerfont*{framesubtitle}{\usebeamercolor[fg]{framesubtitle}\insertframesubtitle}\strut\par}%
+          \fi%
+          \nointerlineskip
+          \vbox{}%
+        \end{minipage}}%
+      \beamer@tempdim=\ht\beamer@tempbox%
+      \begin{pgfpicture}{0pt}{0pt}{\paperwidth}{\beamer@tempdim}
+        \usebeamercolor{frametitle right}
+        \pgfpathrectangle{\pgfpointorigin}{\pgfpoint{\paperwidth}{\beamer@tempdim}}
+        \pgfusepath{clip}
+        \pgftext[left,base]{\pgfuseshading{beamer@frametitleshade}}
+      \end{pgfpicture}
+      \hskip-\paperwidth%
+      \box\beamer@tempbox%
+    }%
+      \hskip-\paperwidth%
+  }%
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BLOCKS
+% Redefine block begin and end templates to leave out the block title bar if the block title
+% parameter is empty.  The default/rectangles (other than the rounded) inner theme behaves
+% quirky here.
+\def\blockcolsep{.5ex}
+
+%% NORMAL
+\defbeamertemplate*{block begin}{edinburgh}{
+  \par\vskip\medskipamount%
+  \ifx\insertblocktitle\@empty
+  \else
+  \begin{beamercolorbox}[colsep*=\blockcolsep]{block title}
+    {\rule[-0.4ex]{0mm}{2ex}\insertblocktitle}%
+  \end{beamercolorbox}%
+  \fi
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title}
+  {}
+  {\ifbeamercolorempty[bg]{block body}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body}%
+  \begin{beamercolorbox}[colsep*=\blockcolsep,vmode]{block body}%
+    \ifbeamercolorempty[bg]{block body}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\defbeamertemplate*{block end}{edinburgh}{\end{beamercolorbox}\vskip\smallskipamount}
+
+%% EXAMPLE BLOCKS
+\defbeamertemplate*{block example begin}{edinburgh}{
+  \par\vskip\medskipamount%
+  \ifx\insertblocktitle\@empty
+  \else
+  \begin{beamercolorbox}[colsep*=\blockcolsep]{block title example}
+    {\rule[-0.4ex]{0mm}{2ex}\insertblocktitle}%
+  \end{beamercolorbox}%
+  \fi
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title example}
+  {}
+  {\ifbeamercolorempty[bg]{block body example}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body example}%
+  \begin{beamercolorbox}[colsep*=\blockcolsep,vmode]{block body example}%
+    \ifbeamercolorempty[bg]{block body example}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\defbeamertemplate*{block example end}{edinburgh}{\end{beamercolorbox}\vskip\smallskipamount}
+
+%% ALERTED BLOCKS
+\defbeamertemplate*{block alerted begin}{edinburgh}{
+  \par\vskip\medskipamount%
+  \ifx\insertblocktitle\@empty
+  \else
+  \begin{beamercolorbox}[colsep*=\blockcolsep]{block title alerted}
+    {\rule[-0.4ex]{0mm}{2ex}\insertblocktitle}%
+  \end{beamercolorbox}%
+  \fi
+  {\parskip0pt\par}%
+  \ifbeamercolorempty[bg]{block title alerted}
+  {}
+  {\ifbeamercolorempty[bg]{block body alerted}{}{\nointerlineskip\vskip-0.5pt}}%
+  \usebeamerfont{block body alerted}%
+  \begin{beamercolorbox}[colsep*=\blockcolsep,vmode]{block body alerted}%
+    \ifbeamercolorempty[bg]{block body alerted}{\vskip-.25ex}{\vskip-.75ex}\vbox{}%
+}
+\defbeamertemplate*{block alerted end}{edinburgh}{\end{beamercolorbox}\vskip\smallskipamount}
+
+\mode<all>

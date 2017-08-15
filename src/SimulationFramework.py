@@ -1,5 +1,4 @@
 ''' The modules docstring...'''
-# TODO Docstrings
  
 # *****************************************************************************************************
 # * Imports
@@ -656,7 +655,7 @@ def runNetworkGreedy(type, urgency_mode):
                 print("-> No violations. Continue with proposed schedule.")
                 feasible = True
                 
-            if timer()-time > 200:
+            if timer() - time > 200:
                 break
  
         ev.schedule = schedules[hd_id].tolist()   
@@ -1145,7 +1144,7 @@ def evaluateResults(type):
     mccost = sum(map(sum, netChCost))
     mcfulfil_tot = sum(batterySOC.T[-1]) / (num_evs * cap)
     mcfulfil_min = min(batterySOC.T[-1]) / cap
-    mcoverload_sev = max(map(max, actual_loadings)) / 165  # TODO automatic line parameter reading
+    mcoverload_sev = max(map(max, actual_loadings)) / 165  # COULDDO automatic line parameter reading
     mcoverload_freq = len(np.unique(np.genfromtxt("../network_details/LVTest/DI_yr_2/DI_Overloads.CSV", delimiter=',', skip_header=1, usecols=(0,)))) / num_slots
     mcundervolt_sev = min(map(min, household_voltages)) / base_volt_perphase
     mcundervolt_freq = sum(x[i] < voltage_min * base_volt_perphase for i in range(num_slots) for x in household_voltages) / (num_slots * num_households)
@@ -1219,7 +1218,7 @@ reg_price = reg_price / conv.Time(min=resolution).hr
 num_households = 55
 base_volt_perphase = 230
 num_linerecords = 1  # or 905 for all lines
-line_rating = 165  # TODO read automatically
+line_rating = 165  # COULDDO read automatically
  
 print(">> @Init: Parameters read.")
  
@@ -1254,11 +1253,11 @@ if cfg.getboolean("general", "network_sensitivity"):
 
     filename = "../log/" + uuid + "/Results_VSensitivity.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    np.savetxt(filename,np.asarray(v_sensitivity), delimiter=",")
+    np.savetxt(filename, np.asarray(v_sensitivity), delimiter=",")
     
     filename = "../log/" + uuid + "/Results_SSensitivity.csv"
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    np.savetxt(filename,np.asarray(s_sensitivity), delimiter=",")
+    np.savetxt(filename, np.asarray(s_sensitivity), delimiter=",")
 
 # set major parameters
 DSSText.Command = "set mode=daily number=" + str(num_slots) + " stepsize=" + str(resolution) + "m"
@@ -1348,9 +1347,9 @@ for mc_iter in range(1, iterations + 1):
     deviations = [p - median(price_ts) for p in price_ts]
     max_deviation = max(deviations)
     rand_deviation = get_rednoise(0.9, 0.25, 2)
-    # TODO
     deviations = [(0.8 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) ** 1.5 for k in range(num_slots)]
-    #deviations = [(0.5 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) for k in range(num_slots)]
+    # alternative formulations
+    # deviations = [(0.5 + abs(rand_deviation[k]) + abs(deviations[k]) / max_deviation) for k in range(num_slots)]
     # deviations = [(1 + spread * abs(deviations[k]) / max_deviation) for k in range(num_slots)]
     req_price_certainty = cfg.getfloat("uncertainty_mitigation", "req_price_certainty")
     price_sec_margins = [sps.norm.ppf(req_price_certainty, loc=0, scale=deviations[i]) for i in range(num_slots)]
@@ -1490,11 +1489,6 @@ for mc_iter in range(1, iterations + 1):
     mc_ref = evaluateResults("ref")
     mc_ref.append(computation_time)
     mcLogRef.append(mc_ref)
-    
-    # TODO plots
-    # DSSText.Command = "plot circuit dots=y C1=red"
-    # DSSText.Command = "plot profile"
-    # DSSText.Command = "plot type=General quantity=1 Max=.003 dots=y labels=no subs=yes object=MYFILE.csv C1=$0080FFFF C2=$000000FF"
     
 # *****************************************************************************************************
 # * WRITE MC EVALUATION RESULTS

@@ -1,0 +1,276 @@
+%%
+%% frontmtr.tex - LaTeX2e thesis class
+%%
+%% Copyright (C) 2012 Mathew Topper <damm_horse@yahoo.co.uk>
+%%
+%% This file is part of the University of Edinburgh, Department of
+%% Engineering LaTeX2e thesis template.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with the University of Edinburgh, Department of Engineering
+%% LaTeX2e thesis template.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%
+%%   ABOUT
+%%
+%% This is the frontmatter file for a Latex2e template which corresponds to the
+%% regulations regarding layout of a thesis submitted within the University
+%% of Edinburgh School of Engineering. It is not `official', but conforms
+%% as best as possible to the regulation as detailed at:
+%%
+%% http://www.ed.ac.uk/schools-departments/science-engineering/current-students/
+%% research/submitting-thesis
+%%
+%% Please feel free to alter the template to your own liking, but note that
+%% the template is made available under the GNU GPL and must be similarly
+%% licenced should you wish to release your modified template.
+%%
+%%
+%%   CREDITS
+%%
+%% This template is an amalgamtion of an existing Edinburgh University,
+%% Electrical Engineering PhD Thesis class file (jthesis-v1.cls) authored by
+%% George S Taylor which was released under the GNU GPL.
+%% Code is included from the dmathesis class Written by M. Imran
+%% for a thesis according to the university of Durham regulation, which was
+%% released without copyright. It also contains ideas (possibly code) from the
+%% Princeton thesis class file (PrincetonThesis.cls), authored by Mike Nolta.
+%% Mathew Topper, Eoghan Maguire and Bill Edwards forsaw the need to maintain a
+%% more recent latex implementation of the thesis regulations and thus, this
+%% project was born. It is hoped that the template will be maintained by the
+%% Edinburgh Engineering PhD community once released.
+%%
+%%
+%%   RECORD OF REVISIONS
+%%
+%%     Date      Programmer        Description of change
+%%     ====      ==========        =====================
+%%   19/10/10    Mathew Topper     Ported from thesis.tex
+%%                                 to allow the front matter
+%%                                 to be included.
+%%
+%%   04/04/11                      Added some info about
+%%                                 \frontchapter command.
+%%
+%%                                 Added \printglossary command
+%%                                 to output nomenclature.
+%%
+%%
+
+%% The special formatting in the class requires the use of
+%% a particular command to call the front matter for everything
+%% before the table of contents. Just supply the path to the
+%% file containing the pre content front matter.
+
+\makeprecontent{front/precntnt.tex}
+
+%%%% TABLES AND LISTS
+
+\phantomsection%
+\addcontentsline{toc}{chapter}{Contents}%
+\setstretch{1.4} 
+%% Table of contents
+\tableofcontents
+\setstretch{1.45} 
+
+%% Make the nomenclature. This command won't do anything if nomencl option
+%% is not declared.
+
+%\nomenclature[A, 02]{$c$}{Speed of light in a vacuum inertial system 
+%	\nomunit{$299,792,458\, m/s$}}
+
+\nomenclature[P]{$w_{max}$}{Maximum window size of demand peaks (hours)}
+\nomenclature[P]{$w$}{Temporal shift of residential demand (hours)}
+\nomenclature[P]{$T$}{Optimisation horizon in slots, transposition operator}
+\nomenclature[P]{$K$}{Number of households}
+\nomenclature[P]{$L$}{Number of transmission lines}
+\nomenclature[P]{$\Delta t$}{Granularity, resolution, slot length (hours)} 
+\nomenclature[P]{$D_{k,t}$}{Residential electricity demand of household $k$ in slot $t$ (kW)}
+\nomenclature[P]{$\zeta$}{Consumption rate of electric vehicles (kWh/km)}
+\nomenclature[P]{$B_{max}$}{Battery capacity of electric vehicles (kWh)}
+\nomenclature[P]{$\eta$}{Charging efficiency} 
+\nomenclature[P]{$P^{EV}_{max}$}{Maximum EV charging rate (kW)}
+\nomenclature[P]{$P^{EV}_{min}$}{Minimum EV charging rate (kW)}
+\nomenclature[P]{$\Delta^{EV}_{max}$}{Maximum rate of change of charging power (kW)}
+\nomenclature[P]{$\delta_{mil}$}{Daily mileage of an electric vehicle (miles)}
+\nomenclature[P]{$\tau_{arr}$}{Arrival time of an electric vehicle (minutes)}
+\nomenclature[P]{$\tau_{dep}$}{Departure time of an electric vehicle (minutes)}
+\nomenclature[P]{$\tau_{init}$}{Time of the day in minutes at which the optimisation routine starts (minutes)}
+\nomenclature[P]{$\mu_{mil}$}{Average daily mileage (miles)}
+\nomenclature[P]{$\mu_{arr}$}{Average arrival time (minutes)}
+\nomenclature[P]{$\mu_{dep}$}{Average departure time (minutes)}
+\nomenclature[P]{$\sigma_{mil}$}{Standard deviation of daily milage (miles)}
+\nomenclature[P]{$\sigma_{arr}$}{Standard deviation of arrival times (minutes)}
+\nomenclature[P]{$\sigma_{dep}$}{Standard deviation of departure times (minutes)}
+\nomenclature[P]{$B^{arr}_{k}$}{Initial battery charge level of electric vehicle at household $k$ (kWh)}
+\nomenclature[P]{$\alpha^{EV}_{k,t}$}{Vehicle availability at slot $t$ at household $k$} 
+\nomenclature[P]{$\bar{\pi}$}{Average spot price (p/kWh)} 
+\nomenclature[P]{$\pi$}{Input price profile (p/kWh)} 
+\nomenclature[P]{$\pi'$}{Temporally extended price input profile (p/kWh)} 
+\nomenclature[P]{$\pi^{EPEX}_t$}{Pure spot market price at time slot $t$ (p/kWh)} 
+\nomenclature[P]{$q$}{Static price surcharge (p/kWh)} 
+\nomenclature[P]{$s$}{Price spreading factor} 
+\nomenclature[P]{$\xi$}{Sequence of red Gaussian noise where $\xi_t \sim \mathcal{N}(0,1)$}
+\nomenclature[P]{$\kappa$}{Sequence of factors describing the severity of price uncertainty}
+\nomenclature[P]{$\omega$}{Sequence of white Gaussian noise}
+\nomenclature[P]{$\rho$}{Regulation service price (p/kW$\cdot$h)}
+\nomenclature[P]{$\bm{\mu}$}{Network voltage sensitivity matrix (V/kW)}
+\nomenclature[P]{$\bm{\lambda}$}{Network line loading sensitivity matrix (A/kW)}
+\nomenclature[P]{$C$}{Objective function of problem (p)}
+\nomenclature[P]{$C'$}{Objective function of problem including regulation service provision (p)}
+\nomenclature[P]{$\gamma_{min}$}{Battery charge level threshold for the provision of regulation service}
+\nomenclature[P]{$V_{k,t}^{bus}$}{Terminal phase voltage (V)}
+\nomenclature[P]{$V_{k,t,init}^{bus}$}{Initial terminal phase voltage without electric vehicles (V)}
+\nomenclature[P]{$V_{min}$}{Minimum phase voltage (V)}
+\nomenclature[P]{$V_{max}$}{Maximum phase voltage (V)}
+\nomenclature[P]{$I^{line}_{\ell,t}$}{Current through cable $\ell$ in slot $t$ (A)}
+\nomenclature[P]{$I^{max}_{\ell}$}{Rated ampacity of cable $\ell$ (A)}
+\nomenclature[P]{$S_t^{tr}$}{Apparent power flowing through the transformer (kVA)}
+\nomenclature[P]{$S_{max}^{tr}$}{Maximum allowed apparent power flowing through the transformer (kVA)}
+\nomenclature[P]{$\sigma$}{Indices of sorted prices in ascending order}
+\nomenclature[P]{$\theta$}{Priority list (order in which electric vehicles are scheduled)}
+\nomenclature[P]{$D_k^{EV}$}{Electric vehicle energy demand (kWh)}
+\nomenclature[P]{$T_{viol}$}{Subset of slots $T$ with technical constraint violations}
+\nomenclature[P]{$\Delta P$}{Incremental step size of load limitation (kW)}
+\nomenclature[P]{$\nu_{\alpha}$}{Degree of certainty that vehicle is available}
+\nomenclature[P]{$\nu_{B}$}{Degree of certainty that initial battery charge level is no less than entered}
+\nomenclature[P]{$\nu_{\pi}$}{Degree of certainty that price is not higher}
+
+% distributions
+\nomenclature[N]{$\mathcal{U}(a,b)$}{Uniform distribution on the interval $[a,b]$}
+\nomenclature[N]{$\mathcal{N}(\mu,\sigma)$}{Univariate normal distribution with mean $\mu$ and standard deviation $\sigma$}
+\nomenclature[N]{$\mu$}{Mean, location parameter of logistic distribution}
+\nomenclature[N]{$\sigma$}{Standard deviation}
+\nomenclature[N]{$\Gamma(x)$}{Gamma function}
+\nomenclature[N]{$f$}{Probability distribution function}
+\nomenclature[N]{$F$}{Cumulative distribution function}
+\nomenclature[N]{$a$}{Shape parameter of Gamma distribution}
+\nomenclature[N]{$\theta$}{Scale parameter of Gamma distribution}
+\nomenclature[N]{$\displaystyle e$}{Euler's number}
+\nomenclature[N]{$s$}{Scale parameter of logistic distribution}
+\nomenclature[N]{$\sigma^2$}{Variance}
+\nomenclature[N]{$\gamma_1$}{Skewness of a distribution}
+\nomenclature[N]{$\gamma_2$}{Kurtosis of a distribution}
+\nomenclature[N]{$\lambda$}{Rate parameter of the exponential distribution}
+\nomenclature[N]{$F^{-1}$}{Inverse cumulative distribution function}
+\nomenclature[N]{$F^{-1}$}{Inverse cumulative distribution function}
+\nomenclature[N]{$\mathcal{N}_i(\bm{\mu},\bm{\rho})$}{Multivariate normal distribution with means $\bm{\mu}\in \mathbb{R}^i$ and matrix of correlation coefficients $\bm{\rho}\in \mathbb{R}^{i\times i}$}
+\nomenclature[N]{$Z$}{Bivariate random variable}
+\nomenclature[N]{$X$}{Bivariate random variable}
+\nomenclature[N]{$W$}{Univariate random variable}
+\nomenclature[N]{$w$}{Realisation of random variable $W$}
+\nomenclature[N]{$x_i$}{i-th realisation of random variable $X$}
+\nomenclature[N]{$z_i$}{i-th realisation of random variable $Z$}
+\nomenclature[N]{$r$}{Sample Pearson correlation coefficient, lag-1 autocorrelation}
+\nomenclature[N]{$\mathcal{M}$}{Generic multivariate distribution}
+\nomenclature[N]{$\mathcal{M}_i$}{Marginal distribution of generic multivariate distribution}
+\nomenclature[N]{$\mathbb{E}[X]$}{Expectation value of a random variable $X$}
+\nomenclature[N]{$\mathbb{P}(x=X)$}{Probability of $x$ being realised from a random variable $X$}
+\nomenclature[N]{$\Phi$}{Cumulative distribution function of standard normal distribution $\mathcal{N}(0,1)$}
+\nomenclature[N]{$\mathbb{B}$}{Set of binary numbers}
+\nomenclature[N]{$\mathbb{R}$}{Set of real numbers}
+\nomenclature[N]{$\mathbb{N}$}{Set of natural numbers}
+\nomenclature[N]{$\bm{0}_{X,Y}$}{Zero matrix with dimensions $X\times Y$}
+\nomenclature[N]{$\bm{\rho}$}{Matrix of correlation coefficients}
+
+%subscripts
+\nomenclature[S]{$k$}{Node with household connected}
+\nomenclature[S]{$t$}{Time slot}
+\nomenclature[S]{$\ell$}{Line identifier}
+
+%variables
+\nomenclature[V]{$P^{EV}_{k,t}$}{Charging rate of electric vehicel at household $k$ in time slot $t$ (kW)}
+\nomenclature[V]{$\omega_{k,t}$}{Regulation service provision of EV at household $k$ in time slot $t$}
+
+%decorations
+\nomenclature[D]{$\tilde{}$}{Uncertain parameter}
+\nomenclature[D]{$\hat{}$}{Estimate for uncertain parameter}
+\nomenclature[D]{$\bar{}$}{Average value}
+
+%glossary
+\nomenclature[A]{AC}{Alternating Current}
+\nomenclature[A]{EV}{Electric vehicle}
+\nomenclature[A]{EPEX}{European Power Exchange}
+\nomenclature[A]{UKPX}{United Kingdom Power Exchange}
+\nomenclature[A]{SOC}{State of charge}
+\nomenclature[A]{EU}{European Union}
+\nomenclature[A]{USA, US}{United States of America}
+\nomenclature[A]{MPC}{Model Predictive Control}
+\nomenclature[A]{DG}{Distributed generation}
+\nomenclature[A]{DSM}{Demand side management}
+\nomenclature[A]{DR}{Demand response}
+\nomenclature[A]{TSO}{Transmission system operator}
+\nomenclature[A]{DSO, DNO}{Distribution system/network operator}
+\nomenclature[A]{ICT}{Information and communication technology}
+\nomenclature[A]{ADMM}{Alternating Direction Method of Multipliers}
+\nomenclature[A]{UK}{United Kingdom}
+\nomenclature[A]{PV}{Photovoltaic}
+\nomenclature[A]{V2G}{Vehicle-to-Grid}
+\nomenclature[A]{CHP}{Combined heat and power}
+\nomenclature[A]{ANM}{Active Network Management}
+\nomenclature[A]{PF}{Power Flow}
+\nomenclature[A]{ULEV}{Ultra low emission vehicles}
+\nomenclature[A]{DC}{Direct Current}
+\nomenclature[A]{IEC}{International Electrotechnical Commission}
+\nomenclature[A]{ISO}{International Organization for Standardization}
+\nomenclature[A]{CO$_2$}{Carbon dioxide}
+\nomenclature[A]{PDF}{Probability Distribution Function}
+\nomenclature[A]{CDF}{Cumulative Distribution Function}
+\nomenclature[A]{RPD}{Reference Price Data}
+\nomenclature[A]{APX}{Amsterdam Power Exchange}
+\nomenclature[A]{OLTC}{On Load Tap Changer}
+\nomenclature[A]{MC}{Monte Carlo}
+\nomenclature[A]{MDP}{Markov Decision Process}
+\nomenclature[A]{THD}{Total Harmonic Distortion}
+\nomenclature[A]{IEEE}{Institute of Electrical and Electronics Engineers}
+\nomenclature[A]{LV}{Low Voltage}
+\nomenclature[A]{MV}{Medium Voltage}
+\nomenclature[A]{OpenDSS}{Open-source electrical power Distribution System Simulator}
+\nomenclature[A]{MATLAB}{Programming Language}
+\nomenclature[A]{Python}{Programming Language}
+\nomenclature[A]{Scipy}{Python library for scientific computing}
+\nomenclature[A]{ELEXON}{Electric utility company in London}
+\nomenclature[A]{LP}{Linear Programming, Linear Programme}
+\nomenclature[A]{RTP}{Real time prices (type of electricity tariffs)}
+\nomenclature[U]{kWh}{Kilowatt-hour (unit of energy)}
+\nomenclature[U]{kW}{Kilowatt (unit of active power)}
+\nomenclature[U]{kVA}{Kilovolt-amperes (unit of apparent power)}
+\nomenclature[U]{kvar}{Kilovolt-amperes reactive (unit of reactive power)}
+\nomenclature[U]{V}{Volt (unit of voltage)}
+\nomenclature[U]{A}{Ampere (unit of current)}
+\nomenclature[U]{h}{Hours (unit of time)}
+\nomenclature[U]{min}{Minutes (unit of time)}
+\nomenclature[U]{\pounds}{British Pound (unit of currency)}
+\nomenclature[U]{p}{British Pence (sub-unit of currency: \pounds 1 = 100 p)}
+
+
+% TODO check units
+\printnomenclature[2.5cm]
+\cleardoublepage
+
+%\newglossaryentry{computer}
+%{%
+%	name=computer,
+%	description={is a programmable machine that receives input,
+%		stores and manipulates data, and provides
+%		output in a useful format}
+%}
+
+%\printglossaries
+
+
+%% Custom front matter chapters can be added using \input{frontchapter.tex}
+%% For the correct title behaviour use the \frontchapter{title} command instead
+%% of \chapter{title} at the start.

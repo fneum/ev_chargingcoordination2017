@@ -1,0 +1,5 @@
+repo: 668695bccd839d56f71ec964bae3f2bd12cceb0f
+node: 190f75843f9ff571a72f6e61e2ee87a8474f4edc
+branch: nomencl
+latesttag: null
+latesttagdistance: 82

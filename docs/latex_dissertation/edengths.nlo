@@ -1,0 +1,153 @@
+\nomenclatureentry{P$w_{max}$@[{$w_{max}$}]\begingroup Maximum window size of demand peaks (hours)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$w$@[{$w$}]\begingroup Temporal shift of residential demand (hours)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$T$@[{$T$}]\begingroup Optimisation horizon in slots, transposition operator\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$K$@[{$K$}]\begingroup Number of households\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$L$@[{$L$}]\begingroup Number of transmission lines\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\Delta t$@[{$\Delta t$}]\begingroup Granularity, resolution, slot length (hours)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$D_{k,t}$@[{$D_{k,t}$}]\begingroup Residential electricity demand of household $k$ in slot $t$ (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\zeta$@[{$\zeta$}]\begingroup Consumption rate of electric vehicles (kWh/km)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$B_{max}$@[{$B_{max}$}]\begingroup Battery capacity of electric vehicles (kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\eta$@[{$\eta$}]\begingroup Charging efficiency\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$P^{EV}_{max}$@[{$P^{EV}_{max}$}]\begingroup Maximum EV charging rate (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$P^{EV}_{min}$@[{$P^{EV}_{min}$}]\begingroup Minimum EV charging rate (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\Delta^{EV}_{max}$@[{$\Delta^{EV}_{max}$}]\begingroup Maximum rate of change of charging power (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\delta_{mil}$@[{$\delta_{mil}$}]\begingroup Daily mileage of an electric vehicle (miles)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\tau_{arr}$@[{$\tau_{arr}$}]\begingroup Arrival time of an electric vehicle (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\tau_{dep}$@[{$\tau_{dep}$}]\begingroup Departure time of an electric vehicle (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\tau_{init}$@[{$\tau_{init}$}]\begingroup Time of the day in minutes at which the optimisation routine starts (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\mu_{mil}$@[{$\mu_{mil}$}]\begingroup Average daily mileage (miles)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\mu_{arr}$@[{$\mu_{arr}$}]\begingroup Average arrival time (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\mu_{dep}$@[{$\mu_{dep}$}]\begingroup Average departure time (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\sigma_{mil}$@[{$\sigma_{mil}$}]\begingroup Standard deviation of daily milage (miles)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\sigma_{arr}$@[{$\sigma_{arr}$}]\begingroup Standard deviation of arrival times (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\sigma_{dep}$@[{$\sigma_{dep}$}]\begingroup Standard deviation of departure times (minutes)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$B^{arr}_{k}$@[{$B^{arr}_{k}$}]\begingroup Initial battery charge level of electric vehicle at household $k$ (kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\alpha^{EV}_{k,t}$@[{$\alpha^{EV}_{k,t}$}]\begingroup Vehicle availability at slot $t$ at household $k$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\bar{\pi}$@[{$\bar{\pi}$}]\begingroup Average spot price (p/kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\pi$@[{$\pi$}]\begingroup Input price profile (p/kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\pi'$@[{$\pi'$}]\begingroup Temporally extended price input profile (p/kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\pi^{EPEX}_t$@[{$\pi^{EPEX}_t$}]\begingroup Pure spot market price at time slot $t$ (p/kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$q$@[{$q$}]\begingroup Static price surcharge (p/kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$s$@[{$s$}]\begingroup Price spreading factor\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\xi$@[{$\xi$}]\begingroup Sequence of red Gaussian noise where $\xi_t \sim \mathcal{N}(0,1)$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\kappa$@[{$\kappa$}]\begingroup Sequence of factors describing the severity of price uncertainty\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\omega$@[{$\omega$}]\begingroup Sequence of white Gaussian noise\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\rho$@[{$\rho$}]\begingroup Regulation service price (p/kW$\cdot$h)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\bm{\mu}$@[{$\bm{\mu}$}]\begingroup Network voltage sensitivity matrix (V/kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\bm{\lambda}$@[{$\bm{\lambda}$}]\begingroup Network line loading sensitivity matrix (A/kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$C$@[{$C$}]\begingroup Objective function of problem (p)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$C'$@[{$C'$}]\begingroup Objective function of problem including regulation service provision (p)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\gamma_{min}$@[{$\gamma_{min}$}]\begingroup Battery charge level threshold for the provision of regulation service\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$V_{k,t}^{bus}$@[{$V_{k,t}^{bus}$}]\begingroup Terminal phase voltage (V)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$V_{k,t,init}^{bus}$@[{$V_{k,t,init}^{bus}$}]\begingroup Initial terminal phase voltage without electric vehicles (V)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$V_{min}$@[{$V_{min}$}]\begingroup Minimum phase voltage (V)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$V_{max}$@[{$V_{max}$}]\begingroup Maximum phase voltage (V)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$I^{line}_{\ell,t}$@[{$I^{line}_{\ell,t}$}]\begingroup Current through cable $\ell$ in slot $t$ (A)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$I^{max}_{\ell}$@[{$I^{max}_{\ell}$}]\begingroup Rated ampacity of cable $\ell$ (A)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$S_t^{tr}$@[{$S_t^{tr}$}]\begingroup Apparent power flowing through the transformer (kVA)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$S_{max}^{tr}$@[{$S_{max}^{tr}$}]\begingroup Maximum allowed apparent power flowing through the transformer (kVA)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\sigma$@[{$\sigma$}]\begingroup Indices of sorted prices in ascending order\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\theta$@[{$\theta$}]\begingroup Priority list (order in which electric vehicles are scheduled)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$D_k^{EV}$@[{$D_k^{EV}$}]\begingroup Electric vehicle energy demand (kWh)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$T_{viol}$@[{$T_{viol}$}]\begingroup Subset of slots $T$ with technical constraint violations\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\Delta P$@[{$\Delta P$}]\begingroup Incremental step size of load limitation (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\nu_{\alpha}$@[{$\nu_{\alpha}$}]\begingroup Degree of certainty that vehicle is available\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\nu_{B}$@[{$\nu_{B}$}]\begingroup Degree of certainty that initial battery charge level is no less than entered\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{P$\nu_{\pi}$@[{$\nu_{\pi}$}]\begingroup Degree of certainty that price is not higher\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathcal{U}(a,b)$@[{$\mathcal{U}(a,b)$}]\begingroup Uniform distribution on the interval $[a,b]$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathcal{N}(\mu,\sigma)$@[{$\mathcal{N}(\mu,\sigma)$}]\begingroup Univariate normal distribution with mean $\mu$ and standard deviation $\sigma$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mu$@[{$\mu$}]\begingroup Mean, location parameter of logistic distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\sigma$@[{$\sigma$}]\begingroup Standard deviation\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\Gamma(x)$@[{$\Gamma(x)$}]\begingroup Gamma function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$f$@[{$f$}]\begingroup Probability distribution function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$F$@[{$F$}]\begingroup Cumulative distribution function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$a$@[{$a$}]\begingroup Shape parameter of Gamma distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\theta$@[{$\theta$}]\begingroup Scale parameter of Gamma distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\displaystyle e$@[{$\displaystyle e$}]\begingroup Euler's number\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$s$@[{$s$}]\begingroup Scale parameter of logistic distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\sigma^2$@[{$\sigma^2$}]\begingroup Variance\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\gamma_1$@[{$\gamma_1$}]\begingroup Skewness of a distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\gamma_2$@[{$\gamma_2$}]\begingroup Kurtosis of a distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\lambda$@[{$\lambda$}]\begingroup Rate parameter of the exponential distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$F^{-1}$@[{$F^{-1}$}]\begingroup Inverse cumulative distribution function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$F^{-1}$@[{$F^{-1}$}]\begingroup Inverse cumulative distribution function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathcal{N}_i(\bm{\mu},\bm{\rho})$@[{$\mathcal{N}_i(\bm{\mu},\bm{\rho})$}]\begingroup Multivariate normal distribution with means $\bm{\mu}\in \mathbb{R}^i$ and matrix of correlation coefficients $\bm{\rho}\in \mathbb{R}^{i\times i}$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$Z$@[{$Z$}]\begingroup Bivariate random variable\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$X$@[{$X$}]\begingroup Bivariate random variable\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$W$@[{$W$}]\begingroup Univariate random variable\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$w$@[{$w$}]\begingroup Realisation of random variable $W$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$x_i$@[{$x_i$}]\begingroup i-th realisation of random variable $X$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$z_i$@[{$z_i$}]\begingroup i-th realisation of random variable $Z$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$r$@[{$r$}]\begingroup Sample Pearson correlation coefficient, lag-1 autocorrelation\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathcal{M}$@[{$\mathcal{M}$}]\begingroup Generic multivariate distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathcal{M}_i$@[{$\mathcal{M}_i$}]\begingroup Marginal distribution of generic multivariate distribution\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathbb{E}[X]$@[{$\mathbb{E}[X]$}]\begingroup Expectation value of a random variable $X$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathbb{P}(x=X)$@[{$\mathbb{P}(x=X)$}]\begingroup Probability of $x$ being realised from a random variable $X$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\Phi$@[{$\Phi$}]\begingroup Cumulative distribution function of standard normal distribution $\mathcal{N}(0,1)$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathbb{B}$@[{$\mathbb{B}$}]\begingroup Set of binary numbers\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathbb{R}$@[{$\mathbb{R}$}]\begingroup Set of real numbers\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\mathbb{N}$@[{$\mathbb{N}$}]\begingroup Set of natural numbers\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\bm{0}_{X,Y}$@[{$\bm{0}_{X,Y}$}]\begingroup Zero matrix with dimensions $X\times Y$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{N$\bm{\rho}$@[{$\bm{\rho}$}]\begingroup Matrix of correlation coefficients\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{S$k$@[{$k$}]\begingroup Node with household connected\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{S$t$@[{$t$}]\begingroup Time slot\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{S$\ell$@[{$\ell$}]\begingroup Line identifier\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{V$P^{EV}_{k,t}$@[{$P^{EV}_{k,t}$}]\begingroup Charging rate of electric vehicel at household $k$ in time slot $t$ (kW)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{V$\omega_{k,t}$@[{$\omega_{k,t}$}]\begingroup Regulation service provision of EV at household $k$ in time slot $t$\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{D$\tilde{}$@[{$\tilde{}$}]\begingroup Uncertain parameter\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{D$\hat{}$@[{$\hat{}$}]\begingroup Estimate for uncertain parameter\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{D$\bar{}$@[{$\bar{}$}]\begingroup Average value\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AAC@[{AC}]\begingroup Alternating Current\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AEV@[{EV}]\begingroup Electric vehicle\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AEPEX@[{EPEX}]\begingroup European Power Exchange\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AUKPX@[{UKPX}]\begingroup United Kingdom Power Exchange\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ASOC@[{SOC}]\begingroup State of charge\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AEU@[{EU}]\begingroup European Union\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AUSA, US@[{USA, US}]\begingroup United States of America\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AMPC@[{MPC}]\begingroup Model Predictive Control\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ADG@[{DG}]\begingroup Distributed generation\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ADSM@[{DSM}]\begingroup Demand side management\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ADR@[{DR}]\begingroup Demand response\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ATSO@[{TSO}]\begingroup Transmission system operator\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ADSO, DNO@[{DSO, DNO}]\begingroup Distribution system/network operator\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AICT@[{ICT}]\begingroup Information and communication technology\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AADMM@[{ADMM}]\begingroup Alternating Direction Method of Multipliers\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AUK@[{UK}]\begingroup United Kingdom\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{APV@[{PV}]\begingroup Photovoltaic\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AV2G@[{V2G}]\begingroup Vehicle-to-Grid\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ACHP@[{CHP}]\begingroup Combined heat and power\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AANM@[{ANM}]\begingroup Active Network Management\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{APF@[{PF}]\begingroup Power Flow\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AULEV@[{ULEV}]\begingroup Ultra low emission vehicles\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ADC@[{DC}]\begingroup Direct Current\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AIEC@[{IEC}]\begingroup International Electrotechnical Commission\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AISO@[{ISO}]\begingroup International Organization for Standardization\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ACO$_2$@[{CO$_2$}]\begingroup Carbon dioxide\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{APDF@[{PDF}]\begingroup Probability Distribution Function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ACDF@[{CDF}]\begingroup Cumulative Distribution Function\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ARPD@[{RPD}]\begingroup Reference Price Data\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AAPX@[{APX}]\begingroup Amsterdam Power Exchange\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AOLTC@[{OLTC}]\begingroup On Load Tap Changer\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AMC@[{MC}]\begingroup Monte Carlo\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AMDP@[{MDP}]\begingroup Markov Decision Process\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ATHD@[{THD}]\begingroup Total Harmonic Distortion\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AIEEE@[{IEEE}]\begingroup Institute of Electrical and Electronics Engineers\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ALV@[{LV}]\begingroup Low Voltage\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AMV@[{MV}]\begingroup Medium Voltage\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AOpenDSS@[{OpenDSS}]\begingroup Open-source electrical power Distribution System Simulator\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AMATLAB@[{MATLAB}]\begingroup Programming Language\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{APython@[{Python}]\begingroup Programming Language\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AScipy@[{Scipy}]\begingroup Python library for scientific computing\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{AELEXON@[{ELEXON}]\begingroup Electric utility company in London\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ALP@[{LP}]\begingroup Linear Programming, Linear Programme\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{ARTP@[{RTP}]\begingroup Real time prices (type of electricity tariffs)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{UkWh@[{kWh}]\begingroup Kilowatt-hour (unit of energy)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{UkW@[{kW}]\begingroup Kilowatt (unit of active power)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{UkVA@[{kVA}]\begingroup Kilovolt-amperes (unit of apparent power)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{Ukvar@[{kvar}]\begingroup Kilovolt-amperes reactive (unit of reactive power)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{UV@[{V}]\begingroup Volt (unit of voltage)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{UA@[{A}]\begingroup Ampere (unit of current)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{Uh@[{h}]\begingroup Hours (unit of time)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{Umin@[{min}]\begingroup Minutes (unit of time)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{U\pounds@[{\pounds}]\begingroup British Pound (unit of currency)\nomeqref {0}|nompageref}{xv}
+\nomenclatureentry{Up@[{p}]\begingroup British Pence (sub-unit of currency: \pounds 1 = 100 p)\nomeqref {0}|nompageref}{xv}

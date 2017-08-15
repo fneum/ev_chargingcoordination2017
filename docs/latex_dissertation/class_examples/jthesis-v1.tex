@@ -1,0 +1,136 @@
+% Exmaple thesis using jthesis class
+% Written by George Taylor (gstaylor@iee.org)
+%
+% Please mail all comments and changes to G.S.Taylor@ee.ed.ac.uk
+% so that this package can be kept up to date.
+
+\typeout{PhD Thesis class example}
+
+% Supported options to jthesis:
+%	nohyphens 		make hyphenation incredibly unlikely
+%				(the university guidelines suggest this)
+%				if you get an awakward line you will need
+%				to either change it, or use \-
+%
+%	doublespace		double space eveything except
+%				contents, lists of figures etc and references
+%				Personally I think double spacing sucks.
+%				Use \begin,end{singlespace} for exceptions.
+%				(safe to use even when doublespace option
+%				 not given)
+%
+% Other options (not part of jthesis) which you may wish to use:
+% twoside - for two sided output
+% fleqn - left indented (rather than centered) equations
+%
+\documentclass[doublespace]{StyleFiles/jthesis-v1}
+
+% By default a eps file of the University Crest is assumed to be
+% in the StyleFiles directory. However you may wish to give a full
+% absolute pathname here so that xdvi, dvips etc work even when run
+% from another directory.
+%\crestfile{/home/gst/PhD/Thesis/StyleFiles/EdUniCrest.eps}
+
+% The array package extends tabular, for example useful for <{$},>{$}
+% when using tables of symbols
+\usepackage{natbib}
+\usepackage{array}
+
+% It is recommended you use amsmath for better looking equations,
+% but the jthesis class does not enforce this.
+\usepackage{amsmath}
+
+% Use subfigure to put multiple figures into one - complete with
+% mini captions.
+%\usepackage{subfigure}
+\usepackage{subfig}
+
+% Other useful packages you might not otherwise find out about:
+
+\usepackage{booktabs}
+% \usepackage{psfrag}	% replace labels in xfig diagrams with nice math
+% \usepackage{endfloat} % put all floats at end
+% \usepackage{shadow}   % for shadowed boxed round things
+% \usepackage{bar}	% for bar charts
+% \usepackage{draftcopy} % prints DRAFT across each page in big grey letters
+% \usepackage{mathtime}  % for times font style maths (may require some fonts)
+% see also the documentation for the graphicx package providing
+% support for postscript images and colour (already \usepackage'd)
+
+\usepackage{dcolumn}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{lscape}
+\usepackage{graphicx}
+\usepackage{rotating}
+
+% Tip: If you include your own .sty/.cls files with \usepackage
+% instead of \include separate .aux files will not be generated for
+% each included file.
+%\usepackage{StyleFiles/mymacros}
+
+
+% Tip: use \includeonly to only include one thing and ignore all other
+% \include commands, this is handy for formatting only one chapter
+% at a time
+%\includeonly{Chapter1/chapter1}
+
+
+\begin{document}
+
+% Put your title, your name, and submission date here
+% use \date{} if you don't want a date, todays date is used
+% if \date is omitted.
+\title{My Very interesting Thesis}
+\author{Sam Hawkins}
+\date{September 2010}
+
+\maketitle
+
+% If you look in the included files you will notice the use of
+% \minorchapter.
+
+\include{Preliminary/abstract}
+\include{Preliminary/declaration}
+\include{Preliminary/acknowledgements}
+
+% Insert table of contents and lists of figures and tables.
+\contentsandlists
+
+% More use of minorchapter
+\include{Preliminary/abbreviations}
+\include{Preliminary/nomenclature}
+
+% \startchapters indicates the main chapters follow, this changes
+% things such as the page numbering.
+\startchapters
+
+\include{Chapter1/chapter1}
+\include{Chapter2/chapter2}
+\include{Chapter3/chapter3}
+\include{Chapter4/chapter4}
+\include{Chapter5/chapter5}
+\include{Chapter6/chapter6}
+
+
+% \appendix indicates from now on \chapter generates an appendix
+% rather than a normal chapter.
+\appendix
+
+%\include{Appendix/appendixA}
+
+% \insertreferences inserts the list of references using the IEEE style
+% and updates the table of contents. The single argument is a comma
+% spearated list of .bib files (just as in \bibliography)
+\insertreferences{References/library}
+
+% that's all folks!
+\end{document}
+
+
+
+
+
+
+
+

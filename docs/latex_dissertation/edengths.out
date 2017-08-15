@@ -1,0 +1,69 @@
+\BOOKMARK [0][-]{section*.1}{Mission Statement}{}% 1
+\BOOKMARK [0][-]{chapter*.2}{ Abstract}{}% 2
+\BOOKMARK [0][-]{chapter*.3}{ Declaration}{}% 3
+\BOOKMARK [0][-]{section*.4}{Contents}{}% 4
+\BOOKMARK [0][-]{chapter*.6}{Nomenclature}{}% 5
+\BOOKMARK [0][-]{chapter.1}{ Introduction}{}% 6
+\BOOKMARK [1][-]{section.1.1}{Motivation and Problem Statement}{chapter.1}% 7
+\BOOKMARK [2][-]{subsection.1.1.1}{Political Targets and Market Uptake of Electric Vehicles}{section.1.1}% 8
+\BOOKMARK [2][-]{subsection.1.1.2}{Challenges for Sustainable Electric Mobility}{section.1.1}% 9
+\BOOKMARK [2][-]{subsection.1.1.3}{Solution Approaches for Sustainable Electric Mobility}{section.1.1}% 10
+\BOOKMARK [2][-]{subsection.1.1.4}{Potential for Sustainable Electric Mobility}{section.1.1}% 11
+\BOOKMARK [1][-]{section.1.2}{Research Questions and Objectives}{chapter.1}% 12
+\BOOKMARK [1][-]{section.1.3}{Dissertation Structure}{chapter.1}% 13
+\BOOKMARK [0][-]{chapter.2}{ Foundations and Literature Review}{}% 14
+\BOOKMARK [1][-]{section.2.1}{Impact and Potential of Electric Vehicles in Power Networks}{chapter.2}% 15
+\BOOKMARK [1][-]{section.2.2}{Deterministic Approaches to EV Load Scheduling}{chapter.2}% 16
+\BOOKMARK [1][-]{section.2.3}{Stochastic Approaches to EV Load Scheduling}{chapter.2}% 17
+\BOOKMARK [1][-]{section.2.4}{Barriers and Challenges to EV Emergence and Scheduling}{chapter.2}% 18
+\BOOKMARK [0][-]{chapter.3}{ Modelling and Statistical Analysis}{}% 19
+\BOOKMARK [1][-]{section.3.1}{Setting and Scope of Analysis}{chapter.3}% 20
+\BOOKMARK [1][-]{section.3.2}{Simulation Framework}{chapter.3}% 21
+\BOOKMARK [1][-]{section.3.3}{Network Topology}{chapter.3}% 22
+\BOOKMARK [1][-]{section.3.4}{Residential Demand}{chapter.3}% 23
+\BOOKMARK [2][-]{subsection.3.4.1}{Modelling}{section.3.4}% 24
+\BOOKMARK [2][-]{subsection.3.4.2}{Uncertainty Representation}{section.3.4}% 25
+\BOOKMARK [1][-]{section.3.5}{Electric Vehicles}{chapter.3}% 26
+\BOOKMARK [2][-]{subsection.3.5.1}{Technical Vehicle Specifications}{section.3.5}% 27
+\BOOKMARK [2][-]{subsection.3.5.2}{Charging System Specification}{section.3.5}% 28
+\BOOKMARK [1][-]{section.3.6}{Travel Patterns}{chapter.3}% 29
+\BOOKMARK [2][-]{subsection.3.6.1}{Data Source and Extraction}{section.3.6}% 30
+\BOOKMARK [2][-]{subsection.3.6.2}{Analysis of Empirical Data}{section.3.6}% 31
+\BOOKMARK [2][-]{subsection.3.6.3}{Modelling User Behaviour}{section.3.6}% 32
+\BOOKMARK [1][-]{section.3.7}{Electricity Prices}{chapter.3}% 33
+\BOOKMARK [2][-]{subsection.3.7.1}{Modelling}{section.3.7}% 34
+\BOOKMARK [2][-]{subsection.3.7.2}{Uncertainty Representation}{section.3.7}% 35
+\BOOKMARK [0][-]{chapter.4}{ Optimisation under Uncertainty}{}% 36
+\BOOKMARK [1][-]{section.4.1}{Problem Formulation}{chapter.4}% 37
+\BOOKMARK [2][-]{subsection.4.1.1}{Objectives}{section.4.1}% 38
+\BOOKMARK [2][-]{subsection.4.1.2}{Constraints}{section.4.1}% 39
+\BOOKMARK [2][-]{subsection.4.1.3}{Linear Power Flow Approximation}{section.4.1}% 40
+\BOOKMARK [1][-]{section.4.2}{Reference Charging Approaches}{chapter.4}% 41
+\BOOKMARK [2][-]{subsection.4.2.1}{Uncoordinated Charging}{section.4.2}% 42
+\BOOKMARK [2][-]{subsection.4.2.2}{Price-Based Optimisation}{section.4.2}% 43
+\BOOKMARK [1][-]{section.4.3}{Charge Rate Coordinating Scheduling Methods}{chapter.4}% 44
+\BOOKMARK [2][-]{subsection.4.3.1}{Linear Programming}{section.4.3}% 45
+\BOOKMARK [2][-]{subsection.4.3.2}{Network-Constrained Price-Based Heuristic Optimisation}{section.4.3}% 46
+\BOOKMARK [1][-]{section.4.4}{Approaches to Uncertainty Mitigation}{chapter.4}% 47
+\BOOKMARK [2][-]{subsection.4.4.1}{Availability Uncertainty}{section.4.4}% 48
+\BOOKMARK [2][-]{subsection.4.4.2}{Battery Charge Level Uncertainty}{section.4.4}% 49
+\BOOKMARK [2][-]{subsection.4.4.3}{Spot Price Uncertainty}{section.4.4}% 50
+\BOOKMARK [2][-]{subsection.4.4.4}{Residential Demand Uncertainty}{section.4.4}% 51
+\BOOKMARK [0][-]{chapter.5}{ Evaluation}{}% 52
+\BOOKMARK [1][-]{section.5.1}{Evaluation Criteria and Reference Cases}{chapter.5}% 53
+\BOOKMARK [1][-]{section.5.2}{Performance of Heuristic Modes and Linear Programming}{chapter.5}% 54
+\BOOKMARK [1][-]{section.5.3}{Sensitivity Analysis of Uncertainty Mitigation Approaches}{chapter.5}% 55
+\BOOKMARK [2][-]{subsection.5.3.1}{Vehicle Availability Uncertainty Attenuation}{section.5.3}% 56
+\BOOKMARK [2][-]{subsection.5.3.2}{Battery State of Charge Uncertainty Attenuation}{section.5.3}% 57
+\BOOKMARK [2][-]{subsection.5.3.3}{Market Price Uncertainty Attenuation}{section.5.3}% 58
+\BOOKMARK [2][-]{subsection.5.3.4}{Residential Demand Uncertainty Attenuation}{section.5.3}% 59
+\BOOKMARK [2][-]{subsection.5.3.5}{Joint Uncertainty Attenuation}{section.5.3}% 60
+\BOOKMARK [1][-]{section.5.4}{Scenario-Level Evaluation}{chapter.5}% 61
+\BOOKMARK [1][-]{section.5.5}{Household-Level Evaluation}{chapter.5}% 62
+\BOOKMARK [1][-]{section.5.6}{Sensitivity of Cost Saving Potential Towards Price Variance}{chapter.5}% 63
+\BOOKMARK [0][-]{chapter.6}{ Conclusion}{}% 64
+\BOOKMARK [1][-]{section.6.1}{Summary and Implications}{chapter.6}% 65
+\BOOKMARK [1][-]{section.6.2}{Limitations and Outlook}{chapter.6}% 66
+\BOOKMARK [0][-]{section.6.2}{Bibliography}{}% 67
+\BOOKMARK [0][-]{section*.53}{Figures and Tables}{}% 68
+\BOOKMARK [0][-]{section*.56}{Acknowledgements and Pointers}{}% 69

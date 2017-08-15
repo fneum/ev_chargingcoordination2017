@@ -1,0 +1,72 @@
+\select@language {english}
+\contentsline {chapter}{Mission Statement}{i}{section*.1}
+\contentsline {chapter}{\relax \bfseries Abstract}{ix}{chapter*.2}
+\contentsline {chapter}{\relax \bfseries Declaration}{xi}{chapter*.3}
+\contentsline {chapter}{Contents}{xiii}{section*.4}
+\contentsline {chapter}{Nomenclature}{xvii}{chapter*.6}
+\contentsline {chapter}{\numberline {1}\relax \bfseries Introduction}{1}{chapter.1}
+\contentsline {section}{\numberline {1.1}Motivation and Problem Statement}{1}{section.1.1}
+\contentsline {subsection}{\numberline {1.1.1}Political Targets and Market Uptake of Electric Vehicles}{1}{subsection.1.1.1}
+\contentsline {subsection}{\numberline {1.1.2}Challenges for Sustainable Electric Mobility}{2}{subsection.1.1.2}
+\contentsline {subsection}{\numberline {1.1.3}Solution Approaches for Sustainable Electric Mobility}{3}{subsection.1.1.3}
+\contentsline {subsection}{\numberline {1.1.4}Potential for Sustainable Electric Mobility}{5}{subsection.1.1.4}
+\contentsline {section}{\numberline {1.2}Research Questions and Objectives}{6}{section.1.2}
+\contentsline {section}{\numberline {1.3}Dissertation Structure}{8}{section.1.3}
+\contentsline {chapter}{\numberline {2}\relax \bfseries Foundations and Literature Review}{9}{chapter.2}
+\contentsline {section}{\numberline {2.1}Impact and Potential of Electric Vehicles in Power Networks}{9}{section.2.1}
+\contentsline {section}{\numberline {2.2}Deterministic Approaches to EV Load Scheduling}{11}{section.2.2}
+\contentsline {section}{\numberline {2.3}Stochastic Approaches to EV Load Scheduling}{14}{section.2.3}
+\contentsline {section}{\numberline {2.4}Barriers and Challenges to EV Emergence and Scheduling}{18}{section.2.4}
+\newpage 
+\contentsline {chapter}{\numberline {3}\relax \bfseries Modelling and Statistical Analysis}{21}{chapter.3}
+\contentsline {section}{\numberline {3.1}Setting and Scope of Analysis}{22}{section.3.1}
+\contentsline {section}{\numberline {3.2}Simulation Framework}{23}{section.3.2}
+\contentsline {section}{\numberline {3.3}Network Topology}{25}{section.3.3}
+\contentsline {section}{\numberline {3.4}Residential Demand}{27}{section.3.4}
+\contentsline {subsection}{\numberline {3.4.1}Modelling}{27}{subsection.3.4.1}
+\contentsline {subsection}{\numberline {3.4.2}Uncertainty Representation}{29}{subsection.3.4.2}
+\contentsline {section}{\numberline {3.5}Electric Vehicles}{31}{section.3.5}
+\contentsline {subsection}{\numberline {3.5.1}Technical Vehicle Specifications}{31}{subsection.3.5.1}
+\contentsline {subsection}{\numberline {3.5.2}Charging System Specification}{32}{subsection.3.5.2}
+\contentsline {section}{\numberline {3.6}Travel Patterns}{35}{section.3.6}
+\contentsline {subsection}{\numberline {3.6.1}Data Source and Extraction}{35}{subsection.3.6.1}
+\contentsline {subsection}{\numberline {3.6.2}Analysis of Empirical Data}{37}{subsection.3.6.2}
+\contentsline {subsection}{\numberline {3.6.3}Modelling User Behaviour}{41}{subsection.3.6.3}
+\contentsline {section}{\numberline {3.7}Electricity Prices}{44}{section.3.7}
+\contentsline {subsection}{\numberline {3.7.1}Modelling}{44}{subsection.3.7.1}
+\contentsline {subsection}{\numberline {3.7.2}Uncertainty Representation}{46}{subsection.3.7.2}
+\contentsline {chapter}{\numberline {4}\relax \bfseries Optimisation under Uncertainty}{49}{chapter.4}
+\contentsline {section}{\numberline {4.1}Problem Formulation}{49}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}Objectives}{49}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Constraints}{50}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}Linear Power Flow Approximation}{52}{subsection.4.1.3}
+\contentsline {section}{\numberline {4.2}Reference Charging Approaches}{56}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Uncoordinated Charging}{57}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Price-Based Optimisation}{58}{subsection.4.2.2}
+\contentsline {section}{\numberline {4.3}Charge Rate Coordinating Scheduling Methods}{59}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Linear Programming}{59}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Network-Constrained Price-Based Heuristic Optimisation}{60}{subsection.4.3.2}
+\contentsline {section}{\numberline {4.4}Approaches to Uncertainty Mitigation}{62}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}Availability Uncertainty}{63}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}Battery Charge Level Uncertainty}{64}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}Spot Price Uncertainty}{64}{subsection.4.4.3}
+\contentsline {subsection}{\numberline {4.4.4}Residential Demand Uncertainty}{65}{subsection.4.4.4}
+\newpage 
+\contentsline {chapter}{\numberline {5}\relax \bfseries Evaluation}{67}{chapter.5}
+\contentsline {section}{\numberline {5.1}Evaluation Criteria and Reference Cases}{68}{section.5.1}
+\contentsline {section}{\numberline {5.2}Performance of Heuristic Modes and Linear Programming}{70}{section.5.2}
+\contentsline {section}{\numberline {5.3}Sensitivity Analysis of Uncertainty Mitigation Approaches}{72}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}Vehicle Availability Uncertainty Attenuation}{72}{subsection.5.3.1}
+\contentsline {subsection}{\numberline {5.3.2}Battery State of Charge Uncertainty Attenuation}{73}{subsection.5.3.2}
+\contentsline {subsection}{\numberline {5.3.3}Market Price Uncertainty Attenuation}{75}{subsection.5.3.3}
+\contentsline {subsection}{\numberline {5.3.4}Residential Demand Uncertainty Attenuation}{75}{subsection.5.3.4}
+\contentsline {subsection}{\numberline {5.3.5}Joint Uncertainty Attenuation}{76}{subsection.5.3.5}
+\contentsline {section}{\numberline {5.4}Scenario-Level Evaluation}{77}{section.5.4}
+\contentsline {section}{\numberline {5.5}Household-Level Evaluation}{83}{section.5.5}
+\contentsline {section}{\numberline {5.6}Sensitivity of Cost Saving Potential Towards Price Variance}{84}{section.5.6}
+\contentsline {chapter}{\numberline {6}\relax \bfseries Conclusion}{87}{chapter.6}
+\contentsline {section}{\numberline {6.1}Summary and Implications}{87}{section.6.1}
+\contentsline {section}{\numberline {6.2}Limitations and Outlook}{89}{section.6.2}
+\contentsline {chapter}{Bibliography}{92}{section.6.2}
+\contentsline {chapter}{Figures and Tables}{111}{section*.53}
+\contentsline {chapter}{Acknowledgements and Pointers}{113}{section*.56}

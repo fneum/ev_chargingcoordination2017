@@ -1,0 +1,35 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: edengths.aux
+A level-1 auxiliary file: front/frontmtr.aux
+A level-1 auxiliary file: chapters/introduction.aux
+A level-1 auxiliary file: chapters/foundations.aux
+A level-1 auxiliary file: chapters/methodology.aux
+A level-1 auxiliary file: chapters/optimisation.aux
+A level-1 auxiliary file: chapters/evaluation.aux
+A level-1 auxiliary file: chapters/conclusion.aux
+The style file: IEEEtran.bst
+Database file #1: bib/edengref.bib
+Repeated entry---line 3467 of file bib/edengref.bib
+ : @article{Connell2012
+ :                     ,
+I'm skipping whatever remains of this entry
+-- IEEEtran.bst version 1.14 (2015/08/26) by Michael Shell.
+-- http://www.michaelshell.org/tex/ieeetran/bibtex/
+-- See the "IEEEtran_bst_HOWTO.pdf" manual for usage information.
+Warning--missing institution in Dof2008
+Warning--missing institution in DLR2012
+Warning--missing institution in GermanysFederalNetworkAgency2016
+Warning--empty journal in Rassaei2014
+Warning--empty note in Dallinger2010a
+Warning--empty note in Ochoa2015
+Warning--missing institution in unknown2015
+Warning--empty note in Schwerdfeger2012
+Warning--missing institution in ENWL2013
+Warning--empty journal in Richardson2011
+Warning--empty journal in Sevlian2014a
+Warning--missing institution in Pasaoglu2013
+Warning--empty note in Budenbender
+Warning--missing institution in DepartmentofTradeandIndustry2002
+Warning--empty note in Ocker2016
+
+Done.
+(There was 1 error message)

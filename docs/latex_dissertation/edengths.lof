@@ -1,0 +1,63 @@
+\select@language {english}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {1.1}{\ignorespaces Final energy consumption of the UK by sector and fuel type for the year 2015 \cite {dfbei2017}\relax }}{1}{figure.caption.7}
+\contentsline {figure}{\numberline {1.2}{\ignorespaces Overview of sources of uncertainty in EV scheduling\relax }}{5}{figure.caption.8}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Flow Chart of Optimisation Routine in Simulation Framework\relax }}{24}{figure.caption.11}
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Network topology and load locations of IEEE European low voltage test feeder\relax }}{26}{figure.caption.12}
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Exemplary residential demand profiles 15-min resolution\relax }}{28}{figure.caption.13}
+\contentsline {figure}{\numberline {3.4}{\ignorespaces Exemplary residential demand profiles 5-min resolution\relax }}{28}{figure.caption.13}
+\contentsline {figure}{\numberline {3.5}{\ignorespaces Exemplary residential demand profiles 1-min resolution\relax }}{28}{figure.caption.13}
+\contentsline {figure}{\numberline {3.6}{\ignorespaces Boxplots of individual electricity demands\relax }}{29}{figure.caption.14}
+\contentsline {figure}{\numberline {3.7}{\ignorespaces Aggregate electricity demand of stored profiles versus ELEXON average load profile\relax }}{29}{figure.caption.15}
+\contentsline {figure}{\numberline {3.8}{\ignorespaces Illustration of travel pattern model derivation and application\relax }}{35}{figure.caption.19}
+\contentsline {figure}{\numberline {3.9}{\ignorespaces Marginal distribution fits of ($\mu $,$\sigma $)-tuples of daily mileage, arrival and departure times\relax }}{37}{figure.caption.20}
+\contentsline {figure}{\numberline {3.10}{\ignorespaces Correlation of ($\mu $,$\sigma $)-tuples in empirical and simulated driving patterns\relax }}{40}{figure.caption.22}
+\contentsline {figure}{\numberline {3.11}{\ignorespaces Illustration of availability probabilities on an individual (top) or aggregate level (bottom)\relax }}{43}{figure.caption.23}
+\contentsline {figure}{\numberline {3.12}{\ignorespaces Illustration of the variety in price profiles\relax }}{45}{figure.caption.24}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Boxplots of stored price profiles}}}{45}{subfigure.12.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Exemplary price time series (p/kWh)}}}{45}{subfigure.12.2}
+\contentsline {figure}{\numberline {3.13}{\ignorespaces Exemplary illustration of uncertainty in price time series\relax }}{47}{figure.caption.25}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Network sensitivities\relax }}{54}{figure.caption.26}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Voltage sensitivity matrix}}}{54}{subfigure.1.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Sensitivities of main feeder loading}}}{54}{subfigure.1.2}
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Validation of linear power flow approximation\relax }}{55}{figure.caption.27}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Disaggregate voltage error matrix}}}{55}{subfigure.2.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Line loadings and errors}}}{55}{subfigure.2.2}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Correlation between schedule and voltage errors}}}{55}{subfigure.2.3}
+\contentsline {subfigure}{\numberline {(d)}{\ignorespaces {Cumulative voltage error over time}}}{55}{subfigure.2.4}
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Comparison of reference cases: uncontrolled charging and price-based optimisation\relax }}{56}{figure.caption.28}
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Comparison of reference cases: schedules (kW/-kW)\relax }}{57}{figure.caption.29}
+\contentsline {figure}{\numberline {4.5}{\ignorespaces Approaches for the mitigation of availability uncertainty\relax }}{63}{figure.caption.30}
+\contentsline {figure}{\numberline {4.6}{\ignorespaces Mitigation of battery state of charge uncertainty\relax }}{64}{figure.caption.31}
+\contentsline {figure}{\numberline {4.7}{\ignorespaces Approaches to mitigation of price uncertainties\relax }}{65}{figure.caption.32}
+\contentsline {figure}{\numberline {4.8}{\ignorespaces Illustration of demand uncertainty mitigation\relax }}{66}{figure.caption.33}
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Benchmark of reference cases: no EVs, uncontrolled charging, and price-based heuristic\relax }}{69}{figure.caption.35}
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Performance of heuristic optimisation modes and linear programming\relax }}{71}{figure.caption.36}
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Sensitivities of availability uncertainty mitigation parameters\relax }}{73}{figure.caption.37}
+\contentsline {figure}{\numberline {5.4}{\ignorespaces Sensitivities of daily mileage uncertainty mitigation parameters\relax }}{74}{figure.caption.38}
+\contentsline {figure}{\numberline {5.5}{\ignorespaces Sensitivity of price uncertainty mitigation parameters}}{75}{figure.caption.39}
+\contentsline {figure}{\numberline {5.6}{\ignorespaces Sensitivities of demand uncertainty mitigation parameters\relax }}{76}{figure.caption.41}
+\contentsline {figure}{\numberline {5.7}{\ignorespaces Performance benchmark of joint uncertainty mitigation with linear programming\relax }}{78}{figure.caption.42}
+\contentsline {figure}{\numberline {5.8}{\ignorespaces Comparison of linear programming with/without uncertainty mitigation\relax }}{79}{figure.caption.43}
+\contentsline {figure}{\numberline {5.9}{\ignorespaces Constraint observation and reasons for the lack of capacity utilisation\relax }}{79}{figure.caption.44}
+\contentsline {figure}{\numberline {5.10}{\ignorespaces Optimal schedule variation due to uncertainty mitigation\relax }}{80}{figure.caption.45}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Schedule without uncertainty mitigation}}}{80}{subfigure.10.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Schedule with uncertainty mitigation}}}{80}{subfigure.10.2}
+\contentsline {subfigure}{\numberline {(c)}{\ignorespaces {Differences in schedules with and without uncertainty mitigation}}}{80}{subfigure.10.3}
+\contentsline {figure}{\numberline {5.11}{\ignorespaces Phase balance of net loads over time\relax }}{81}{figure.caption.46}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Uncontrolled Charging}}}{81}{subfigure.11.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {LP (with uncertainty mitigation)}}}{81}{subfigure.11.2}
+\contentsline {figure}{\numberline {5.12}{\ignorespaces Household voltage temporal and spatial distributions (LP with uncertainty mitigation)\relax }}{81}{figure.caption.47}
+\contentsline {figure}{\numberline {5.13}{\ignorespaces Load losses in relation to aggregate EV loads\relax }}{82}{figure.caption.48}
+\contentsline {figure}{\numberline {5.14}{\ignorespaces Histograms of scenario parameters and selected evaluation criteria\relax }}{83}{figure.caption.49}
+\contentsline {figure}{\numberline {5.15}{\ignorespaces Household-level effect of point of connection, uncertainty, and controller\relax }}{84}{figure.caption.50}
+\contentsline {subfigure}{\numberline {(a)}{\ignorespaces {Household 17 (close to substation)}}}{84}{subfigure.15.1}
+\contentsline {subfigure}{\numberline {(b)}{\ignorespaces {Household 54 (far from substation)}}}{84}{subfigure.15.2}
+\contentsline {figure}{\numberline {5.16}{\ignorespaces Sensitivity of relative charging costs to different price spreads\relax }}{85}{figure.caption.51}
+\addvspace {10\p@ }

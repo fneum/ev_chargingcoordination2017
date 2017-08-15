@@ -1,0 +1,161 @@
+%%
+%% packages.tex - User defined packages for edengths.tex
+%%
+%% Copyright (C) 2012 Mathew Topper <damm_horse@yahoo.co.uk>
+%%
+%% This file is part of the University of Edinburgh, Department of
+%% Engineering LaTeX2e thesis template.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is free software: you can redistribute it and/or modify
+%% it under the terms of the GNU General Public License as published by
+%% the Free Software Foundation, either version 3 of the License, or
+%% (at your option) any later version.
+%% 
+%% The University of Edinburgh, Department of Engineering LaTeX2e thesis
+%% template is distributed in the hope that it will be useful,
+%% but WITHOUT ANY WARRANTY; without even the implied warranty of
+%% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+%% GNU General Public License for more details.
+%% 
+%% You should have received a copy of the GNU General Public License
+%% along with the University of Edinburgh, Department of Engineering
+%% LaTeX2e thesis template.  If not, see <http://www.gnu.org/licenses/>.
+%%
+%%
+%%   ABOUT
+%%
+%% This file contains the user defined packages for a Latex2e template which
+%% corresponds to the regulations regarding layout of a thesis submitted within
+%% the University of Edinburgh School of Engineering. It is not `official',
+%% but conforms as best as possible to the regulation as detailed at:
+%%
+%% http://www.ed.ac.uk/schools-departments/science-engineering/current-students/
+%% research/submitting-thesis
+%%
+%% Please feel free to alter the template to your own liking, but note that
+%% the template is made available under the GNU GPL and must be similarly
+%% licensed should you wish to release your modified template.
+%%
+%%
+%%   CREDITS
+%%
+%% This template is an amalgamation of an existing Edinburgh University,
+%% Electrical Engineering PhD Thesis class file (jthesis-v1.cls) authored by
+%% George S Taylor which was released under the GNU GPL.
+%% Code is included from the dmathesis class Written by M. Imran
+%% for a thesis according to the university of Durham regulation, which was
+%% released without copyright. It also contains ideas (possibly code) from the
+%% Princeton thesis class file (PrincetonThesis.cls), authored by Mike Nolta.
+%% Mathew Topper, Eoghan Maguire and Bill Edwards foresaw the need to maintain a
+%% more recent latex implementation of the thesis regulations and thus, this
+%% project was born. It is hoped that the template will be maintained by the
+%% Edinburgh Engineering PhD community once released.
+%%
+%%
+%%   RECORD OF REVISIONS
+%%
+%%     Date      Programmer         Description of change
+%%     ====      ==========         =====================
+%%   13/10/11    Mathew Topper      Added \PassOptionsToPackage example.
+%%
+%%   03/05/13                       Made xcolor package preloaded.
+%%
+
+%%%% PACKAGES AUTOMATTICALLY PROVIDED BY CLASS 
+%%%%  (No need to reload.  Options can be provided to these packages using the
+%%%%   \PassOptionsToPackage command as per example at end.)
+
+%% ifthen     -   Provides simple boolean commands
+
+%% ifpdf      -   Detects whether pdflatex is being used.
+
+%% graphicx   -   Allows inclusion of graphics in eps or jpg/pdf format
+
+%% geometry   -   A more modern way of setting the page margins.
+%%                'report' class options are passed automatically.
+
+%% setspace   -   Define line spacing
+
+%% appendix   -   Required for appendices
+
+%% natbib     -   Natbib style bibliography with default options
+
+%% bibentry   -   Allow in text references and hiding of bibliograhy.
+
+%% ae         -   Nicer pdf output using T1 fonts
+
+%% fontenc    -   T1 encoding stops some errors for unknown fonts
+
+%% titlesec   -   Custom chapter titles and page headers
+
+%% caption    -   Custom formatting of captions
+
+%% subfig     -   Use subfigures in captions and formatting of such.
+
+%% tocloft    -   Allow modifications to the table of contents and lists
+
+%% mathptmx   -   Option 'msfonts' to use these alternative font packages.
+%% helvet         Note: you could add your own font packages in this file.
+
+%% showlabels -   Print labels on the page if 'labels' option is given.
+
+%% hyperef    -   Put clickable links into the document
+
+%% hypcap     -   Links to figures show the figures rather than just the
+%%                caption.
+
+%% nomencl    -   Loaded with option 'nomencl' this provides a ``fly-by-wire''
+%%                nomenclature indexing system. See front/nomencl.tex for
+%%                an example.
+
+%% xcolor     -   Loaded with option 'dvipsnames' with provides colors for pdf
+%%                output. The options auto adjust for pdflatex and hyperref.
+%%                See http://en.wikibooks.org/wiki/LaTeX/Colors for colours.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%          Put ADDITIONAL packages you want to use here           %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Typset URLs properly. This package does automatic breaking of long URLs.
+%% If you're using hyperref you dont need this but you might need the
+%% 'breakurl' package depending on your compilation route.
+%% Note: 'breakurl' must be the last package (which is normally 'hyperref').
+\usepackage{url} 
+
+%% AMS Math Packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+%% Fancy chemical symbols (Might require installation)
+% \usepackage[version=3]{mhchem}
+
+%% Better fractions ie 1/2 with diagonal slash
+\usepackage{nicefrac}
+
+%% Nicer tables
+\usepackage{booktabs}
+
+%% Proper hythenation
+\usepackage[british,english]{babel}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%             Pass OPTIONS to packages you want here              %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Pass natbib the option 'numbers'
+% \PassOptionsToPackage{numbers}{natbib}
+
+%% CUSTOM
+
+\usepackage{enumitem}
+\usepackage{pdfpages}
+\usepackage{epstopdf}
+\usepackage{multirow}
+\usepackage{lscape}
+\usepackage{etoolbox}
+%\usepackage{glossaries}
+%\makeglossaries
+%\usepackage{makeidx}
+%\makeindex
