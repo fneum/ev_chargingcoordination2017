@@ -1,3 +1,4 @@
+
 # Optimal Scheduling of Electric Vehicle Charging in Distribution Networks
 
 ## Project Abstract
@@ -8,13 +9,31 @@ In this work, a robust cost-minimising unidirectional day-ahead scheduling routi
 The results provide an insight into the impact of uncertainty and the effectiveness of addressing particular aspects of risk during optimisation. Particularly, consideration of temporally variable household-level demand peaks and planning with more conservative estimates of initial battery charge levels increased the reliability and technical feasibility of optimised schedules. It is further outlined that the introduction of dynamic grid levies, which amplify the effect of variable electricity prices, constitutes a key determinant of cost saving potential by demand side management that could incur only minor fiscal implications.
 
 ## Installation
-Run `setup.py` to install all required packages. Alternatively `requirements.txt` provides a list of required packages.
+
+### ... using an executable file
+
+Run `setup.py` to install all required packages. The file is executeable.
+
+### ... using conda main environment
+
+Install the requirements with `conda`.
+
+    $ conda install --file requirements.txt
+
+### ... using a conda environment
+
+Create a new conda environment with the required packages, by running the following command in a terminal (Linux or macOS) or a command-line window (Windows), making sure you run this command inside the directory containing the ``requirements.yml`` file:
+
+```bash
+conda env create -f requirements.yml
+```
+
 
 ## Running
 To run, first, specify parameters in `parameters/evalParams.ini`, then run `/src/SimulationFramework.py`.
 
 ## Report
-Dissertation and analyses are complementet in `/docs/`
+Dissertation and analyses are complemented in `/docs/`
 
 ## Results
 Results are stored in `/log/` in a folder denoted by a unique date singleton. Results used for this thesis are available on request due to large file sizes.
