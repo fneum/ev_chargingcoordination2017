@@ -15,4 +15,3 @@ all = cell2mat(data30);
 individual = reshape(all,[48,size(all,1)/48]);
 
 all_spread = (all-mean(all)).*5+mean(all)
-

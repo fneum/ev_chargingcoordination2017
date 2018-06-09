@@ -291,6 +291,7 @@ def runLinearProgram(type):
         vars = [x[i, j] for i in range(num_households) for j in range(num_slots)]
 
         if cfg.getboolean("LP", "regulation_service"):
+            print("WARNING: regulation service not implemented yet!")
             y = m.addVars(num_households, num_slots, vtype=GRB.BINARY)
             m.update()
             revenue = (-1) * charging_efficiency * chargingrate_max * reg_price * y.sum()
@@ -334,7 +335,7 @@ def runLinearProgram(type):
                         var = [x[k, t] for k in range(num_households)]
                         m.addConstr(s_init[i][p][t] + LinExpr(stv, var) <= line_max * line_rating)
 
-        # m.write("../log/"+ uuid + "/linearprogram"+type+".lp")
+        # optimize model
         m.optimize()
         print('Obj: %g' % m.objVal)
 
@@ -476,7 +477,7 @@ def runNetworkGreedy(type, urgency_mode):
 
     elif urgency_mode == "manual":
         # COULDDO only works if all households have EV
-        order_urgency = np.asarray(read_intseries("../parameters/manual_order.txt")) - 1
+        order_urgency = np.asarray(read_intseries("../parameters/orders/manual_order.dat")) - 1
 
     elif urgency_mode == "arrival":
         arrival_slots = np.zeros(num_evs)
@@ -659,6 +660,7 @@ def runNetworkGreedy(type, urgency_mode):
 
 
 # PSO
+# WARNING: not yet implemented completely
 def runOptParticleSwarm():
     '''
 
@@ -722,6 +724,7 @@ def runOptParticleSwarm():
 
 
 # GA
+# WARNING: not yet implemented completely
 def runOptGenetic():
     '''
 
@@ -777,7 +780,7 @@ def runOptGenetic():
 # * Metaheuristics Side Functions
 # *****************************************************************************************************
 
-
+# UNUSED
 def generate(size, pmin, pmax, smin, smax):
     '''
 
@@ -800,7 +803,7 @@ def generate(size, pmin, pmax, smin, smax):
     part.smax = smax
     return part
 
-
+# UNUSED
 def updateParticle(part, best, phi1, phi2):
     '''
 
@@ -825,7 +828,7 @@ def updateParticle(part, best, phi1, phi2):
             part.speed[i] = part.smax
     part[:] = list(map(add, part, part.speed))
 
-
+# UNUSED
 def evaluate(individual):
     '''
 
@@ -842,7 +845,7 @@ def evaluate(individual):
             # COULDDO
     return fitness,  # must be tuple
 
-
+# UNUSED
 def feasible(individual):
     '''
 
@@ -886,7 +889,7 @@ def feasible(individual):
         feasible = False
     return feasible
 
-
+# UNUSED
 def distance(individual):
     '''
 

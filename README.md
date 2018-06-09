@@ -30,7 +30,7 @@ conda env create -f requirements.yml
 
 
 ## Running
-To run, first, specify parameters in `parameters/evalParams.ini`, then run `/src/SimulationFramework.py`.
+To run, first, specify parameters in `parameters/evalParams.ini`, then run `/src/run.py`.
 
 ## Report
 Dissertation and analyses are complemented in `/docs/`
